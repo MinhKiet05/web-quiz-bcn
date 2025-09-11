@@ -70,7 +70,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const isAdmin = () => {
-    return hasRole('admin');
+    return hasRole('admin') || hasRole('super admin');
   };
 
   const value = {

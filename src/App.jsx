@@ -5,6 +5,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import Upload from './pages/Upload'
 import QuizzList from './pages/QuizzList'
+import UserManagement from './pages/UserManagement'
 
 // Import các page khác khi tạo
 // import Dashboard from './pages/Dashboard'
@@ -88,6 +89,11 @@ function AppContent() {
           <Route path="/quizzes" element={
             <ProtectedRoute requireEditor={true}>
               <QuizzList />
+            </ProtectedRoute>
+          } />
+          <Route path="/user-management" element={
+            <ProtectedRoute requireAdmin={true}>
+              <UserManagement />
             </ProtectedRoute>
           } />
           <Route path="/dashboard" element={

@@ -291,10 +291,26 @@
   flex-shrink: 0;
 }
 
-.admin-badge, .editor-badge {
+.admin-badge, .editor-badge, .super-admin-badge {
   color: #FFD700;
   font-size: 12px;
   flex-shrink: 0;
+}
+
+.super-admin-badge {
+  color: #FF6B6B;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.1);
+  }
 }
 
 .logout-btn {

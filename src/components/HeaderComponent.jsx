@@ -9,10 +9,11 @@ import Login from './Login/Login';
 
 const navLinks = [
   { name: 'Trang chủ', path: '/' },
-  { name: 'Bảng điều khiển', path: '/dashboard' },
-  { name: 'Các quizz tôi tham gia', path: '/my-quizzes' },
-  { name: 'Các quizz', path: '/quizzes' },
-  { name: '📤 Upload', path: '/upload' },
+  { name: 'Lịch quiz', path: '/dashboard' },
+  { name: 'Quiz đã làm', path: '/my-quizzes' },
+  { name: 'Các quiz', path: '/quizzes' },
+  { name: '📤Upload', path: '/upload' },
+  { name: '👥Users', path: '/user-management', adminOnly: true },
 ];
 
 const Header = () => {
@@ -33,10 +34,15 @@ const Header = () => {
     let filteredLinks = navLinks;
     
     // Only show upload and quizzes links for admin and editor users
-    if (!user || (!user.roles?.includes('admin') && !user.roles?.includes('editor'))) {
+    if (!user || (!user.roles?.includes('admin') && !user.roles?.includes('editor') && !user.roles?.includes('super admin'))) {
       filteredLinks = filteredLinks.filter(link => 
         link.path !== '/upload' && link.path !== '/quizzes'
       );
+    }
+    
+    // Only show admin-only links for admin users
+    if (!user || (!user.roles?.includes('admin') && !user.roles?.includes('super admin'))) {
+      filteredLinks = filteredLinks.filter(link => !link.adminOnly);
     }
     
     return filteredLinks;
@@ -86,9 +92,10 @@ const Header = () => {
                 <div className="user-details">
                   <span className="user-name">{user.name}</span>
                   <span className="user-role">
-                    {user.roles?.includes('admin') && <><FontAwesomeIcon icon={faCrown} /> Admin</>}
-                    {user.roles?.includes('editor') && !user.roles?.includes('admin') && '✏️ Editor'}
-                    {!user.roles?.includes('admin') && !user.roles?.includes('editor') && '🎓 User'}
+                    {user.roles?.includes('super admin') && <><FontAwesomeIcon icon={faCrown} /> Super Admin</>}
+                    {user.roles?.includes('admin') && !user.roles?.includes('super admin') && <><FontAwesomeIcon icon={faCrown} /> Admin</>}
+                    {user.roles?.includes('editor') && !user.roles?.includes('admin') && !user.roles?.includes('super admin') && '✏️ Editor'}
+                    {!user.roles?.includes('admin') && !user.roles?.includes('editor') && !user.roles?.includes('super admin') && '🎓 User'}
                   </span>
                 </div>
               </div>
@@ -113,7 +120,7 @@ const Header = () => {
 
       {/* Header cố định */}
       <header className={`header-container ${
-        user && (user.roles?.includes('admin') || user.roles?.includes('editor')) 
+        user && (user.roles?.includes('admin') || user.roles?.includes('editor') || user.roles?.includes('super admin')) 
           ? 'admin-header' 
           : 'user-header'
       }`}>
@@ -126,7 +133,7 @@ const Header = () => {
         <nav className="header-nav">
           {getFilteredNavLinks().map(link => {
             // Xác định layout class dựa trên user role
-            const isAdminOrEditor = user && (user.roles?.includes('admin') || user.roles?.includes('editor'));
+            const isAdminOrEditor = user && (user.roles?.includes('admin') || user.roles?.includes('editor') || user.roles?.includes('super admin'));
             const layoutClass = isAdminOrEditor ? 'admin-layout' : 'user-layout';
             
             return (
@@ -150,8 +157,9 @@ const Header = () => {
               <div className="user-info">
                 <FontAwesomeIcon icon={faCircleUser} className="user-icon" />
                 <span className="user-name">{user.name}</span>
-                {user.roles?.includes('admin') && <FontAwesomeIcon icon={faCrown} className="admin-badge" />}
-                {user.roles?.includes('editor') && !user.roles?.includes('admin') && <span className="editor-badge">✏️</span>}
+                {user.roles?.includes('super admin') && <FontAwesomeIcon icon={faCrown} className="super-admin-badge" />}
+                {user.roles?.includes('admin') && !user.roles?.includes('super admin') && <FontAwesomeIcon icon={faCrown} className="admin-badge" />}
+                {user.roles?.includes('editor') && !user.roles?.includes('admin') && !user.roles?.includes('super admin') && <span className="editor-badge">✏️</span>}
               </div>
               <button className="logout-btn" onClick={handleLogout}>
                 <FontAwesomeIcon icon={faSignOutAlt} />
