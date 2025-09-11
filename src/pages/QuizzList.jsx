@@ -83,13 +83,12 @@ const QuizzList = () => {
               </div>
               
               <div className="quiz-info">
-                <p><strong>Document ID:</strong> {quiz.id}</p>
+                <p><strong>Tuần :</strong> {quiz.id}</p>
                 <p><strong>Số câu hỏi:</strong> {questions.length}</p>
                 {quiz.soDapAn && Array.isArray(quiz.soDapAn) && <p><strong>Số đáp án:</strong> {quiz.soDapAn.length}</p>}
                 {quiz.soDapAn && typeof quiz.soDapAn === 'number' && <p><strong>Số đáp án:</strong> {quiz.soDapAn}</p>}
                 {quiz['Đáp án đúng'] && <p><strong>Đáp án đúng:</strong> <span className="correct-answer">{quiz['Đáp án đúng']}</span></p>}
                 {quiz.dapAnDung && <p><strong>Đáp án đúng:</strong> <span className="correct-answer">{quiz.dapAnDung}</span></p>}
-                <p><strong>Cấu trúc:</strong> {Object.keys(quiz).filter(key => key !== 'id').join(', ')}</p>
               </div>
 
               <div className="quiz-actions">

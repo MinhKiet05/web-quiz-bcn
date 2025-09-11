@@ -1,4 +1,4 @@
-import { doc, getDoc, collection, query, where, getDocs, addDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, getDocs, setDoc } from 'firebase/firestore';
 import { db } from '../config/firebase.js';
 
 const USERS_COLLECTION = 'users';
@@ -11,30 +11,17 @@ const generateToken = () => {
 };
 
 /**
- * Đăng nhập người dùng bằng username/password, tạo và lưu token
- * @param {string} username - Tên đăng nhập hoặc ID
+ * Đăng nhập người dùng bằng MSSV/password, tạo và lưu token
+ * @param {string} username - MSSV
  * @param {string} password - Mật khẩu
  * @returns {Promise<Object|null>} - Thông tin người dùng hoặc null
  */
 export const loginUser = async (username, password) => {
   try {
-    console.log('Attempting login for:', username);
+    console.log('Attempting login for MSSV:', username);
     
-    // Thử đăng nhập bằng document ID trước
-    let userDoc = await getDoc(doc(db, USERS_COLLECTION, username));
-    
-    // Nếu không tìm thấy bằng ID, thử tìm bằng username field
-    if (!userDoc.exists()) {
-      const q = query(
-        collection(db, USERS_COLLECTION), 
-        where('username', '==', username)
-      );
-      const querySnapshot = await getDocs(q);
-      
-      if (!querySnapshot.empty) {
-        userDoc = querySnapshot.docs[0];
-      }
-    }
+    // Thử đăng nhập bằng document ID (MSSV)
+    const userDoc = await getDoc(doc(db, USERS_COLLECTION, username));
     
     if (!userDoc.exists()) {
       console.log('User not found:', username);
@@ -52,8 +39,8 @@ export const loginUser = async (username, password) => {
     // Tạo token mới
     const newToken = generateToken();
     
-    // Cập nhật token vào Firestore
-    await setDoc(doc(db, USERS_COLLECTION, userDoc.id), {
+    // Cập nhật token và lastLogin vào Firestore
+    await setDoc(doc(db, USERS_COLLECTION, username), {
       ...userData,
       token: newToken,
       lastLogin: new Date().toISOString()
@@ -61,12 +48,11 @@ export const loginUser = async (username, password) => {
     
     console.log('Login successful for:', username, 'Token:', newToken);
     return {
-      uid: userDoc.id,
+      uid: username,
       name: userData.name,
-      username: userData.username || userDoc.id,
+      username: username,
       roles: userData.roles || [], 
-      token: newToken,
-      ...userData
+      token: newToken
     };
   } catch (error) {
     console.error('Login error:', error);
@@ -251,41 +237,36 @@ export const logout = () => {
  */
 export const registerUser = async (userData) => {
   try {
-    const { username, password, name, role = 'student' } = userData;
+    const { username, password, name, role = 'user' } = userData;
     
-    console.log('Attempting registration for:', username);
+    console.log('Attempting registration for MSSV:', username);
     
-    // Kiểm tra username đã tồn tại chưa
-    const existingUserQuery = query(
-      collection(db, USERS_COLLECTION), 
-      where('username', '==', username)
-    );
-    const existingUserSnapshot = await getDocs(existingUserQuery);
-    
-    if (!existingUserSnapshot.empty) {
+    // Kiểm tra MSSV đã tồn tại chưa (document ID)
+    const userDoc = await getDoc(doc(db, USERS_COLLECTION, username));
+    if (userDoc.exists()) {
       throw new Error('MSSV đã được đăng ký');
     }
     
-    // Tạo user mới với ID tự động
+    // Tạo user data với cấu trúc mới
     const newUserData = {
-      username: username,
-      matKhau: password, // Sử dụng trường matKhau như trong database hiện tại
       name: name,
-      role: role, // Sử dụng role đơn thay vì roles array
+      matKhau: password,
+      roles: [role], // Sử dụng array roles
+      lastLogin: null, // Chưa đăng nhập lần nào
+      token: null, // Chưa có token
       createdAt: new Date().toISOString()
     };
     
-    // Tạo document mới với ID tự động
-    const docRef = await addDoc(collection(db, USERS_COLLECTION), newUserData);
+    // Tạo document với ID là MSSV
+    await setDoc(doc(db, USERS_COLLECTION, username), newUserData);
     
-    // Lấy lại document vừa tạo để trả về
-    const newUserDoc = await getDoc(docRef);
     const newUser = {
-      id: newUserDoc.id,
-      ...newUserDoc.data()
+      uid: username,
+      username: username,
+      ...newUserData
     };
     
-    console.log('User registered successfully:', newUser.id);
+    console.log('User registered successfully with MSSV:', username);
     return newUser;
     
   } catch (error) {
@@ -295,18 +276,15 @@ export const registerUser = async (userData) => {
 };
 
 /**
- * Kiểm tra username có tồn tại không
- * @param {string} username - Tên đăng nhập cần kiểm tra
+ * Kiểm tra MSSV có tồn tại không
+ * @param {string} username - MSSV cần kiểm tra
  * @returns {Promise<boolean>} - true nếu đã tồn tại, false nếu chưa
  */
 export const checkUsernameExists = async (username) => {
   try {
-    const q = query(
-      collection(db, USERS_COLLECTION), 
-      where('username', '==', username)
-    );
-    const querySnapshot = await getDocs(q);
-    return !querySnapshot.empty;
+    // Kiểm tra trực tiếp bằng document ID
+    const userDoc = await getDoc(doc(db, USERS_COLLECTION, username));
+    return userDoc.exists();
   } catch (error) {
     console.error('Error checking username:', error);
     return false;
@@ -314,37 +292,45 @@ export const checkUsernameExists = async (username) => {
 };
 
 /**
- * Tạo user với ID cụ thể (dành cho admin)
- * @param {string} userId - ID của document
+ * Tạo user với MSSV cụ thể (dành cho admin)
+ * @param {string} userId - MSSV
  * @param {Object} userData - Thông tin người dùng
+ * @param {string} userData.name - Tên hiển thị
+ * @param {string} userData.matKhau - Mật khẩu
+ * @param {string[]} userData.roles - Danh sách vai trò
  * @returns {Promise<Object>} - Thông tin người dùng đã tạo
  */
 export const createUserWithId = async (userId, userData) => {
   try {
-    console.log('Creating user with specific ID:', userId);
+    console.log('Creating user with MSSV:', userId);
     
-    // Kiểm tra user đã tồn tại chưa
+    // Kiểm tra MSSV đã tồn tại chưa
     const userDoc = await getDoc(doc(db, USERS_COLLECTION, userId));
     if (userDoc.exists()) {
-      throw new Error('User ID đã tồn tại');
+      throw new Error('MSSV đã tồn tại');
     }
     
-    // Tạo user data với timestamp
+    // Tạo user data với cấu trúc chuẩn
     const newUserData = {
-      ...userData,
+      name: userData.name,
+      matKhau: userData.matKhau,
+      roles: userData.roles || ['user'],
+      lastLogin: null,
+      token: null,
       createdAt: new Date().toISOString()
     };
     
-    // Tạo document với ID cụ thể
+    // Tạo document với MSSV làm ID
     await setDoc(doc(db, USERS_COLLECTION, userId), newUserData);
     
     // Trả về user data với ID
     const result = {
-      id: userId,
+      uid: userId,
+      username: userId,
       ...newUserData
     };
     
-    console.log('User created successfully:', result);
+    console.log('User created successfully with MSSV:', userId);
     return result;
     
   } catch (error) {

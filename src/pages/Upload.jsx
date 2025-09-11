@@ -11,6 +11,8 @@ const Upload = () => {
   const [giaiThich, setGiaiThich] = useState('');
   const [link, setLink] = useState('');
   const [soDapAn, setSoDapAn] = useState(['A', 'B', 'C', 'D']);
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
   
   // UI state
   const [loading, setLoading] = useState(false);
@@ -70,6 +72,8 @@ const Upload = () => {
     setGiaiThich('');
     setLink('');
     setSoDapAn(['A', 'B', 'C', 'D']);
+    setStartTime('');
+    setEndTime('');
     setIsEditMode(false);
   };
 
@@ -96,6 +100,18 @@ const Upload = () => {
       setMessage('❌ Tất cả lựa chọn đáp án phải được điền');
       return false;
     }
+    if (!startTime) {
+      setMessage('❌ Vui lòng chọn thời gian bắt đầu');
+      return false;
+    }
+    if (!endTime) {
+      setMessage('❌ Vui lòng chọn thời gian kết thúc');
+      return false;
+    }
+    if (new Date(startTime) >= new Date(endTime)) {
+      setMessage('❌ Thời gian bắt đầu phải trước thời gian kết thúc');
+      return false;
+    }
     return true;
   };
 
@@ -114,7 +130,9 @@ const Upload = () => {
         dapAnDung,
         giaiThich,
         link,
-        soDapAn: soDapAn.filter(answer => answer.trim()) // Loại bỏ câu trả lời trống
+        soDapAn: soDapAn.filter(answer => answer.trim()), // Loại bỏ câu trả lời trống
+        startTime: new Date(startTime),
+        endTime: new Date(endTime)
       };
 
       if (isEditMode) {
@@ -124,6 +142,8 @@ const Upload = () => {
         await addQuizToWeek(weekToUse, quizId, quizData);
         setMessage('✅ Thêm quiz thành công!');
       }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
 
       // Refresh weeks list if new week was created
       if (selectedWeek === 'new') {
@@ -187,6 +207,29 @@ const Upload = () => {
                 />
               </div>
             )}
+
+            {/* Thời gian Quiz */}
+            <div className="form-group">
+              <label htmlFor="startTime">Thời gian bắt đầu:</label>
+              <input
+                type="datetime-local"
+                id="startTime"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="endTime">Thời gian kết thúc:</label>
+              <input
+                type="datetime-local"
+                id="endTime"
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
+                required
+              />
+            </div>
           </div>
 
           {/* Quiz Information */}

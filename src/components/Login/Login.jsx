@@ -49,10 +49,22 @@ const Login = ({ onClose }) => {
 
   const handleRegisterInputChange = (e) => {
     const { name, value } = e.target;
-    setRegisterData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    
+    // Validation thời gian thực cho MSSV
+    if (name === 'mssv') {
+      // Chỉ cho phép nhập số và giới hạn 8 ký tự
+      const numericValue = value.replace(/\D/g, '').slice(0, 8);
+      setRegisterData(prev => ({
+        ...prev,
+        [name]: numericValue
+      }));
+    } else {
+      setRegisterData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
+    
     setError('');
     setSuccess('');
   };
@@ -101,9 +113,9 @@ const Login = ({ onClose }) => {
       return;
     }
     
-    // Validate MSSV format (example: only numbers)
-    if (!/^\d+$/.test(mssv.trim())) {
-      setError('MSSV chỉ được chứa số');
+    // Validate MSSV format - phải là đúng 8 số
+    if (!/^\d{8}$/.test(mssv.trim())) {
+      setError('MSSV phải là đúng 8 số');
       return;
     }
     
@@ -114,11 +126,6 @@ const Login = ({ onClose }) => {
     
     if (password.length < 6) {
       setError('Mật khẩu phải có ít nhất 6 ký tự');
-      return;
-    }
-    
-    if (mssv.length < 3) {
-      setError('MSSV phải có ít nhất 3 ký tự');
       return;
     }
 
@@ -139,7 +146,7 @@ const Login = ({ onClose }) => {
         username: mssv.trim(),
         password: password,
         name: name.trim(),
-        role: 'student' // Mặc định role student, admin sẽ cấp quyền sau
+        role: 'user' // Mặc định role user, admin có thể cấp quyền sau
       });
       
       if (userData) {
@@ -231,9 +238,10 @@ const Login = ({ onClose }) => {
                 name="username"
                 value={loginData.username}
                 onChange={handleLoginInputChange}
-                placeholder="Nhập mã số sinh viên"
+                placeholder="Nhập mã số sinh viên (8 số)"
                 required
                 disabled={loading}
+                inputMode="numeric"
               />
             </div>
 
@@ -286,11 +294,13 @@ const Login = ({ onClose }) => {
                 name="mssv"
                 value={registerData.mssv}
                 onChange={handleRegisterInputChange}
-                placeholder="Nhập mã số sinh viên (chỉ số)"
+                placeholder="Nhập đúng 8 số (VD: 25000001)"
                 required
                 disabled={loading}
-                pattern="[0-9]*"
-                title="MSSV chỉ được chứa số"
+                pattern="[0-9]{8}"
+                title="MSSV phải là đúng 8 số"
+                maxLength="8"
+                inputMode="numeric"
               />
             </div>
 
