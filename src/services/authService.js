@@ -4,7 +4,14 @@ import { db } from '../config/firebase.js';
 const USERS_COLLECTION = 'users';
 
 /**
- * Đăng nhập người dùng
+ * Tạo token ngẫu nhiên
+ */
+const generateToken = () => {
+  return Math.random().toString(36).substring(2) + Date.now().toString(36);
+};
+
+/**
+ * Đăng nhập người dùng bằng username/password, tạo và lưu token
  * @param {string} username - Tên đăng nhập hoặc ID
  * @param {string} password - Mật khẩu
  * @returns {Promise<Object|null>} - Thông tin người dùng hoặc null
@@ -42,17 +49,78 @@ export const loginUser = async (username, password) => {
       return null;
     }
     
-    console.log('Login successful for:', username);
+    // Tạo token mới
+    const newToken = generateToken();
+    
+    // Cập nhật token vào Firestore
+    await setDoc(doc(db, USERS_COLLECTION, userDoc.id), {
+      ...userData,
+      token: newToken,
+      lastLogin: new Date().toISOString()
+    });
+    
+    console.log('Login successful for:', username, 'Token:', newToken);
     return {
       uid: userDoc.id,
       name: userData.name,
       username: userData.username || userDoc.id,
-      role: userData.role || 'student', // Sử dụng role đơn thay vì roles array
+      roles: userData.roles || [], 
+      token: newToken,
       ...userData
     };
   } catch (error) {
     console.error('Login error:', error);
     throw error;
+  }
+};
+
+/**
+ * Xác thực token để duy trì phiên đăng nhập
+ * @param {string} token - Token cần xác thực
+ * @returns {Promise<Object|null>} - Thông tin người dùng hoặc null
+ */
+export const verifyToken = async (token) => {
+  try {
+    if (!token) {
+      console.log('No token provided for verification');
+      return null;
+    }
+    
+    console.log('Verifying token...');
+    
+    // Tìm user có token này
+    const q = query(
+      collection(db, USERS_COLLECTION), 
+      where('token', '==', token)
+    );
+    const querySnapshot = await getDocs(q);
+    
+    if (querySnapshot.empty) {
+      console.log('Invalid token - no matching user found');
+      return null;
+    }
+    
+    const userDoc = querySnapshot.docs[0];
+    const userData = userDoc.data();
+    
+    console.log('Token verified successfully for user:', userData.username || userDoc.id);
+    
+    // Cập nhật lastActivity
+    await setDoc(doc(db, USERS_COLLECTION, userDoc.id), {
+      ...userData,
+      lastActivity: new Date().toISOString()
+    });
+    
+    return {
+      uid: userDoc.id,
+      name: userData.name,
+      username: userData.username || userDoc.id,
+      roles: userData.roles || [],
+      token: userData.token
+    };
+  } catch (error) {
+    console.error('Token verification error:', error);
+    return null;
   }
 };
 
@@ -104,8 +172,13 @@ export const isAdmin = (user) => {
  * @param {Object} user - Thông tin người dùng
  */
 export const saveUserToStorage = (user) => {
-  localStorage.setItem('currentUser', JSON.stringify(user));
-  localStorage.setItem('loginTime', new Date().getTime().toString());
+  try {
+    localStorage.setItem('currentUser', JSON.stringify(user));
+    localStorage.setItem('loginTime', new Date().getTime().toString());
+    console.log('User saved to storage:', user.username || user.uid);
+  } catch (error) {
+    console.error('Error saving user to storage:', error);
+  }
 };
 
 /**
@@ -117,32 +190,54 @@ export const getUserFromStorage = () => {
     const userData = localStorage.getItem('currentUser');
     const loginTime = localStorage.getItem('loginTime');
     
-    if (!userData || !loginTime) return null;
-    
-    // Kiểm tra thời gian đăng nhập (24 giờ)
-    const now = new Date().getTime();
-    const loginTimestamp = parseInt(loginTime);
-    const twentyFourHours = 24 * 60 * 60 * 1000;
-    
-    if (now - loginTimestamp > twentyFourHours) {
-      logout();
+    if (!userData || !loginTime) {
+      console.log('No user data in storage');
       return null;
     }
     
-    return JSON.parse(userData);
+    // Kiểm tra thời gian đăng nhập (30 ngày thay vì 7 ngày)
+    const now = new Date().getTime();
+    const loginTimestamp = parseInt(loginTime);
+    const thirtyDays = 30 * 24 * 60 * 60 * 1000;
+    
+    if (now - loginTimestamp > thirtyDays) {
+      console.log('Session expired (30 days), clearing storage');
+      clearUserStorage();
+      return null;
+    }
+    
+    const user = JSON.parse(userData);
+    console.log('Retrieved user from storage:', user.username || user.uid, 'Login time:', new Date(loginTimestamp).toLocaleString());
+    
+    // Cập nhật thời gian truy cập để gia hạn phiên
+    localStorage.setItem('loginTime', new Date().getTime().toString());
+    
+    return user;
   } catch (error) {
     console.error('Error getting user from storage:', error);
+    // Không clear storage ngay, có thể chỉ là lỗi parse
     return null;
   }
 };
 
 /**
- * Đăng xuất người dùng
+ * Xóa thông tin người dùng khỏi localStorage
+ */
+export const clearUserStorage = () => {
+  try {
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('loginTime');
+    console.log('User storage cleared');
+  } catch (error) {
+    console.error('Error clearing storage:', error);
+  }
+};
+
+/**
+ * Đăng xuất người dùng (không redirect tự động)
  */
 export const logout = () => {
-  localStorage.removeItem('currentUser');
-  localStorage.removeItem('loginTime');
-  window.location.href = '/';
+  clearUserStorage();
 };
 
 /**

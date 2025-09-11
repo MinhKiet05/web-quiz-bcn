@@ -20,13 +20,15 @@ export const ImageDisplay = ({
   const currentUrl = alternativeUrls[currentUrlIndex] || '';
 
   const handleError = (e) => {
-    console.error('Image failed to load:', currentUrl, 'Error:', e);
+    console.error('Image failed to load:', currentUrl, 'Error:', e.type || 'Unknown error');
     
     // Thử URL tiếp theo trong danh sách
     if (currentUrlIndex < alternativeUrls.length - 1) {
-      console.log('Trying next alternative URL:', alternativeUrls[currentUrlIndex + 1]);
+      const nextUrl = alternativeUrls[currentUrlIndex + 1];
+      console.log(`Trying next alternative URL (${currentUrlIndex + 2}/${alternativeUrls.length}):`, nextUrl);
       setCurrentUrlIndex(currentUrlIndex + 1);
       setIsLoading(true);
+      setHasError(false);
       return;
     }
     
@@ -36,10 +38,12 @@ export const ImageDisplay = ({
       alternativeUrls.push(fallbackSrc);
       setCurrentUrlIndex(alternativeUrls.length - 1);
       setIsLoading(true);
+      setHasError(false);
       return;
     }
     
     // Tất cả URL đều thất bại
+    console.error('All alternative URLs failed for:', url);
     setHasError(true);
     setIsLoading(false);
   };
@@ -95,26 +99,57 @@ export const ImageDisplay = ({
         className={`image-placeholder ${className}`} 
         style={{
           display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
           backgroundColor: '#ffebee',
           color: '#c62828',
           border: '2px dashed #ffcdd2',
           minHeight: '100px',
-          padding: '10px',
+          padding: '15px',
           textAlign: 'center',
           borderRadius: '8px',
           ...style
         }}
       >
         <div>
-          <div>🖼️ Không thể tải ảnh</div>
-          <small style={{ fontSize: '0.75em', marginTop: '5px', display: 'block', opacity: 0.7 }}>
+          <div style={{ fontSize: '24px', marginBottom: '8px' }}>🖼️</div>
+          <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>Không thể tải ảnh</div>
+          <small style={{ fontSize: '0.75em', marginBottom: '8px', display: 'block', opacity: 0.7 }}>
             Đã thử {alternativeUrls.length} URL khác nhau
           </small>
-          <small style={{ fontSize: '0.7em', marginTop: '2px', display: 'block', opacity: 0.5, wordBreak: 'break-all' }}>
-            {url}
-          </small>
+          <button 
+            onClick={() => {
+              setCurrentUrlIndex(0);
+              setHasError(false);
+              setIsLoading(true);
+            }}
+            style={{
+              padding: '6px 12px',
+              backgroundColor: '#1976d2',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '0.75em',
+              marginBottom: '8px'
+            }}
+          >
+            🔄 Thử lại
+          </button>
+          <details style={{ marginTop: '5px' }}>
+            <summary style={{ cursor: 'pointer', fontSize: '0.7em', opacity: 0.6 }}>
+              Chi tiết lỗi
+            </summary>
+            <div style={{ fontSize: '0.6em', marginTop: '5px', opacity: 0.5, wordBreak: 'break-all', maxWidth: '200px' }}>
+              <strong>URL gốc:</strong><br/>
+              {url}<br/><br/>
+              <strong>URLs đã thử:</strong><br/>
+              {alternativeUrls.map((u, i) => (
+                <div key={i}>{i + 1}. {u}</div>
+              ))}
+            </div>
+          </details>
         </div>
       </div>
     );

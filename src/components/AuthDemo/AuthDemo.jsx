@@ -36,11 +36,11 @@ const AuthDemo = () => {
             <h4>Logged in as:</h4>
             <p><strong>Name:</strong> {user.name}</p>
             <p><strong>Username:</strong> {user.username}</p>
-            <p><strong>Role:</strong> {user.role}</p>
+            <p><strong>Roles:</strong> {user.roles?.join(', ') || 'None'}</p>
             <p><strong>ID:</strong> {user.uid}</p>
           </div>
           
-          {user.role === 'admin' && (
+          {user.roles?.includes('admin') && (
             <div className="admin-tools">
               <h4>Admin Tools</h4>
               <button 

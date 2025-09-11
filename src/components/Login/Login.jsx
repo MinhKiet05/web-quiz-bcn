@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { loginUser, registerUser, checkUsernameExists } from '../../services/authService';
 import { useAuth } from '../../contexts/AuthContext';
 import './Login.css';
@@ -20,6 +20,22 @@ const Login = ({ onClose }) => {
   const [success, setSuccess] = useState('');
   
   const { login } = useAuth();
+
+  // Clear form khi component mount
+  useEffect(() => {
+    setLoginData({
+      username: '',
+      password: ''
+    });
+    setRegisterData({
+      mssv: '',
+      password: '',
+      confirmPassword: '',
+      name: ''
+    });
+    setError('');
+    setSuccess('');
+  }, []);
 
   const handleLoginInputChange = (e) => {
     const { name, value } = e.target;
@@ -57,6 +73,11 @@ const Login = ({ onClose }) => {
       
       if (userData) {
         login(userData);
+        // Clear form sau khi đăng nhập thành công
+        setLoginData({
+          username: '',
+          password: ''
+        });
         if (onClose) onClose();
       } else {
         setError('Tên đăng nhập hoặc mật khẩu không đúng');
@@ -162,6 +183,9 @@ const Login = ({ onClose }) => {
               setActiveTab('login');
               setError('');
               setSuccess('');
+              // Clear forms khi chuyển tab
+              setLoginData({ username: '', password: '' });
+              setRegisterData({ mssv: '', password: '', confirmPassword: '', name: '' });
             }}
             disabled={loading}
           >
@@ -173,6 +197,9 @@ const Login = ({ onClose }) => {
               setActiveTab('register');
               setError('');
               setSuccess('');
+              // Clear forms khi chuyển tab
+              setLoginData({ username: '', password: '' });
+              setRegisterData({ mssv: '', password: '', confirmPassword: '', name: '' });
             }}
             disabled={loading}
           >
@@ -304,17 +331,6 @@ const Login = ({ onClose }) => {
               {loading ? '🔄 Đang đăng ký...' : '📝 Đăng ký'}
             </button>
           </form>
-        )}
-
-        {/* Footer - only show for login tab */}
-        {activeTab === 'login' && (
-          <div className="login-footer">
-            <p>
-              💡 <strong>Thông tin mẫu:</strong><br/>
-              Tên đăng nhập: <code>23696901</code><br/>
-              Mật khẩu: <code>kiet051005</code>
-            </p>
-          </div>
         )}
       </div>
     </div>

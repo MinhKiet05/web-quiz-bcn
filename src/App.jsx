@@ -1,6 +1,6 @@
 
 import './App.css'
-import Header from './public/Header.jsx'
+import Header from './components/HeaderComponent'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import AuthDemo from './components/AuthDemo/AuthDemo'
@@ -35,6 +35,34 @@ const ProtectedRoute = ({ children, requireAdmin = false }) => {
 };
 
 function AppContent() {
+  const { loading } = useAuth();
+
+  // Hiển thị loading khi đang khởi tạo authentication
+  if (loading) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh',
+        flexDirection: 'column',
+        background: '#f5f5f5'
+      }}>
+        <div style={{ 
+          padding: '20px',
+          textAlign: 'center',
+          background: 'white',
+          borderRadius: '8px',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+        }}>
+          <div style={{ fontSize: '24px', marginBottom: '10px' }}>🔄</div>
+          <div>Đang khởi tạo ứng dụng...</div>
+          <small style={{ opacity: 0.7 }}>Kiểm tra phiên đăng nhập</small>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <Header />

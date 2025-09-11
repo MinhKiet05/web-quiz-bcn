@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleUser, faBars, faTimes, faSignInAlt, faSignOutAlt, faCrown } from '@fortawesome/free-solid-svg-icons';
-import './Header.css';
+import './Header/Header.css';
 import logo from '../assets/logo.png';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import Login from '../components/Login/Login';
+import Login from './Login/Login';
 
 const navLinks = [
   { name: 'Trang chủ', path: '/' },
@@ -20,7 +20,7 @@ const Header = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const location = useLocation();
-  const { user, logout } = useAuth();
+  const { user, logout, isAdmin } = useAuth();
 
   const handleNavLinkClick = () => setSidebarOpen(false);
 
@@ -33,8 +33,8 @@ const Header = () => {
   const getFilteredNavLinks = () => {
     let filteredLinks = navLinks;
     
-    // Only show upload link for admin and editor users
-    if (!user || (!user.roles?.includes('admin') && !user.roles?.includes('editor'))) {
+    // Only show upload link for admin users
+    if (!isAdmin()) {
       filteredLinks = filteredLinks.filter(link => link.path !== '/upload');
     }
     
@@ -52,9 +52,7 @@ const Header = () => {
       )}
 
       {/* Sidebar mobile */}
-      <div
-        className={`sidebar ${sidebarOpen ? 'open' : ''}`}
-      >
+      <div className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
           <span className="sidebar-title">Menu</span>
           <button
@@ -86,11 +84,11 @@ const Header = () => {
                 <FontAwesomeIcon icon={faCircleUser} className="user-avatar" />
                 <div className="user-details">
                   <span className="user-name">{user.name}</span>
-                  <span className="user-role">
-                    {user.roles?.includes('admin') && <><FontAwesomeIcon icon={faCrown} /> Admin</>}
-                    {user.roles?.includes('editor') && !user.roles?.includes('admin') && '✏️ Editor'}
-                    {!user.roles?.includes('admin') && !user.roles?.includes('editor') && '🎓 Student'}
-                  </span>
+                  {isAdmin() && (
+                    <span className="user-role">
+                      <FontAwesomeIcon icon={faCrown} /> Admin
+                    </span>
+                  )}
                 </div>
               </div>
               <button className="sidebar-logout-btn" onClick={handleLogout}>
@@ -141,8 +139,7 @@ const Header = () => {
               <div className="user-info">
                 <FontAwesomeIcon icon={faCircleUser} className="user-icon" />
                 <span className="user-name">{user.name}</span>
-                {user.roles?.includes('admin') && <FontAwesomeIcon icon={faCrown} className="admin-badge" />}
-                {user.roles?.includes('editor') && !user.roles?.includes('admin') && <span className="editor-badge">✏️</span>}
+                {isAdmin() && <FontAwesomeIcon icon={faCrown} className="admin-badge" />}
               </div>
               <button className="logout-btn" onClick={handleLogout}>
                 <FontAwesomeIcon icon={faSignOutAlt} />

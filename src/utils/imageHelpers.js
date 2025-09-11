@@ -16,10 +16,16 @@ export const convertGoogleDriveUrl = (url) => {
   
   if (match) {
     const fileId = match[1];
-    return `https://drive.google.com/uc?id=${fileId}&export=download`;
+    // Thử multiple formats cho Google Drive
+    return [
+      `https://drive.google.com/uc?export=view&id=${fileId}`,
+      `https://drive.google.com/uc?id=${fileId}&export=download`,
+      `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`,
+      `https://lh3.googleusercontent.com/d/${fileId}=w1000`
+    ];
   }
   
-  return url;
+  return [url];
 };
 
 /**
@@ -32,15 +38,15 @@ export const getAlternativeUrls = (originalUrl) => {
   
   const urls = [originalUrl];
   
-  // Nếu là Google Drive URL, thêm direct download URL
-  const directUrl = convertGoogleDriveUrl(originalUrl);
-  if (directUrl !== originalUrl) {
-    urls.push(directUrl);
+  // Nếu là Google Drive URL, thêm các format khác nhau
+  if (isGoogleDriveUrl(originalUrl)) {
+    const driveUrls = convertGoogleDriveUrl(originalUrl);
+    if (Array.isArray(driveUrls)) {
+      urls.push(...driveUrls.filter(url => url !== originalUrl));
+    }
   }
   
-  // Có thể thêm các URL backup khác ở đây nếu cần
-  
-  return urls;
+  return [...new Set(urls)]; // Remove duplicates
 };
 
 /**
