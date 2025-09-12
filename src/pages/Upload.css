@@ -74,7 +74,7 @@
 .form-group label {
   display: block;
   margin-bottom: 6px;
-  color: #495057;
+  color: #495057!important;
   font-weight: 500;
   font-size: 0.95rem;
 }

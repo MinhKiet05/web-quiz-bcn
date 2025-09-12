@@ -1,6 +1,6 @@
 
 import './App.css'
-import Header from './components/HeaderComponent'
+import Header from './public/Header'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import Upload from './pages/Upload'
