@@ -7,13 +7,6 @@ import Upload from './pages/Upload'
 import QuizzList from './pages/QuizzList'
 import UserManagement from './pages/UserManagement'
 
-// Import các page khác khi tạo
-// import Dashboard from './pages/Dashboard'
-// import MyQuizzes from './pages/MyQuizzes'
-// import Quizzes from './pages/Quizzes'
-// import News from './pages/News'
-
-// Protected Route Component
 const ProtectedRoute = ({ children, requireAdmin = false, requireEditor = false }) => {
   const { user, isAdmin, hasRole } = useAuth();
 
@@ -162,12 +155,12 @@ const Home = () => {
               chúng mình sẽ có thêm một hoạt động thú vị giúp các bạn củng cố kiến thức C:
             </p>
             <p style={{ textAlign: 'center', fontSize: '18px', fontWeight: '600', margin: '12px 0' }}>
-              🎯 Tham gia Quizz Hàng Tuần 🎯
+              🎯 Tham gia Quiz Hàng Tuần 🎯
             </p>
 
             <h3>🎲 Thể lệ</h3>
             <ul>
-              <li>Mỗi tuần có <b>5 câu quizz</b> (từ dễ → khó).</li>
+              <li>Mỗi tuần có <b>5 câu quiz</b> (từ dễ → khó).</li>
               <li>Câu 1 → 4: <b>Trắc nghiệm</b>.</li>
               <li>Câu 5: <b>Mức khó nhất</b>, có thể là trắc nghiệm hoặc điền đáp án.</li>
             </ul>
@@ -175,7 +168,7 @@ const Home = () => {
             <h3>👉 Cách tính điểm</h3>
             <ul>
               <li>Mỗi câu đúng sẽ được điểm tương ứng
-                (VD: Quizz 1 = 1 điểm, Quizz 5 = 5 điểm).</li>
+                (VD: Quiz 1 = 1 điểm, Quiz 5 = 5 điểm).</li>
               <li><b>Tổng điểm</b> các câu = điểm tuần của bạn.</li>
               <li><b>Thứ 2 hàng tuần</b>: Công bố đáp án + Bảng xếp hạng.</li>
             </ul>

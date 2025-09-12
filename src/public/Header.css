@@ -486,7 +486,7 @@ body {
 
 @media (max-width: 1030px) {
   .header-container {
-    padding: 0px 2vw;
+    padding: 0px 8vw;
   }
   
   .login-text {

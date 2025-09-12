@@ -11,6 +11,7 @@ const navLinks = [
   { name: 'Trang chủ', path: '/' },
   { name: 'Lịch quiz', path: '/schedule' },
   { name: 'Quiz đã làm', path: '/completed-quizzes' },
+  { name: 'Bảng Xếp hạng', path: '/leaderboard' },
   { 
     name: 'Quản lý', 
     path: '#',
