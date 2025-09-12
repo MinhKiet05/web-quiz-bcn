@@ -11,6 +11,8 @@ const Upload = () => {
   const [giaiThich, setGiaiThich] = useState('');
   const [link, setLink] = useState('');
   const [soDapAn, setSoDapAn] = useState(['A', 'B', 'C', 'D']);
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
   
   // UI state
   const [loading, setLoading] = useState(false);
@@ -33,17 +35,53 @@ const Upload = () => {
   };
 
   const handleWeekChange = async (weekValue) => {
+    console.log('=== WEEK CHANGE ===');
+    console.log('weekValue:', weekValue);
+    console.log('===================');
+    
     setSelectedWeek(weekValue);
     if (weekValue && weekValue !== 'new') {
       try {
         const weekData = await getWeekById(weekValue);
         if (weekData) {
-          // Có thể hiển thị các quiz hiện có trong week này
-          console.log('Week data:', weekData);
+          // Load thời gian từ week có sẵn và hiển thị (readonly)
+          if (weekData.startTime) {
+            let startTimeString = '';
+            if (weekData.startTime.toDate) {
+              // Firestore Timestamp
+              startTimeString = weekData.startTime.toDate().toISOString().slice(0, 16);
+            } else if (weekData.startTime.seconds) {
+              // Firestore Timestamp object
+              startTimeString = new Date(weekData.startTime.seconds * 1000).toISOString().slice(0, 16);
+            } else if (weekData.startTime instanceof Date) {
+              // Already a Date object
+              startTimeString = weekData.startTime.toISOString().slice(0, 16);
+            }
+            setStartTime(startTimeString);
+          }
+          if (weekData.endTime) {
+            let endTimeString = '';
+            if (weekData.endTime.toDate) {
+              // Firestore Timestamp
+              endTimeString = weekData.endTime.toDate().toISOString().slice(0, 16);
+            } else if (weekData.endTime.seconds) {
+              // Firestore Timestamp object
+              endTimeString = new Date(weekData.endTime.seconds * 1000).toISOString().slice(0, 16);
+            } else if (weekData.endTime instanceof Date) {
+              // Already a Date object
+              endTimeString = weekData.endTime.toISOString().slice(0, 16);
+            }
+            setEndTime(endTimeString);
+          }
+          console.log('Week data loaded:', weekData);
         }
       } catch (error) {
         console.error('Error fetching week data:', error);
       }
+    } else if (weekValue === 'new') {
+      // Reset thời gian khi chọn tạo week mới
+      setStartTime('');
+      setEndTime('');
     }
   };
 
@@ -70,12 +108,21 @@ const Upload = () => {
     setGiaiThich('');
     setLink('');
     setSoDapAn(['A', 'B', 'C', 'D']);
+    setStartTime('');
+    setEndTime('');
     setIsEditMode(false);
   };
 
   const validateForm = () => {
-    const weekToUse = selectedWeek === 'new' ? newWeek : selectedWeek;
+    console.log('=== VALIDATE FORM ===');
     
+    const weekToUse = selectedWeek === 'new' ? newWeek : selectedWeek;
+    console.log('weekToUse:', weekToUse);
+    console.log('selectedWeek:', selectedWeek);
+    console.log('newWeek:', newWeek);
+    
+    // Comment out all validations for testing
+    /*
     if (!weekToUse) {
       setMessage('❌ Vui lòng chọn hoặc tạo week mới');
       return false;
@@ -96,11 +143,19 @@ const Upload = () => {
       setMessage('❌ Tất cả lựa chọn đáp án phải được điền');
       return false;
     }
+    */
+    console.log('=== VALIDATE FORM PASSED ===');
     return true;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    console.log('=== HANDLE SUBMIT START ===');
+    console.log('selectedWeek:', selectedWeek);
+    console.log('startTime raw:', startTime);
+    console.log('endTime raw:', endTime);
+    console.log('===============================');
     
     if (!validateForm()) return;
 
@@ -110,6 +165,13 @@ const Upload = () => {
     try {
       const weekToUse = selectedWeek === 'new' ? newWeek : selectedWeek;
       
+      console.log('=== SUBMIT DEBUG ===');
+      console.log('selectedWeek:', selectedWeek);
+      console.log('newWeek:', newWeek);
+      console.log('weekToUse:', weekToUse);
+      console.log('isEditMode:', isEditMode);
+      console.log('====================');
+      
       const quizData = {
         dapAnDung,
         giaiThich,
@@ -117,11 +179,75 @@ const Upload = () => {
         soDapAn: soDapAn.filter(answer => answer.trim()) // Loại bỏ câu trả lời trống
       };
 
+      // Prepare time parameters only for new week
+      let startTimeDate = null;
+      let endTimeDate = null;
+      
+      if (selectedWeek === 'new') {
+        console.log('Creating new week with times:', { startTime, endTime });
+        
+        if (startTime) {
+          // Try different parsing methods
+          startTimeDate = new Date(startTime);
+          // If invalid, try adding timezone
+          if (isNaN(startTimeDate)) {
+            startTimeDate = new Date(startTime + 'T00:00:00');
+          }
+          console.log('Parsed startTime:', startTimeDate, 'Valid:', !isNaN(startTimeDate));
+        }
+        if (endTime) {
+          // Try different parsing methods
+          endTimeDate = new Date(endTime);
+          // If invalid, try adding timezone
+          if (isNaN(endTimeDate)) {
+            endTimeDate = new Date(endTime + 'T00:00:00');
+          }
+          console.log('Parsed endTime:', endTimeDate, 'Valid:', !isNaN(endTimeDate));
+        }
+        
+        // Validation: nếu tạo week mới mà không có thời gian thì báo lỗi
+        if (!startTime || !startTime.trim()) {
+          setMessage('❌ Vui lòng nhập thời gian bắt đầu khi tạo week mới');
+          setLoading(false);
+          return;
+        }
+        if (!endTime || !endTime.trim()) {
+          setMessage('❌ Vui lòng nhập thời gian kết thúc khi tạo week mới');
+          setLoading(false);
+          return;
+        }
+        if (!startTimeDate || isNaN(startTimeDate)) {
+          setMessage('❌ Thời gian bắt đầu không hợp lệ. Raw value: ' + startTime);
+          setLoading(false);
+          return;
+        }
+        if (!endTimeDate || isNaN(endTimeDate)) {
+          setMessage('❌ Thời gian kết thúc không hợp lệ. Raw value: ' + endTime);
+          setLoading(false);
+          return;
+        }
+      }
+
       if (isEditMode) {
         await updateQuizInWeek(weekToUse, quizId, quizData);
         setMessage('✅ Cập nhật quiz thành công!');
       } else {
-        await addQuizToWeek(weekToUse, quizId, quizData);
+        // Pass time parameters only when creating new week
+        if (selectedWeek === 'new') {
+          console.log('=== DEBUG NEW WEEK ===');
+          console.log('weekToUse:', weekToUse);
+          console.log('startTimeDate:', startTimeDate);
+          console.log('endTimeDate:', endTimeDate);
+          console.log('startTime raw:', startTime);
+          console.log('endTime raw:', endTime);
+          console.log('=== END DEBUG ===');
+          
+          await addQuizToWeek(weekToUse, quizId, quizData, startTimeDate, endTimeDate);
+        } else {
+          // For existing week, don't pass time parameters
+          console.log('Calling addQuizToWeek without time:', { weekToUse, quizId });
+          await addQuizToWeek(weekToUse, quizId, quizData);
+        }
         setMessage('✅ Thêm quiz thành công!');
       }
 
@@ -167,7 +293,7 @@ const Upload = () => {
                 <option value="">-- Chọn week --</option>
                 {weeks.map((week) => (
                   <option key={week.id} value={week.id}>
-                    {week.id} ({Object.keys(week).filter(key => key !== 'id').length} quiz)
+                    {week.id}
                   </option>
                 ))}
                 <option value="new">+ Tạo week mới</option>
@@ -175,16 +301,69 @@ const Upload = () => {
             </div>
 
             {selectedWeek === 'new' && (
-              <div className="form-group">
-                <label htmlFor="newWeek">Tên week mới:</label>
-                <input
-                  type="text"
-                  id="newWeek"
-                  value={newWeek}
-                  onChange={(e) => setNewWeek(e.target.value)}
-                  placeholder="VD: week2, week3"
-                  required
-                />
+              <>
+                <div className="form-group">
+                  <label htmlFor="newWeek">Tên week mới:</label>
+                  <input
+                    type="text"
+                    id="newWeek"
+                    value={newWeek}
+                    onChange={(e) => setNewWeek(e.target.value)}
+                    placeholder="VD: week2, week3"
+                    required
+                  />
+                </div>
+                
+                <div className="form-group">
+                  <label htmlFor="startTime">Thời gian bắt đầu: <span style={{color: 'red'}}>*</span></label>
+                  <input
+                    type="datetime-local"
+                    id="startTime"
+                    value={startTime}
+                    onChange={(e) => setStartTime(e.target.value)}
+                    required
+                  />
+                  <small>Bắt buộc nhập khi tạo week mới</small>
+                </div>
+                
+                <div className="form-group">
+                  <label htmlFor="endTime">Thời gian kết thúc: <span style={{color: 'red'}}>*</span></label>
+                  <input
+                    type="datetime-local"
+                    id="endTime"
+                    value={endTime}
+                    onChange={(e) => setEndTime(e.target.value)}
+                    required
+                  />
+                  <small>Bắt buộc nhập khi tạo week mới</small>
+                </div>
+              </>
+            )}
+
+            {selectedWeek && selectedWeek !== 'new' && selectedWeek !== '' && (
+              <div className="form-section time-display">
+                <h4>⏰ Thời gian của {selectedWeek}</h4>
+                <div className="time-info">
+                  <div className="form-group">
+                    <label>Thời gian bắt đầu:</label>
+                    <input
+                      type="datetime-local"
+                      value={startTime}
+                      readOnly
+                      className="readonly-input"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Thời gian kết thúc:</label>
+                    <input
+                      type="datetime-local"
+                      value={endTime}
+                      readOnly
+                      className="readonly-input"
+                    />
+                  </div>
+                  <small>ℹ️ Thời gian này không thể chỉnh sửa khi thêm quiz vào week có sẵn</small>
+                </div>
               </div>
             )}
           </div>

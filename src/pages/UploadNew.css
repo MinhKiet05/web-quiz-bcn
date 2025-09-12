@@ -16,6 +16,10 @@
   width: 100%;
   margin-top: 20px;
 }
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(29%) sepia(8%) saturate(280%) hue-rotate(169deg) brightness(95%) contrast(90%);
+  cursor: pointer;
+}
 
 .upload-form-wrapper h1 {
   text-align: center;
@@ -42,6 +46,38 @@
   background: #f8d7da;
   color: #721c24;
   border: 1px solid #f5c6cb;
+}
+
+/* Time Display Section */
+.time-display {
+  background: #f8f9fa;
+  border: 2px dashed #dee2e6;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 16px;
+}
+
+.time-display h4 {
+  color: #495057;
+  margin: 0 0 12px 0;
+  font-size: 1.1rem;
+}
+
+.time-info {
+  display: grid;
+  gap: 12px;
+}
+
+.readonly-input {
+  background: #e9ecef !important;
+  color: #6c757d !important;
+  cursor: not-allowed !important;
+  border: 1px solid #ced4da !important;
+}
+
+.readonly-input:focus {
+  outline: none !important;
+  box-shadow: none !important;
 }
 
 .upload-form {

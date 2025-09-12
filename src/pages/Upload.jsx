@@ -126,20 +126,37 @@ const Upload = () => {
     try {
       const weekToUse = selectedWeek === 'new' ? newWeek : selectedWeek;
       
+      // Create and validate Date objects
+      const startDateTime = new Date(startTime);
+      const endDateTime = new Date(endTime);
+      
+      console.log('=== UPLOAD.JSX DEBUG ===');
+      console.log('startTime raw:', startTime);
+      console.log('endTime raw:', endTime);
+      console.log('startDateTime:', startDateTime);
+      console.log('endDateTime:', endDateTime);
+      console.log('startDateTime valid:', !isNaN(startDateTime.getTime()));
+      console.log('endDateTime valid:', !isNaN(endDateTime.getTime()));
+      
+      if (isNaN(startDateTime.getTime()) || isNaN(endDateTime.getTime())) {
+        setMessage('❌ Thời gian bắt đầu và kết thúc không hợp lệ');
+        setLoading(false);
+        return;
+      }
+
       const quizData = {
         dapAnDung,
         giaiThich,
         link,
         soDapAn: soDapAn.filter(answer => answer.trim()), // Loại bỏ câu trả lời trống
-        startTime: new Date(startTime),
-        endTime: new Date(endTime)
+        // Note: Don't include startTime/endTime in quizData for service
       };
 
       if (isEditMode) {
         await updateQuizInWeek(weekToUse, quizId, quizData);
         setMessage('✅ Cập nhật quiz thành công!');
       } else {
-        await addQuizToWeek(weekToUse, quizId, quizData);
+        await addQuizToWeek(weekToUse, quizId, quizData, startDateTime, endDateTime);
         setMessage('✅ Thêm quiz thành công!');
       }
 
