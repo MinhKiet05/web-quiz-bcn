@@ -27,20 +27,20 @@ const QuizzList = () => {
   // Function to find which week should be active based on current date
   const findCurrentWeekIndex = (weeksData) => {
     const now = new Date();
-    
+
     for (let i = 0; i < weeksData.length; i++) {
       const week = weeksData[i];
       if (week.startTime && week.endTime) {
         const startTime = new Date(week.startTime);
         const endTime = new Date(week.endTime);
-        
+
         // Check if current time is within this week's time range
         if (now >= startTime && now <= endTime) {
           return i;
         }
       }
     }
-    
+
     // If no week matches current time, find the closest upcoming week
     for (let i = 0; i < weeksData.length; i++) {
       const week = weeksData[i];
@@ -51,13 +51,13 @@ const QuizzList = () => {
         }
       }
     }
-    
+
     // If all weeks are in the past, return the last week
     return weeksData.length > 0 ? weeksData.length - 1 : 0;
   };
 
   // Function to get week status text
-  
+
 
   // Fetch all weeks data from Firebase
   useEffect(() => {
@@ -72,12 +72,12 @@ const QuizzList = () => {
           querySnapshot = await getDocs(collection(db, 'quiz'));
           throw new Error('Không thể tải dữ liệu từ Firestore: ' + error.message);
         }
-        
+
         const weeksData = [];
-        
+
         querySnapshot.forEach((doc) => {
           const data = doc.data();
-          
+
           // Convert Firestore timestamps to Date objects if they exist at document level
           if (data.startTime && typeof data.startTime.toDate === 'function') {
             data.startTime = data.startTime.toDate();
@@ -85,22 +85,22 @@ const QuizzList = () => {
           if (data.endTime && typeof data.endTime.toDate === 'function') {
             data.endTime = data.endTime.toDate();
           }
-          
+
           // No need to check nested timestamps since startTime/endTime are at document level
           // Quiz1, Quiz2, etc. contain: dapAnDung, giaiThich, link, soDapAn
-          
+
           weeksData.push({ id: doc.id, ...data });
         });
-        
+
         // Sort weeks by id (week1, week2, etc.)
         weeksData.sort((a, b) => {
           const aNum = parseInt(a.id.replace('week', ''));
           const bNum = parseInt(b.id.replace('week', ''));
           return aNum - bNum;
         });
-        
+
         setAllWeeksData(weeksData);
-        
+
         // Auto-select current week based on real time
         const currentWeekIdx = findCurrentWeekIndex(weeksData);
         if (currentWeekIdx !== -1) {
@@ -135,10 +135,10 @@ const QuizzList = () => {
     try {
       // Get current week
       const currentWeek = allWeeksData[currentWeekIndex];
-      
+
       // Update in Firebase
       await updateQuizInWeek(currentWeek.id, quizKey, updatedQuiz);
-      
+
       // Update local state
       setAllWeeksData(prev => {
         const newData = [...prev];
@@ -148,12 +148,12 @@ const QuizzList = () => {
         };
         return newData;
       });
-      
+
       // Close edit modal
       setEditingQuiz(null);
       // Cho phép scroll body lại
       document.body.classList.remove('modal-open');
-      
+
       // Show success message (optional)
       alert('✅ Cập nhật quiz thành công!');
     } catch (error) {
@@ -180,12 +180,12 @@ const QuizzList = () => {
       if (currentWeek && currentWeek.id) {
         // Update in Firebase
         await updateWeekTimes(
-          currentWeek.id, 
+          currentWeek.id,
           new Date(updatedTimes.startTime),
           new Date(updatedTimes.endTime)
         );
       }
-      
+
       // Update local state
       setAllWeeksData(prev => {
         const newData = [...prev];
@@ -240,38 +240,43 @@ const QuizzList = () => {
   return (
     <div className="quizz-container">
       <header className="quizz-header">
-        <h1>📚 Document {currentWeekData.id || 'Loading...'} - Quiz List</h1>
-        
+        <h1>📚 {currentWeekData.id || 'Loading...'} - Quiz List</h1>
+
         {/* Week Navigation */}
         {allWeeksData.length > 1 && (
           <div className="week-navigation">
-            <button 
-              onClick={() => setCurrentWeekIndex(Math.max(0, currentWeekIndex - 1))}
-              disabled={currentWeekIndex === 0}
-              className="nav-btn prev-btn"
-            >
-              ← Previous Week
-            </button>
+
             <span className="week-indicator">
               Week {currentWeekIndex + 1} of {allWeeksData.length}
             </span>
-            <button 
-              onClick={() => {
-                const currentIdx = findCurrentWeekIndex(allWeeksData);
-                if (currentIdx !== -1) setCurrentWeekIndex(currentIdx);
-              }}
-              className="nav-btn current-week-btn"
-              title="Chuyển đến tuần hiện tại"
-            >
-              📅 Tuần hiện tại
-            </button>
-            <button 
-              onClick={() => setCurrentWeekIndex(Math.min(allWeeksData.length - 1, currentWeekIndex + 1))}
-              disabled={currentWeekIndex === allWeeksData.length - 1}
-              className="nav-btn next-btn"
-            >
-              Next Week →
-            </button>
+            <div className='nav-buttons'>
+              <button
+                onClick={() => setCurrentWeekIndex(Math.max(0, currentWeekIndex - 1))}
+                disabled={currentWeekIndex === 0}
+                className="nav-btn prev-btn"
+              >
+                ←Trước
+              </button>
+              <button
+                onClick={() => {
+                  const currentIdx = findCurrentWeekIndex(allWeeksData);
+                  if (currentIdx !== -1) setCurrentWeekIndex(currentIdx);
+                }}
+                className="nav-btn current-week-btn"
+                title="Chuyển đến tuần hiện tại"
+              >
+                📅Hiện tại
+              </button>
+              <button
+                onClick={() => setCurrentWeekIndex(Math.min(allWeeksData.length - 1, currentWeekIndex + 1))}
+                disabled={currentWeekIndex === allWeeksData.length - 1}
+                className="nav-btn next-btn"
+              >
+                Sau→
+              </button>
+            </div>
+
+
           </div>
         )}
 
@@ -291,18 +296,18 @@ const QuizzList = () => {
           const quiz = currentWeekData[quizKey];
           const isExpanded = expandedQuiz === quizKey;
           const isEditing = editingQuiz === quizKey;
-          
+
           return (
             <div key={quizKey} className={`quiz-card ${editingQuiz ? 'disabled' : ''}`}>
               <div className="quiz-header">
                 <h3>📝 {quizKey}</h3>
                 <span className="answer-count">{quiz.soDapAn.length} đáp án</span>
               </div>
-              
+
               <div className="quiz-info">
                 <p><strong>Đáp án đúng:</strong> <span className="correct-answer">{quiz.dapAnDung}</span></p>
                 <p><strong>Số đáp án:</strong> {quiz.soDapAn.length} ({quiz.soDapAn.join(', ')})</p>
-                <p><strong>Link:</strong> 
+                <p><strong>Link:</strong>
                   <a href={quiz.link} target="_blank" rel="noopener noreferrer" className="quiz-link">
                     📎 Xem file
                   </a>
@@ -310,14 +315,14 @@ const QuizzList = () => {
               </div>
 
               <div className="quiz-actions">
-                <button 
+                <button
                   onClick={() => toggleExpand(quizKey)}
                   className="expand-btn"
                   disabled={editingQuiz && !isEditing}
                 >
                   {isExpanded ? '🔼 Thu gọn' : '🔽 Xem chi tiết'}
                 </button>
-                <button 
+                <button
                   onClick={() => handleEditQuiz(quizKey)}
                   className="edit-btn"
                   disabled={editingQuiz && !isEditing}
@@ -329,28 +334,28 @@ const QuizzList = () => {
               {isExpanded && (
                 <div className="quiz-details">
                   <h4>📋 Chi tiết {quizKey}:</h4>
-                  
+
                   <div className="quiz-detail-content">
                     <div className="quiz-image-section">
                       <p><strong>Hình ảnh câu hỏi:</strong></p>
-                      <ImageDisplay 
-                        url={quiz.link} 
+                      <ImageDisplay
+                        url={quiz.link}
                         alt={`${quizKey} image`}
                         className="quiz-image"
                       />
                     </div>
-                    
+
                     <div className="quiz-explanation">
                       <p><strong>Giải thích:</strong></p>
                       <div className="explanation-text">{quiz.giaiThich}</div>
                     </div>
-                    
+
                     <div className="answer-choices">
                       <p><strong>Các lựa chọn đáp án:</strong></p>
                       <div className="choices-grid">
                         {quiz.soDapAn.map((answer) => (
-                          <span 
-                            key={answer} 
+                          <span
+                            key={answer}
                             className={`choice-item ${answer === quiz.dapAnDung ? 'correct' : ''}`}
                           >
                             {answer}
@@ -368,7 +373,7 @@ const QuizzList = () => {
 
       {/* Quiz Edit Modal - Di chuyển ra ngoài để hiển thị đúng */}
       {editingQuiz && (
-        <QuizEditForm 
+        <QuizEditForm
           quiz={currentWeekData[editingQuiz]}
           quizKey={editingQuiz}
           onSave={handleSaveQuiz}
@@ -377,7 +382,7 @@ const QuizzList = () => {
       )}
 
       {editingDocument && (
-        <DocumentEditModal 
+        <DocumentEditModal
           startTime={currentWeekData.startTime}
           endTime={currentWeekData.endTime}
           onSave={handleSaveDocument}
@@ -444,8 +449,8 @@ const QuizEditForm = ({ quiz, quizKey, onSave, onCancel }) => {
       <div className="edit-form">
         <div className="modal-header">
           <h4>✏️ Chỉnh sửa {quizKey}</h4>
-          <button 
-            type="button" 
+          <button
+            type="button"
             className="modal-close-btn"
             onClick={onCancel}
             aria-label="Đóng modal"
@@ -455,73 +460,73 @@ const QuizEditForm = ({ quiz, quizKey, onSave, onCancel }) => {
         </div>
         <div className="modal-body">
           <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Link:</label>
-            <input
-              type="url"
-              value={formData.link}
-              onChange={(e) => setFormData(prev => ({ ...prev, link: e.target.value }))}
-              required
-            />
-          </div>
-          
-          <div className="form-group">
-            <label>Số lượng đáp án:</label>
-            <input
-              type="number"
-              min="2"
-              max="10"
-              value={formData.soLuongDapAn}
-              onChange={(e) => setFormData(prev => ({ ...prev, soLuongDapAn: e.target.value }))}
-              placeholder="Nhập số (VD: 4 sẽ tạo A, B, C, D)"
-              required
-            />
-            <small style={{color: '#666', fontSize: '0.85em'}}>
-              💡 Nhập số 4 → tự động tạo A, B, C, D. Tối đa 10 đáp án (A-J)
-            </small>
-            {formData.soLuongDapAn && parseInt(formData.soLuongDapAn) > 0 && (
-              <div style={{
-                marginTop: '8px',
-                padding: '8px 12px',
-                backgroundColor: '#e3f2fd',
-                borderRadius: '4px',
-                border: '1px solid #1976d2'
-              }}>
-                <strong>Preview đáp án:</strong> <span style={{color: '#000'}}>{generateAnswers(parseInt(formData.soLuongDapAn)).join(', ')}</span>
-              </div>
-            )}
-          </div>
+            <div className="form-group">
+              <label>Link:</label>
+              <input
+                type="url"
+                value={formData.link}
+                onChange={(e) => setFormData(prev => ({ ...prev, link: e.target.value }))}
+                required
+              />
+            </div>
 
-          <div className="form-group">
-            <label>Đáp án đúng:</label>
-            <select
-              value={formData.dapAnDung}
-              onChange={(e) => setFormData(prev => ({ ...prev, dapAnDung: e.target.value }))}
-              required
-            >
-              <option value="">-- Chọn đáp án đúng --</option>
-              {formData.soLuongDapAn && parseInt(formData.soLuongDapAn) > 0 && 
-                generateAnswers(parseInt(formData.soLuongDapAn)).map(answer => (
-                  <option key={answer} value={answer}>{answer}</option>
-                ))
-              }
-            </select>
-          </div>
-          
-          <div className="form-group">
-            <label>Giải thích:</label>
-            <textarea
-              value={formData.giaiThich}
-              onChange={(e) => setFormData(prev => ({ ...prev, giaiThich: e.target.value }))}
-              rows={4}
-              required
-            />
-          </div>
-          
-          <div className="form-actions">
-            <button type="submit" className="save-btn">💾 Lưu</button>
-            <button type="button" onClick={onCancel} className="cancel-btn">❌ Hủy</button>
-          </div>
+            <div className="form-group">
+              <label>Số lượng đáp án:</label>
+              <input
+                type="number"
+                min="2"
+                max="10"
+                value={formData.soLuongDapAn}
+                onChange={(e) => setFormData(prev => ({ ...prev, soLuongDapAn: e.target.value }))}
+                placeholder="Nhập số (VD: 4 sẽ tạo A, B, C, D)"
+                required
+              />
+              <small style={{ color: '#666', fontSize: '0.85em' }}>
+                💡 Nhập số 4 → tự động tạo A, B, C, D. Tối đa 10 đáp án (A-J)
+              </small>
+              {formData.soLuongDapAn && parseInt(formData.soLuongDapAn) > 0 && (
+                <div style={{
+                  marginTop: '8px',
+                  padding: '8px 12px',
+                  backgroundColor: '#e3f2fd',
+                  borderRadius: '4px',
+                  border: '1px solid #1976d2'
+                }}>
+                  <strong>Preview đáp án:</strong> <span style={{ color: '#000' }}>{generateAnswers(parseInt(formData.soLuongDapAn)).join(', ')}</span>
+                </div>
+              )}
+            </div>
+
+            <div className="form-group">
+              <label>Đáp án đúng:</label>
+              <select
+                value={formData.dapAnDung}
+                onChange={(e) => setFormData(prev => ({ ...prev, dapAnDung: e.target.value }))}
+                required
+              >
+                <option value="">-- Chọn đáp án đúng --</option>
+                {formData.soLuongDapAn && parseInt(formData.soLuongDapAn) > 0 &&
+                  generateAnswers(parseInt(formData.soLuongDapAn)).map(answer => (
+                    <option key={answer} value={answer}>{answer}</option>
+                  ))
+                }
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label>Giải thích:</label>
+              <textarea
+                value={formData.giaiThich}
+                onChange={(e) => setFormData(prev => ({ ...prev, giaiThich: e.target.value }))}
+                rows={4}
+                required
+              />
+            </div>
+
+            <div className="form-actions">
+              <button type="submit" className="save-btn">💾 Lưu</button>
+              <button type="button" onClick={onCancel} className="cancel-btn">❌ Hủy</button>
+            </div>
           </form>
         </div>
       </div>
@@ -568,7 +573,7 @@ const DocumentEditModal = ({ startTime, endTime, onSave, onCancel }) => {
               required
             />
           </div>
-          
+
           <div className="form-group">
             <label>Thời gian kết thúc:</label>
             <input
@@ -578,7 +583,7 @@ const DocumentEditModal = ({ startTime, endTime, onSave, onCancel }) => {
               required
             />
           </div>
-          
+
           <div className="form-actions">
             <button type="submit" className="save-btn">💾 Lưu thay đổi</button>
             <button type="button" onClick={onCancel} className="cancel-btn">❌ Hủy</button>

@@ -1,0 +1,189 @@
+.redirect-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  padding: 20px;
+  background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+}
+
+.redirect-content {
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  width: 100%;
+  animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.redirect-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  animation: bounce 1s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+.redirect-title {
+  color: #2d3436;
+  font-size: 1.8rem;
+  margin-bottom: 16px;
+  font-weight: 700;
+}
+
+.redirect-reason {
+  color: #636e72;
+  font-size: 1.1rem;
+  margin-bottom: 30px;
+  line-height: 1.5;
+}
+
+.countdown-container {
+  margin: 30px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.countdown-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #00b894 0%, #00a085 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse 1s ease-in-out infinite;
+  box-shadow: 0 4px 15px rgba(0, 184, 148, 0.3);
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 4px 15px rgba(0, 184, 148, 0.3);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 8px 25px rgba(0, 184, 148, 0.5);
+    transform: scale(1.05);
+  }
+  100% {
+    box-shadow: 0 4px 15px rgba(0, 184, 148, 0.3);
+    transform: scale(1);
+  }
+}
+
+.countdown-number {
+  color: white;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.countdown-text {
+  color: #636e72;
+  font-size: 1rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+.redirect-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+.redirect-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+.redirect-btn:active {
+  transform: translateY(0);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .redirect-container {
+    min-height: 70vh;
+    padding: 15px;
+  }
+  
+  .redirect-content {
+    padding: 30px 20px;
+  }
+  
+  .redirect-icon {
+    font-size: 3rem;
+  }
+  
+  .redirect-title {
+    font-size: 1.5rem;
+  }
+  
+  .redirect-reason {
+    font-size: 1rem;
+  }
+  
+  .countdown-circle {
+    width: 70px;
+    height: 70px;
+  }
+  
+  .countdown-number {
+    font-size: 1.8rem;
+  }
+  
+  .redirect-btn {
+    padding: 12px 25px;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .redirect-content {
+    padding: 25px 15px;
+  }
+  
+  .redirect-title {
+    font-size: 1.3rem;
+  }
+  
+  .countdown-circle {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .countdown-number {
+    font-size: 1.5rem;
+  }
+}

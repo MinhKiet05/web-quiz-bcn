@@ -6,29 +6,30 @@ import { AuthProvider, useAuth } from './contexts/AuthContext'
 import Upload from './pages/Upload'
 import QuizzList from './pages/QuizzList'
 import UserManagement from './pages/UserManagement'
+import RedirectToHome from './components/RedirectToHome'
 
 const ProtectedRoute = ({ children, requireAdmin = false, requireEditor = false }) => {
   const { user, isAdmin, hasRole } = useAuth();
 
   if (!user) {
-    return <div style={{ padding: '40px', textAlign: 'center', color: '#666' }}>
-      <h2>🔒 Vui lòng đăng nhập</h2>
-      <p>Bạn cần đăng nhập để truy cập trang này.</p>
-    </div>;
+    return <RedirectToHome 
+      message="🔒 Cần đăng nhập"
+      reason="Bạn cần đăng nhập để truy cập trang này."
+    />;
   }
 
   if (requireAdmin && !isAdmin()) {
-    return <div style={{ padding: '40px', textAlign: 'center', color: '#666' }}>
-      <h2>⚠️ Không có quyền truy cập</h2>
-      <p>Chỉ admin mới có thể truy cập trang này.</p>
-    </div>;
+    return <RedirectToHome 
+      message="⚠️ Không có quyền truy cập"
+      reason="Chỉ admin mới có thể truy cập trang này."
+    />;
   }
 
   if (requireEditor && !hasRole('admin') && !hasRole('editor')) {
-    return <div style={{ padding: '40px', textAlign: 'center', color: '#666' }}>
-      <h2>⚠️ Không có quyền truy cập</h2>
-      <p>Chỉ admin và editor mới có thể truy cập trang này.</p>
-    </div>;
+    return <RedirectToHome 
+      message="⚠️ Không có quyền truy cập"
+      reason="Chỉ admin và editor mới có thể truy cập trang này."
+    />;
   }
 
   return children;
@@ -100,6 +101,13 @@ function AppContent() {
             </ProtectedRoute>
           } />
           <Route path="/news" element={<News />} />
+          {/* Catch-all route for 404 errors */}
+          <Route path="*" element={
+            <RedirectToHome 
+              message="404: Không tìm thấy trang"
+              reason="Trang bạn tìm kiếm không tồn tại hoặc đã bị xóa."
+            />
+          } />
         </Routes>
       </main>
     </>
