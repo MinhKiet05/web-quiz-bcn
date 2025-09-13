@@ -18,13 +18,11 @@ const generateToken = () => {
  */
 export const loginUser = async (username, password) => {
   try {
-    console.log('Attempting login for MSSV:', username);
     
     // Thử đăng nhập bằng document ID (MSSV)
     const userDoc = await getDoc(doc(db, USERS_COLLECTION, username));
     
     if (!userDoc.exists()) {
-      console.log('User not found:', username);
       return null;
     }
     
@@ -32,7 +30,6 @@ export const loginUser = async (username, password) => {
     
     // Kiểm tra mật khẩu
     if (userData.matKhau !== password) {
-      console.log('Invalid password for user:', username);
       return null;
     }
     
@@ -46,7 +43,6 @@ export const loginUser = async (username, password) => {
       lastLogin: new Date().toISOString()
     });
     
-    console.log('Login successful for:', username, 'Token:', newToken);
     return {
       uid: username,
       name: userData.name,
@@ -68,11 +64,9 @@ export const loginUser = async (username, password) => {
 export const verifyToken = async (token) => {
   try {
     if (!token) {
-      console.log('No token provided for verification');
       return null;
     }
     
-    console.log('Verifying token...');
     
     // Tìm user có token này
     const q = query(
@@ -82,14 +76,12 @@ export const verifyToken = async (token) => {
     const querySnapshot = await getDocs(q);
     
     if (querySnapshot.empty) {
-      console.log('Invalid token - no matching user found');
       return null;
     }
     
     const userDoc = querySnapshot.docs[0];
     const userData = userDoc.data();
     
-    console.log('Token verified successfully for user:', userData.username || userDoc.id);
     
     // Cập nhật lastActivity
     await setDoc(doc(db, USERS_COLLECTION, userDoc.id), {
@@ -161,7 +153,6 @@ export const saveUserToStorage = (user) => {
   try {
     localStorage.setItem('currentUser', JSON.stringify(user));
     localStorage.setItem('loginTime', new Date().getTime().toString());
-    console.log('User saved to storage:', user.username || user.uid);
   } catch (error) {
     console.error('Error saving user to storage:', error);
   }
@@ -177,7 +168,6 @@ export const getUserFromStorage = () => {
     const loginTime = localStorage.getItem('loginTime');
     
     if (!userData || !loginTime) {
-      console.log('No user data in storage');
       return null;
     }
     
@@ -187,14 +177,11 @@ export const getUserFromStorage = () => {
     const thirtyDays = 30 * 24 * 60 * 60 * 1000;
     
     if (now - loginTimestamp > thirtyDays) {
-      console.log('Session expired (30 days), clearing storage');
       clearUserStorage();
       return null;
     }
     
     const user = JSON.parse(userData);
-    console.log('Retrieved user from storage:', user.username || user.uid, 'Login time:', new Date(loginTimestamp).toLocaleString());
-    
     // Cập nhật thời gian truy cập để gia hạn phiên
     localStorage.setItem('loginTime', new Date().getTime().toString());
     
@@ -213,7 +200,6 @@ export const clearUserStorage = () => {
   try {
     localStorage.removeItem('currentUser');
     localStorage.removeItem('loginTime');
-    console.log('User storage cleared');
   } catch (error) {
     console.error('Error clearing storage:', error);
   }
@@ -239,7 +225,6 @@ export const registerUser = async (userData) => {
   try {
     const { username, password, name, role = 'user' } = userData;
     
-    console.log('Attempting registration for MSSV:', username);
     
     // Kiểm tra MSSV đã tồn tại chưa (document ID)
     const userDoc = await getDoc(doc(db, USERS_COLLECTION, username));
@@ -266,7 +251,6 @@ export const registerUser = async (userData) => {
       ...newUserData
     };
     
-    console.log('User registered successfully with MSSV:', username);
     return newUser;
     
   } catch (error) {
@@ -302,7 +286,6 @@ export const checkUsernameExists = async (username) => {
  */
 export const createUserWithId = async (userId, userData) => {
   try {
-    console.log('Creating user with MSSV:', userId);
     
     // Kiểm tra MSSV đã tồn tại chưa
     const userDoc = await getDoc(doc(db, USERS_COLLECTION, userId));
@@ -330,7 +313,6 @@ export const createUserWithId = async (userId, userData) => {
       ...newUserData
     };
     
-    console.log('User created successfully with MSSV:', userId);
     return result;
     
   } catch (error) {

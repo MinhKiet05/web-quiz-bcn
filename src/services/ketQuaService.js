@@ -19,7 +19,6 @@ export const saveKetQua = async (data, documentId = null) => {
         updatedAt: new Date()
       }, { merge: true });
       
-      console.log('Document updated with ID: ', documentId);
       return documentId;
     } else {
       // Add new document
@@ -29,7 +28,6 @@ export const saveKetQua = async (data, documentId = null) => {
         updatedAt: new Date()
       });
       
-      console.log('Document written with ID: ', docRef.id);
       return docRef.id;
     }
   } catch (error) {
@@ -51,7 +49,6 @@ export const getKetQua = async (documentId) => {
     if (docSnap.exists()) {
       return { id: docSnap.id, ...docSnap.data() };
     } else {
-      console.log('No such document!');
       return null;
     }
   } catch (error) {
@@ -81,7 +78,6 @@ export const exampleUsage = async () => {
     
     // Thêm mới
     const newId = await saveKetQua(ketQuaData);
-    console.log('Added new result with ID:', newId);
     
     // Cập nhật
     const updatedData = {
@@ -90,11 +86,7 @@ export const exampleUsage = async () => {
       correctAnswers: 9
     };
     await saveKetQua(updatedData, newId);
-    console.log('Updated result with ID:', newId);
     
-    // Lấy dữ liệu
-    const result = await getKetQua(newId);
-    console.log('Retrieved result:', result);
     
   } catch (error) {
     console.error('Example usage error:', error);

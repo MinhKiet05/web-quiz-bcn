@@ -16,7 +16,6 @@ export const createSampleAdmin = async () => {
     };
     
     const result = await createUserWithId("23696901", adminData);
-    console.log('Sample admin created successfully:', result);
     return result;
   } catch (error) {
     console.error('Error creating sample admin:', error);
@@ -40,7 +39,6 @@ export const createSampleEditor = async () => {
     };
     
     const result = await createUserWithId("24729691", editorData);
-    console.log('Sample editor created successfully:', result);
     return result;
   } catch (error) {
     console.error('Error creating sample editor:', error);
@@ -64,7 +62,6 @@ export const createSampleUser = async () => {
     };
     
     const result = await createUserWithId("12345678", userData);
-    console.log('Sample user created successfully:', result);
     return result;
   } catch (error) {
     console.error('Error creating sample user:', error);

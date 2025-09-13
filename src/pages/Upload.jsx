@@ -34,23 +34,57 @@ const Upload = () => {
     }
   };
 
+  // Helper function to convert Date to datetime-local format without timezone shift
+  const formatDateTimeLocal = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
   const handleWeekChange = async (weekValue) => {
     setSelectedWeek(weekValue);
     if (weekValue && weekValue !== 'new') {
       try {
         const weekData = await getWeekById(weekValue);
         if (weekData) {
-          // Có thể hiển thị các quiz hiện có trong week này
-          console.log('Week data:', weekData);
+          // Auto-fill startTime và endTime từ week data
+          if (weekData.startTime) {
+            const startDate = weekData.startTime.toDate ? weekData.startTime.toDate() : new Date(weekData.startTime);
+            const startTimeString = formatDateTimeLocal(startDate);
+            setStartTime(startTimeString);
+          }
+          
+          if (weekData.endTime) {
+            const endDate = weekData.endTime.toDate ? weekData.endTime.toDate() : new Date(weekData.endTime);
+            const endTimeString = formatDateTimeLocal(endDate);
+            setEndTime(endTimeString);
+          }
         }
       } catch (error) {
         console.error('Error fetching week data:', error);
       }
+    } else if (weekValue === 'new') {
+      // Clear times when creating new week
+      setStartTime('');
+      setEndTime('');
     }
   };
 
   const addAnswerChoice = () => {
+    // Thêm đáp án rỗng để user có thể tự điền hoặc sử dụng auto-fill 
     setSoDapAn([...soDapAn, '']);
+  };
+
+  // Helper function để auto-fill all answers với chữ cái
+  const autoFillLetters = () => {
+    const autoFilledAnswers = soDapAn.map((_, index) => String.fromCharCode(65 + index));
+    setSoDapAn(autoFilledAnswers);
+    setMessage('✅ Đã tự động điền các đáp án bằng chữ cái A, B, C, D...');
+    // Clear message after 3 seconds
+    setTimeout(() => setMessage(''), 3000);
   };
 
   const removeAnswerChoice = (index) => {
@@ -100,17 +134,21 @@ const Upload = () => {
       setMessage('❌ Tất cả lựa chọn đáp án phải được điền');
       return false;
     }
-    if (!startTime) {
-      setMessage('❌ Vui lòng chọn thời gian bắt đầu');
-      return false;
-    }
-    if (!endTime) {
-      setMessage('❌ Vui lòng chọn thời gian kết thúc');
-      return false;
-    }
-    if (new Date(startTime) >= new Date(endTime)) {
-      setMessage('❌ Thời gian bắt đầu phải trước thời gian kết thúc');
-      return false;
+    
+    // Chỉ validate thời gian khi tạo week mới
+    if (selectedWeek === 'new') {
+      if (!startTime) {
+        setMessage('❌ Vui lòng chọn thời gian bắt đầu');
+        return false;
+      }
+      if (!endTime) {
+        setMessage('❌ Vui lòng chọn thời gian kết thúc');
+        return false;
+      }
+      if (new Date(startTime) >= new Date(endTime)) {
+        setMessage('❌ Thời gian bắt đầu phải trước thời gian kết thúc');
+        return false;
+      }
     }
     return true;
   };
@@ -126,22 +164,19 @@ const Upload = () => {
     try {
       const weekToUse = selectedWeek === 'new' ? newWeek : selectedWeek;
       
-      // Create and validate Date objects
-      const startDateTime = new Date(startTime);
-      const endDateTime = new Date(endTime);
+      // Chỉ validate và tạo Date objects khi tạo week mới
+      let startDateTime = null, endDateTime = null;
       
-      console.log('=== UPLOAD.JSX DEBUG ===');
-      console.log('startTime raw:', startTime);
-      console.log('endTime raw:', endTime);
-      console.log('startDateTime:', startDateTime);
-      console.log('endDateTime:', endDateTime);
-      console.log('startDateTime valid:', !isNaN(startDateTime.getTime()));
-      console.log('endDateTime valid:', !isNaN(endDateTime.getTime()));
-      
-      if (isNaN(startDateTime.getTime()) || isNaN(endDateTime.getTime())) {
-        setMessage('❌ Thời gian bắt đầu và kết thúc không hợp lệ');
-        setLoading(false);
-        return;
+      if (selectedWeek === 'new') {
+        // Create and validate Date objects
+        startDateTime = new Date(startTime);
+        endDateTime = new Date(endTime);
+        
+        if (isNaN(startDateTime.getTime()) || isNaN(endDateTime.getTime())) {
+          setMessage('❌ Thời gian bắt đầu và kết thúc không hợp lệ');
+          setLoading(false);
+          return;
+        }
       }
 
       const quizData = {
@@ -156,6 +191,7 @@ const Upload = () => {
         await updateQuizInWeek(weekToUse, quizId, quizData);
         setMessage('✅ Cập nhật quiz thành công!');
       } else {
+        // Pass startDateTime/endDateTime only when creating new week
         await addQuizToWeek(weekToUse, quizId, quizData, startDateTime, endDateTime);
         setMessage('✅ Thêm quiz thành công!');
       }
@@ -204,7 +240,7 @@ const Upload = () => {
                 <option value="">-- Chọn week --</option>
                 {weeks.map((week) => (
                   <option key={week.id} value={week.id}>
-                    {week.id} ({Object.keys(week).filter(key => key !== 'id').length} quiz)
+                    {week.id}
                   </option>
                 ))}
                 <option value="new">+ Tạo week mới</option>
@@ -227,24 +263,48 @@ const Upload = () => {
 
             {/* Thời gian Quiz */}
             <div className="form-group">
-              <label htmlFor="startTime">Thời gian bắt đầu:</label>
+              <label htmlFor="startTime">
+                Thời gian bắt đầu:
+                {selectedWeek && selectedWeek !== 'new' && (
+                  <span style={{fontSize: '0.8em', color: '#666', fontWeight: 'normal'}}>
+                    {' '}(Tự động từ week đã chọn)
+                  </span>
+                )}
+              </label>
               <input
                 type="datetime-local"
                 id="startTime"
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
+                disabled={selectedWeek && selectedWeek !== 'new'}
                 required
+                style={{
+                  backgroundColor: selectedWeek && selectedWeek !== 'new' ? '#f5f5f5' : 'white',
+                  cursor: selectedWeek && selectedWeek !== 'new' ? 'not-allowed' : 'text'
+                }}
               />
             </div>
 
             <div className="form-group">
-              <label htmlFor="endTime">Thời gian kết thúc:</label>
+              <label htmlFor="endTime">
+                Thời gian kết thúc:
+                {selectedWeek && selectedWeek !== 'new' && (
+                  <span style={{fontSize: '0.8em', color: '#666', fontWeight: 'normal'}}>
+                    {' '}(Tự động từ week đã chọn)
+                  </span>
+                )}
+              </label>
               <input
                 type="datetime-local"
                 id="endTime"
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
+                disabled={selectedWeek && selectedWeek !== 'new'}
                 required
+                style={{
+                  backgroundColor: selectedWeek && selectedWeek !== 'new' ? '#f5f5f5' : 'white',
+                  cursor: selectedWeek && selectedWeek !== 'new' ? 'not-allowed' : 'text'
+                }}
               />
             </div>
           </div>
@@ -265,23 +325,6 @@ const Upload = () => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="dapAnDung">Đáp án đúng:</label>
-              <select
-                id="dapAnDung"
-                value={dapAnDung}
-                onChange={(e) => setDapAnDung(e.target.value)}
-                required
-              >
-                <option value="">-- Chọn đáp án đúng --</option>
-                {soDapAn.map((answer, index) => (
-                  <option key={index} value={answer}>
-                    {answer}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="form-group">
               <label htmlFor="link">Link hình ảnh (Google Drive):</label>
               <input
                 type="url"
@@ -290,6 +333,91 @@ const Upload = () => {
                 onChange={(e) => setLink(e.target.value)}
                 placeholder="https://drive.google.com/file/d/..."
               />
+            </div>
+
+            {/* Answer Choices */}
+            <div className="form-group">
+              <label style={{marginBottom: '10px', display: 'block'}}>Các lựa chọn đáp án:</label>
+              {soDapAn.map((answer, index) => (
+                <div key={index} className="answer-choice-group" style={{marginBottom: '10px'}}>
+                  <div className="form-group" style={{margin: '0'}}>
+                    <label htmlFor={`answer-${index}`}>Đáp án {String.fromCharCode(65 + index)}:</label>
+                    <input
+                      type="text"
+                      id={`answer-${index}`}
+                      value={answer}
+                      onChange={(e) => updateAnswerChoice(index, e.target.value)}
+                      placeholder={`Đáp án ${String.fromCharCode(65 + index)}`}
+                      required
+                    />
+                    {soDapAn.length > 2 && (
+                      <button
+                        type="button"
+                        onClick={() => removeAnswerChoice(index)}
+                        className="remove-answer-btn"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+              
+              <div style={{marginTop: '10px'}}>
+                <button
+                  type="button"
+                  onClick={addAnswerChoice}
+                  className="add-answer-btn"
+                >
+                  ➕ Thêm lựa chọn đáp án
+                </button>
+                
+                <button
+                  type="button"
+                  onClick={autoFillLetters}
+                  className="auto-fill-btn"
+                  style={{
+                    marginLeft: '10px',
+                    backgroundColor: '#e3f2fd',
+                    color: '#1976d2',
+                    border: '1px solid #1976d2',
+                    padding: '8px 12px',
+                    borderRadius: '4px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  🔤 Tự động điền A, B, C, D...
+                </button>
+              </div>
+            </div>
+
+            {/* Correct Answer Selection */}
+            <div className="form-group">
+              <label htmlFor="dapAnDung">Đáp án đúng:</label>
+              <select
+                id="dapAnDung"
+                value={dapAnDung}
+                onChange={(e) => setDapAnDung(e.target.value)}
+                required
+              >
+                <option value="">-- Chọn đáp án đúng --</option>
+                {soDapAn
+                  .filter(answer => answer.trim()) // Chỉ hiển thị đáp án đã điền
+                  .map((answer) => {
+                    const originalIndex = soDapAn.indexOf(answer);
+                    return (
+                      <option key={originalIndex} value={answer}>
+                        {String.fromCharCode(65 + originalIndex)}
+                      </option>
+                    );
+                  })
+                }
+              </select>
+              {soDapAn.filter(answer => answer.trim()).length === 0 && (
+                <p style={{color: '#666', fontSize: '0.9em', margin: '5px 0 0 0'}}>
+                  💡 Vui lòng thêm ít nhất một đáp án ở trên để chọn đáp án đúng
+                </p>
+              )}
             </div>
 
             <div className="form-group">
@@ -302,43 +430,6 @@ const Upload = () => {
                 rows={4}
               />
             </div>
-          </div>
-
-          {/* Answer Choices */}
-          <div className="form-section">
-            <h3>📋 Các lựa chọn đáp án</h3>
-            {soDapAn.map((answer, index) => (
-              <div key={index} className="answer-choice-group">
-                <div className="form-group">
-                  <label htmlFor={`answer-${index}`}>Đáp án {index}:</label>
-                  <input
-                    type="text"
-                    id={`answer-${index}`}
-                    value={answer}
-                    onChange={(e) => updateAnswerChoice(index, e.target.value)}
-                    placeholder={`Đáp án ${String.fromCharCode(65 + index)}`}
-                    required
-                  />
-                  {soDapAn.length > 2 && (
-                    <button
-                      type="button"
-                      onClick={() => removeAnswerChoice(index)}
-                      className="remove-answer-btn"
-                    >
-                      ✕
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))}
-            
-            <button
-              type="button"
-              onClick={addAnswerChoice}
-              className="add-answer-btn"
-            >
-              ➕ Thêm lựa chọn
-            </button>
           </div>
 
           {/* Submit Buttons */}

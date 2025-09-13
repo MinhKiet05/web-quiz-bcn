@@ -5,38 +5,6 @@ import { updateWeekTimes } from '../services/weekQuizService.js';
 import { ImageDisplay } from '../utils/imageUtils.jsx';
 import './QuizzList.css';
 
-// Mock data for testing with correct structure
-const mockData = [
-  {
-    id: 'week1',
-    startTime: new Date('2025-09-08T00:00:00+07:00'),
-    endTime: new Date('2025-09-14T23:59:59+07:00'),
-    Quiz1: {
-      dapAnDung: 'C',
-      giaiThich: 'Test explanation for Quiz1',
-      link: 'https://drive.google.com/file/d/1WaDUnwIcU9g4NBA7ePsoG0US_d2bzCPv',
-      soDapAn: ['A', 'B', 'C', 'D']
-    },
-    Quiz2: {
-      dapAnDung: 'B',
-      giaiThich: 'Test explanation for Quiz2',
-      link: 'https://drive.google.com/file/d/1hkaW1QUFV0mLbP6F1BF_zCNv4kOD78Nt',
-      soDapAn: ['A', 'B', 'C', 'D', 'E']
-    }
-  },
-  {
-    id: 'week2',
-    startTime: new Date('2025-09-15T00:00:00+07:00'),
-    endTime: new Date('2025-09-21T23:59:59+07:00'),
-    Quiz1: {
-      dapAnDung: 'C',
-      giaiThich: 'float chỉ chính xác ~6-7 chữ số thập phân. printf("%f") mặc định in 6 số sau dấu phẩy. 0.123456789 bị làm tròn thành 0.123457.',
-      link: 'https://drive.google.com/file/d/1ho6-dPXdaikhD_JkyFxd_jNBYXGLMiYx',
-      soDapAn: ['A', 'B', 'C', 'D', 'E']
-    }
-  }
-];
-
 const QuizzList = () => {
   const [allWeeksData, setAllWeeksData] = useState([]);
   const [currentWeekIndex, setCurrentWeekIndex] = useState(0);
@@ -58,18 +26,15 @@ const QuizzList = () => {
         let querySnapshot;
         try {
           querySnapshot = await getDocs(collection(db, 'Quiz'));
-          console.log('Fetched from "Quiz" collection:', querySnapshot.size, 'documents');
-        } catch (fetchError) {
-          console.log('Failed to fetch from "Quiz", trying "quiz":', fetchError.message);
+        } catch (error) {
           querySnapshot = await getDocs(collection(db, 'quiz'));
-          console.log('Fetched from "quiz" collection:', querySnapshot.size, 'documents');
+          throw new Error('Không thể tải dữ liệu từ Firestore: ' + error.message);
         }
         
         const weeksData = [];
         
         querySnapshot.forEach((doc) => {
           const data = doc.data();
-          console.log('Document:', doc.id, 'Data:', data);
           
           // Convert Firestore timestamps to Date objects if they exist at document level
           if (data.startTime && typeof data.startTime.toDate === 'function') {
@@ -85,8 +50,6 @@ const QuizzList = () => {
           weeksData.push({ id: doc.id, ...data });
         });
         
-        console.log('Processed weeks data:', weeksData);
-        
         // Sort weeks by id (week1, week2, etc.)
         weeksData.sort((a, b) => {
           const aNum = parseInt(a.id.replace('week', ''));
@@ -94,31 +57,10 @@ const QuizzList = () => {
           return aNum - bNum;
         });
         
-        console.log('Final processed weeks data:', weeksData);
-        
-        // Debug: log structure of first week if available
-        if (weeksData.length > 0) {
-          console.log('Sample week structure:', JSON.stringify(weeksData[0], null, 2));
-          const firstWeek = weeksData[0];
-          const quizKeys = Object.keys(firstWeek).filter(key => key.startsWith('Quiz'));
-          console.log('Found quiz keys:', quizKeys);
-          if (quizKeys.length > 0) {
-            console.log('Sample quiz structure:', JSON.stringify(firstWeek[quizKeys[0]], null, 2));
-          }
-        }
-        
-        // If no weeks data found, use mock data for testing
-        if (weeksData.length === 0) {
-          console.log('No weeks data found in Firebase, using mock data for testing');
-          setAllWeeksData(mockData);
-        } else {
-          setAllWeeksData(weeksData);
-        }
+        setAllWeeksData(weeksData);
       } catch (error) {
         console.error('Error fetching weeks data:', error);
-        // Use mock data on error
-        console.log('Error occurred, falling back to mock data');
-        setAllWeeksData(mockData);
+        setAllWeeksData([]);
       } finally {
         setLoading(false);
       }
@@ -431,9 +373,16 @@ const QuizEditForm = ({ quiz, quizKey, onSave, onCancel }) => {
 
 // Component để chỉnh sửa thời gian document
 const DocumentEditModal = ({ startTime, endTime, onSave, onCancel }) => {
+  // Helper function to format Date for datetime-local input (fix timezone issue)
+  const formatDateTimeLocal = (date) => {
+    // Add 7 hours to compensate for Vietnam timezone
+    const adjustedDate = new Date(date.getTime() + 7 * 60 * 60 * 1000);
+    return adjustedDate.toISOString().slice(0, 16);
+  };
+
   const [formData, setFormData] = useState({
-    startTime: startTime.toISOString().slice(0, 16),
-    endTime: endTime.toISOString().slice(0, 16)
+    startTime: formatDateTimeLocal(startTime),
+    endTime: formatDateTimeLocal(endTime)
   });
 
   const handleSubmit = (e) => {

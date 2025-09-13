@@ -24,8 +24,6 @@ export const ImageDisplay = ({
     
     // Thử URL tiếp theo trong danh sách
     if (currentUrlIndex < alternativeUrls.length - 1) {
-      const nextUrl = alternativeUrls[currentUrlIndex + 1];
-      console.log(`Trying next alternative URL (${currentUrlIndex + 2}/${alternativeUrls.length}):`, nextUrl);
       setCurrentUrlIndex(currentUrlIndex + 1);
       setIsLoading(true);
       setHasError(false);
@@ -34,7 +32,6 @@ export const ImageDisplay = ({
     
     // Thử fallback nếu có
     if (fallbackSrc && !alternativeUrls.includes(fallbackSrc)) {
-      console.log('Trying fallback image:', fallbackSrc);
       alternativeUrls.push(fallbackSrc);
       setCurrentUrlIndex(alternativeUrls.length - 1);
       setIsLoading(true);
@@ -49,7 +46,6 @@ export const ImageDisplay = ({
   };
 
   const handleLoad = () => {
-    console.log('Image loaded successfully:', currentUrl);
     setHasError(false);
     setIsLoading(false);
   };

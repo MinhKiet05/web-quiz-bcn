@@ -19,8 +19,7 @@ export const getAllUsers = async () => {
     
     return users;
   } catch (error) {
-    console.error('Error fetching users:', error);
-    throw new Error('Không thể tải danh sách người dùng');
+    throw new Error(error.message || 'Không thể tải danh sách người dùng');
   }
 };
 
@@ -39,11 +38,9 @@ export const updateUser = async (mssv, updateData) => {
       lastUpdated: new Date()
     });
     
-    console.log('User updated successfully:', mssv);
     return true;
   } catch (error) {
-    console.error('Error updating user:', error);
-    throw new Error('Không thể cập nhật thông tin người dùng');
+    throw new Error(error.message || 'Không thể cập nhật thông tin người dùng');
   }
 };
 
@@ -53,11 +50,9 @@ export const deleteUser = async (mssv) => {
     const userDocRef = doc(db, 'users', mssv);
     await deleteDoc(userDocRef);
     
-    console.log('User deleted successfully:', mssv);
     return true;
   } catch (error) {
-    console.error('Error deleting user:', error);
-    throw new Error('Không thể xóa người dùng');
+    throw new Error(error.message || 'Không thể xóa người dùng');
   }
 };
 
@@ -77,8 +72,7 @@ export const getUserByMssv = async (mssv) => {
     
     return null;
   } catch (error) {
-    console.error('Error fetching user:', error);
-    throw new Error('Không thể tải thông tin người dùng');
+    throw new Error(error.message || 'Không thể tải thông tin người dùng');
   }
 };
 
@@ -91,11 +85,9 @@ export const updateUserRole = async (mssv, newRoles) => {
       lastUpdated: new Date()
     });
     
-    console.log('User role updated successfully:', mssv, newRoles);
     return true;
   } catch (error) {
-    console.error('Error updating user role:', error);
-    throw new Error('Không thể cập nhật quyền người dùng');
+    throw new Error(error.message || 'Không thể cập nhật quyền người dùng');
   }
 };
 
@@ -108,10 +100,8 @@ export const changeUserPassword = async (mssv, newPassword) => {
       lastUpdated: new Date()
     });
     
-    console.log('User password updated successfully:', mssv);
     return true;
   } catch (error) {
-    console.error('Error updating user password:', error);
-    throw new Error('Không thể thay đổi mật khẩu');
+    throw new Error(error.message || 'Không thể thay đổi mật khẩu');
   }
 };

@@ -33,7 +33,6 @@ export const getAllWeeks = async () => {
       });
     });
     
-    console.log('Fetched weeks:', weeks.length);
     return weeks;
   } catch (error) {
     console.error('Error getting weeks: ', error);
@@ -54,7 +53,6 @@ export const getWeekById = async (weekId) => {
     if (docSnap.exists()) {
       return { id: docSnap.id, ...docSnap.data() };
     } else {
-      console.log('No such week!');
       return null;
     }
   } catch (error) {
@@ -85,21 +83,7 @@ export const addQuizToWeek = async (weekId, quizId, quizData, startTime = null, 
       });
     } else {
       // Week chưa tồn tại, tạo mới với quiz đầu tiên + startTime, endTime
-      console.log('Creating new week with times:');
-      console.log('- startTime:', startTime, 'Type:', typeof startTime);
-      console.log('- endTime:', endTime, 'Type:', typeof endTime);
-      console.log('- startTime valid Date?', startTime instanceof Date && !isNaN(startTime));
-      console.log('- endTime valid Date?', endTime instanceof Date && !isNaN(endTime));
-      
       if (!startTime || !endTime || !(startTime instanceof Date) || !(endTime instanceof Date) || isNaN(startTime) || isNaN(endTime)) {
-        console.error('Invalid time parameters:', { 
-          startTime, 
-          endTime,
-          startTimeType: typeof startTime,
-          endTimeType: typeof endTime,
-          startTimeIsDate: startTime instanceof Date,
-          endTimeIsDate: endTime instanceof Date
-        });
         throw new Error('startTime and endTime must be valid Date objects when creating a new week');
       }
       
@@ -110,8 +94,6 @@ export const addQuizToWeek = async (weekId, quizId, quizData, startTime = null, 
         [quizId]: cleanQuizData(quizData)
       });
     }
-    
-    console.log(`Quiz ${quizId} added to week ${weekId} successfully`);
   } catch (error) {
     console.error('Error adding quiz to week: ', error);
     throw error;
@@ -133,8 +115,6 @@ export const updateQuizInWeek = async (weekId, quizId, quizData) => {
     await updateDoc(docRef, {
       [quizId]: cleanQuizData(quizData)
     });
-    
-    console.log(`Quiz ${quizId} in week ${weekId} updated successfully`);
   } catch (error) {
     console.error('Error updating quiz in week: ', error);
     throw error;
@@ -155,8 +135,6 @@ export const updateWeekTimes = async (weekId, startTime, endTime) => {
       startTime: startTime,
       endTime: endTime
     });
-    
-    console.log(`Week ${weekId} times updated successfully`);
   } catch (error) {
     console.error('Error updating week times: ', error);
     throw error;
@@ -210,8 +188,6 @@ export const cleanupWeekStructure = async (weekId) => {
     
     // Ghi đè document với cấu trúc mới
     await setDoc(docRef, cleanedData);
-    
-    console.log(`Week ${weekId} structure cleaned successfully`);
   } catch (error) {
     console.error('Error cleaning week structure: ', error);
     throw error;
@@ -230,8 +206,6 @@ export const deleteQuizFromWeek = async (weekId, quizId) => {
     await updateDoc(docRef, {
       [quizId]: null // Xóa field
     });
-    
-    console.log(`Quiz ${quizId} deleted from week ${weekId} successfully`);
   } catch (error) {
     console.error('Error deleting quiz from week: ', error);
     throw error;

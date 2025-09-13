@@ -9,19 +9,15 @@ const COLLECTION_NAME = 'Quiz';
  */
 export const getAllQuizzes = async () => {
   try {
-    console.log('Fetching from collection:', COLLECTION_NAME);
     const querySnapshot = await getDocs(collection(db, COLLECTION_NAME));
     const quizzes = [];
     
     querySnapshot.forEach((doc) => {
-      console.log('Document found:', doc.id, doc.data());
       quizzes.push({
         id: doc.id,
         ...doc.data()
       });
     });
-    
-    console.log('Total quizzes fetched:', quizzes.length);
     return quizzes;
   } catch (error) {
     console.error('Error getting quizzes: ', error);
@@ -42,7 +38,6 @@ export const getQuizById = async (quizId) => {
     if (docSnap.exists()) {
       return { id: docSnap.id, ...docSnap.data() };
     } else {
-      console.log('No such quiz!');
       return null;
     }
   } catch (error) {

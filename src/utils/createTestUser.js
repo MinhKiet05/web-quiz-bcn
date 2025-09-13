@@ -12,9 +12,7 @@ export const createTinhVyUser = async () => {
       roles: ['editor']
     };
     
-    console.log('Creating user Tình Vy...');
     const result = await createUserWithId(userId, userData);
-    console.log('User created successfully:', result);
     return result;
   } catch (error) {
     console.error('Failed to create user:', error);
