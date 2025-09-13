@@ -48,6 +48,15 @@
   transform: translateY(-2px);
 }
 
+.current-week-btn {
+  background: #00b894 !important;
+  min-width: 140px !important;
+}
+
+.current-week-btn:hover {
+  background: #00a085 !important;
+}
+
 .nav-btn:disabled {
   background: #ddd;
   cursor: not-allowed;
@@ -128,6 +137,18 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
+/* Disabled state khi modal đang mở */
+.quiz-card.disabled {
+  opacity: 0.6;
+  pointer-events: none;
+  filter: grayscale(0.3);
+}
+
+.quiz-card.disabled:hover {
+  transform: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
 .quiz-header {
   display: flex;
   justify-content: space-between;
@@ -203,6 +224,20 @@
 
 .edit-btn:hover {
   background: #00a085;
+}
+
+/* Button disabled states */
+.expand-btn:disabled,
+.edit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.expand-btn:disabled:hover,
+.edit-btn:disabled:hover {
+  background: inherit;
+  transform: none;
 }
 
 .quiz-details {
@@ -357,20 +392,20 @@
   overflow-y: auto;
 }
 
-.modal-header {
+.modal-content .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 24px;
-  border-bottom: 2px solid #f1f3f4;
+  padding: 20px;
 }
 
-.modal-header h2 {
+.modal-content .modal-header h2,
+.modal-content .modal-header h3 {
   margin: 0;
   color: #2d3436;
 }
 
-.close-btn {
+.modal-content .close-btn {
   background: #e17055;
   color: white;
   border: none;
@@ -710,7 +745,7 @@ strong{
 }
 
 .form-group {
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .form-group label {
@@ -830,5 +865,187 @@ strong{
   .edit-form {
     width: 95%;
     padding: 16px;
+  }
+}
+
+/* ====== Modal Edit Form Styles ====== */
+.edit-form-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  overflow: hidden;
+  cursor: pointer;
+  backdrop-filter: blur(5px); /* Thêm blur effect như UserManagement */
+}
+
+.edit-form-overlay .edit-form {
+  cursor: default;
+}
+
+/* Ngăn scroll body khi modal mở */
+body.modal-open {
+  overflow: hidden;
+}
+
+.edit-form {
+  background: white;
+  border-radius: 16px; /* Tăng từ 12px lên 16px như UserManagement */
+  padding: 0;
+  width: 90%;
+  max-width: 500px; /* Giảm từ 600px xuống 500px như UserManagement */
+  max-height: 90vh; /* Tăng từ 80vh lên 90vh */
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); /* Shadow mạnh hơn như UserManagement */
+  animation: modalSlideIn 0.3s ease-out; /* Đổi tên animation */
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* Modal Header giống UserManagement - specific cho edit-form với higher specificity */
+.edit-form-overlay .edit-form .modal-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important; /* Gradient giống UserManagement */
+  color: white !important;
+  padding: 20px !important;
+  border-radius: 16px 0px 0 0 !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+
+.edit-form-overlay .edit-form .modal-header h4 {
+  margin: 0 !important;
+  font-size: 1.3em !important; /* Giống UserManagement */
+  color: white !important; /* Đổi thành trắng */
+}
+
+.edit-form-overlay .edit-form .modal-close-btn {
+  background: rgba(255, 255, 255, 0.2) !important; /* Giống UserManagement */
+  border: none !important;
+  color: white !important;
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 50% !important; /* Tròn như UserManagement */
+  cursor: pointer !important;
+  font-size: 16px !important;
+  transition: all 0.2s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.edit-form-overlay .edit-form .modal-close-btn:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
+  transform: rotate(90deg) !important; /* Hiệu ứng xoay như UserManagement */
+}
+
+/* Form content - đổi tên class để giống UserManagement */
+.edit-form .modal-body {
+  padding: 20px 20px; /* Giống UserManagement */
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.edit-form .form-group {
+  margin-bottom: 12px;
+}
+
+.edit-form label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #636e72;
+}
+
+.edit-form input,
+.edit-form textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.3s;
+}
+
+.edit-form input:focus,
+.edit-form textarea:focus {
+  outline: none;
+  border-color: #74b9ff;
+  box-shadow: 0 0 0 3px rgba(116, 185, 255, 0.1);
+}
+
+.edit-form textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #eee;
+}
+
+.save-btn,
+.cancel-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.save-btn {
+  background: #00b894;
+  color: white;
+}
+
+.save-btn:hover {
+  background: #00a085;
+  transform: translateY(-2px);
+}
+
+.cancel-btn {
+  background: #ddd;
+  color: #636e72;
+}
+
+.cancel-btn:hover {
+  background: #bbb;
+  transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+  .edit-form {
+    width: 95%;
+    padding: 16px;
+    margin: 20px;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .save-btn,
+  .cancel-btn {
+    width: 100%;
   }
 }

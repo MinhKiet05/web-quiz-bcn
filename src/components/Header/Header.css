@@ -20,7 +20,10 @@
   border-radius: 50%;
   object-fit: cover;
 }
-
+.super-admin-badge {
+  color: #FF6B6B!important;
+  animation: pulse 2s ease-in-out infinite;
+}
 /* ====== Nav (Desktop) ====== */
 .header-nav {
   flex: 1;
@@ -107,6 +110,9 @@
   background: rgba(0,0,0,0.3);
   z-index: 99;
 }
+.sidebar .super-admin-badge {
+  color: #FF6B6B !important;
+}
 .sidebar-header {
   display: flex;
   align-items: center;
@@ -165,6 +171,19 @@
 .sidebar-link.active {
   color: #596275;
   font-weight: 700;
+}
+
+/* Badge colors in sidebar navigation and user info */
+.sidebar .admin-badge {
+  color: #FFD700 !important; /* Vàng cho admin */
+}
+
+.sidebar .editor-badge {
+  color: #FFD700 !important; /* Vàng cho editor */  
+}
+
+.sidebar .super-admin-badge {
+  color: #FF6B6B !important; /* Đỏ cho super admin */
 }
 @media (max-width: 1280px) {
   .header-link{
@@ -297,9 +316,9 @@
   flex-shrink: 0;
 }
 
-.super-admin-badge {
-  color: #FF6B6B;
-  animation: pulse 2s ease-in-out infinite;
+/* Specific override for super admin in sidebar */
+.sidebar .user-role .super-admin-badge {
+  color: #FF6B6B !important;
 }
 
 @keyframes pulse {
@@ -389,6 +408,19 @@
   display: flex;
   align-items: center;
   gap: 4px;
+}
+
+/* Specific colors for badges in sidebar */
+.sidebar .user-role .admin-badge {
+  color: #FFD700 !important; /* Vàng cho admin */
+}
+
+.sidebar .user-role .editor-badge {
+  color: #FFD700 !important; /* Vàng cho editor */
+}
+
+.sidebar .user-role .super-admin-badge {
+  color: #FF6B6B !important; /* Đỏ cho super admin */
 }
 
 .sidebar-logout-btn {
