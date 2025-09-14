@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { getAllUsers, updateUser, deleteUser } from '../services/userService.js';
 import { useAuth } from '../contexts/AuthContext';
+import { showToast } from '../utils/toastUtils.js';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import './UserManagement.css';
 
 const UserManagement = () => {
@@ -8,11 +11,9 @@ const UserManagement = () => {
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [editingUser, setEditingUser] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [success, setSuccess] = useState('');
 
   // Load all users
   useEffect(() => {
@@ -50,10 +51,9 @@ const UserManagement = () => {
       });
       
       setUsers(sortedUsers);
-      setError('');
     } catch (err) {
       console.error('Error loading users:', err);
-      setError('Không thể tải danh sách người dùng');
+      showToast('Không thể tải danh sách người dùng', 'error');
     } finally {
       setLoading(false);
     }
@@ -62,7 +62,7 @@ const UserManagement = () => {
   const handleEditUser = (userData) => {
     // Check if current user can edit this user
     if (!canEditUser(userData)) {
-      setError('Bạn không có quyền chỉnh sửa thông tin người dùng này');
+      showToast('Bạn không có quyền chỉnh sửa thông tin người dùng này', 'error');
       return;
     }
 
@@ -71,8 +71,6 @@ const UserManagement = () => {
       newPassword: '' // Field for changing password
     });
     setShowEditModal(true);
-    setError('');
-    setSuccess('');
   };
 
   const handleSaveUser = async () => {
@@ -83,14 +81,14 @@ const UserManagement = () => {
       
       // Validate MSSV format
       if (!/^\d{8}$/.test(editingUser.mssv)) {
-        setError('MSSV phải là đúng 8 số');
+        showToast('MSSV phải là đúng 8 số', 'error');
         return;
       }
 
       // Check if MSSV is duplicated (except for current user)
       const existingUser = users.find(u => u.mssv === editingUser.mssv && u.id !== editingUser.id);
       if (existingUser) {
-        setError('MSSV đã tồn tại trong hệ thống');
+        showToast('MSSV đã tồn tại trong hệ thống', 'error');
         return;
       }
 
@@ -103,16 +101,13 @@ const UserManagement = () => {
 
       await updateUser(editingUser.mssv, updateData);
       
-      setSuccess('Cập nhật thông tin người dùng thành công!');
+      showToast('Cập nhật thông tin người dùng thành công!', 'success');
       setShowEditModal(false);
       setEditingUser(null);
       await loadUsers(); // Reload users list
-      
-      // Clear success message after 3 seconds
-      setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
       console.error('Error updating user:', err);
-      setError('Không thể cập nhật thông tin người dùng');
+      showToast('Không thể cập nhật thông tin người dùng', 'error');
     } finally {
       setLoading(false);
     }
@@ -126,13 +121,11 @@ const UserManagement = () => {
     try {
       setLoading(true);
       await deleteUser(userMssv);
-      setSuccess('Xóa người dùng thành công!');
+      showToast('Xóa người dùng thành công!', 'success');
       await loadUsers();
-      
-      setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
       console.error('Error deleting user:', err);
-      setError('Không thể xóa người dùng');
+      showToast('Không thể xóa người dùng', 'error');
     } finally {
       setLoading(false);
     }
@@ -198,7 +191,7 @@ const UserManagement = () => {
   if (loading && users.length === 0) {
     return (
       <div className="user-management-loading">
-        <div className="loading-spinner">🔄</div>
+        <div className="loading-spinner"><FontAwesomeIcon icon={faSpinner} spin /></div>
         <p>Đang tải danh sách người dùng...</p>
       </div>
     );
@@ -210,18 +203,6 @@ const UserManagement = () => {
         <h1>👥 Quản lý người dùng</h1>
         <p>Quản lý thông tin và quyền hạn của tất cả người dùng trong hệ thống</p>
       </div>
-
-      {error && (
-        <div className="alert alert-error">
-          ⚠️ {error}
-        </div>
-      )}
-
-      {success && (
-        <div className="alert alert-success">
-          ✅ {success}
-        </div>
-      )}
 
       {/* Search bar */}
       <div className="search-section">

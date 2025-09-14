@@ -243,13 +243,15 @@ input[type="date"]::-webkit-calendar-picker {
   border: 1px solid #e9ecef;
   width: 100%;
   max-width: 600px;
+  overflow-x: auto; /* Cho phép scroll ngang nếu cần */
 }
 
 .summary-stats-inline {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  gap: 1rem;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
 }
 
 .stat-item-inline {
@@ -257,17 +259,27 @@ input[type="date"]::-webkit-calendar-picker {
   flex-direction: column;
   align-items: center;
   gap: 0.25rem;
+  min-width: 0;
+  flex: 1;
 }
 
 .stat-item-inline .stat-label {
   color: #6c757d;
   font-weight: 500;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .stat-item-inline .stat-value {
   font-weight: 700;
-  font-size: 1.1rem;
+  font-size: 0.9rem;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   color: #2c3e50;
 }
 
@@ -420,8 +432,16 @@ input[type="date"]::-webkit-calendar-picker {
   }
 
   .summary-stats-inline {
-    flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.25rem;
+    /* Giữ flex-direction: row để luôn nằm ngang */
+  }
+  
+  .stat-item-inline .stat-label {
+    font-size: 0.7rem;
+  }
+  
+  .stat-item-inline .stat-value {
+    font-size: 0.8rem;
   }
 
   .week-summary-inline {
@@ -461,14 +481,16 @@ input[type="date"]::-webkit-calendar-picker {
   }
 
   .navigation-row {
-    flex-direction: column;
-    gap: 0.75rem;
-    width: 100%;
+    gap: 0.5rem;
+    flex-wrap: wrap;
   }
 
   .nav-btn {
-    width: 100%;
-    max-width: 200px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+    flex: 1;
+    min-width: 70px;
+    max-width: 90px;
   }
 
   .current-week-info {

@@ -2,6 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import quizService from '../services/quizService';
 import { ImageDisplay } from '../utils/imageUtils.jsx';
+import { showToast } from '../utils/toastUtils.js';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import './QuizPlayer.css';
 
 const QuizPlayer = () => {
@@ -18,35 +21,92 @@ const QuizPlayer = () => {
     setCurrentAnswers(userAnswers);
   }, [userAnswers]);
 
-  // Lấy quiz và thông tin thời gian từ week1 document
+  const [currentWeek, setCurrentWeek] = useState(1);
+
+  // Tự động tìm tuần hiện tại dựa trên thời gian
+  const findCurrentWeek = useCallback(async () => {
+    try {
+      console.log('🔍 Finding current week...');
+      const now = new Date();
+      
+      // Thử từ week1 đến week10 để tìm tuần hiện tại
+      for (let week = 1; week <= 10; week++) {
+        try {
+          const quizData = await quizService.getQuizzesFromWeekDocument(`week${week}`);
+          if (quizData.length > 0) {
+            const firstQuiz = quizData[0];
+            if (firstQuiz.startTime && firstQuiz.endTime) {
+              const startTime = firstQuiz.startTime.toDate ? firstQuiz.startTime.toDate() : new Date(firstQuiz.startTime);
+              const endTime = firstQuiz.endTime.toDate ? firstQuiz.endTime.toDate() : new Date(firstQuiz.endTime);
+              
+              // Kiểm tra nếu tuần này đang active hoặc sắp tới
+              if (now >= startTime && now <= endTime) {
+                console.log(`📅 Found current active week: week${week}`);
+                return week;
+              } else if (now < startTime) {
+                console.log(`📅 Found upcoming week: week${week}`);
+                return week;
+              }
+            }
+          }
+        } catch {
+          console.log(`Week ${week} not found, continuing...`);
+        }
+      }
+      
+      // Nếu không tìm thấy tuần nào, quay lại tuần cuối cùng có data
+      for (let week = 10; week >= 1; week--) {
+        try {
+          const quizData = await quizService.getQuizzesFromWeekDocument(`week${week}`);
+          if (quizData.length > 0) {
+            console.log(`📅 Using latest available week: week${week}`);
+            return week;
+          }
+        } catch {
+          continue;
+        }
+      }
+      
+      console.log('📅 No weeks found, defaulting to week1');
+      return 1;
+    } catch (error) {
+      console.error('Error finding current week:', error);
+      return 1;
+    }
+  }, []);
+
+  // Lấy quiz và thông tin thời gian từ tuần hiện tại
   const fetchQuizzes = useCallback(async () => {
     try {
-      console.log('🔍 Fetching quizzes from week1 document...');
-      const quizData = await quizService.getQuizzesFromWeekDocument('week1');
-      console.log('📝 All quizzes from week1:', quizData);
+      const week = await findCurrentWeek();
+      setCurrentWeek(week);
+      
+      console.log(`🔍 Fetching quizzes from week${week} document...`);
+      const quizData = await quizService.getQuizzesFromWeekDocument(`week${week}`);
+      console.log(`📝 All quizzes from week${week}:`, quizData);
       
       // Lấy thông tin thời gian từ quiz đầu tiên hoặc document level
       if (quizData.length > 0) {
         const firstQuiz = quizData[0];
         setWeekInfo({
-          week: 1,
+          week: week,
           startTime: firstQuiz.startTime,
           endTime: firstQuiz.endTime
         });
       }
       
-      // Hiển thị tất cả quiz, không filter theo thời gian nữa
+      // Hiển thị tất cả quiz
       setQuizzes(quizData);
     } catch (error) {
       console.error('Error fetching quizzes:', error);
     }
-  }, []);
+  }, [findCurrentWeek]);
 
   const fetchUserAnswers = useCallback(async () => {
     try {
       const answers = await quizService.getUserAnswersByWeek(
         user.studentId || user.uid, 
-        1 // Luôn lấy từ week1
+        currentWeek
       );
       setUserAnswers(answers);
     } catch (error) {
@@ -54,7 +114,7 @@ const QuizPlayer = () => {
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, currentWeek]);
 
   useEffect(() => {
     if (user) {
@@ -78,13 +138,13 @@ const QuizPlayer = () => {
       const answer = currentAnswers[quizKey];
       
       if (!answer) {
-        alert('Vui lòng chọn đáp án trước khi lưu!');
+        showToast('Vui lòng chọn đáp án trước khi lưu!', 'warning');
         return;
       }
       
       const updatedAnswers = await quizService.saveUserAnswer(
         user.studentId || user.uid,
-        1, // Luôn lưu vào week1
+        currentWeek,
         quizNumber,
         answer
       );
@@ -92,10 +152,10 @@ const QuizPlayer = () => {
       // Update local state
       setUserAnswers(updatedAnswers);
       
-      alert('Đáp án đã được lưu thành công!');
+      showToast('Đáp án đã được lưu thành công!', 'success');
     } catch (error) {
       console.error('Error submitting answer:', error);
-      alert('Có lỗi xảy ra khi lưu đáp án!');
+      showToast('Có lỗi xảy ra khi lưu đáp án!', 'error');
     } finally {
       setSavingAnswers(prev => ({ ...prev, [quizNumber]: false }));
     }
@@ -157,7 +217,7 @@ const QuizPlayer = () => {
   if (loading) {
     return (
       <div className="quiz-player-quiz-player-loading">
-        <div className="quiz-player-loading-spinner">🔄</div>
+        <div className="quiz-player-loading-spinner"><FontAwesomeIcon icon={faSpinner} spin /></div>
         <p>Đang tải quiz...</p>
       </div>
     );

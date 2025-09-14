@@ -10,6 +10,7 @@ import QuizPlayer from './pages/QuizPlayer'
 import QuizHistory from './pages/QuizHistory'
 import RedirectToHome from './components/RedirectToHome'
 import Login from './components/Login/Login'
+import ToastContainer from './components/ToastContainer'
 import { useState } from 'react'
 
 const ProtectedRoute = ({ children, requireAdmin = false, requireEditor = false }) => {
@@ -121,6 +122,7 @@ function AppContent() {
           } />
         </Routes>
       </main>
+      <ToastContainer />
     </>
   )
 }

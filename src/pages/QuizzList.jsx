@@ -3,6 +3,7 @@ import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../config/firebase.js';
 import { updateWeekTimes, updateQuizInWeek } from '../services/weekQuizService.js';
 import { ImageDisplay } from '../utils/imageUtils.jsx';
+import { showToast } from '../utils/toastUtils.js';
 import './QuizzList.css';
 
 const QuizzList = () => {
@@ -154,11 +155,11 @@ const QuizzList = () => {
       // Cho phép scroll body lại
       document.body.classList.remove('modal-open');
 
-      // Show success message (optional)
-      alert('✅ Cập nhật quiz thành công!');
+      // Show success message
+      showToast('Cập nhật quiz thành công!', 'success');
     } catch (error) {
       console.error('Error updating quiz:', error);
-      alert('❌ Lỗi khi cập nhật quiz: ' + error.message);
+      showToast('Lỗi khi cập nhật quiz: ' + error.message, 'error');
     }
   };
 
@@ -192,10 +193,10 @@ const QuizzList = () => {
       document.body.classList.remove('modal-open');
 
       // Show success message
-      alert('🗑️ Xóa quiz thành công!');
+      showToast('Xóa quiz thành công!', 'success');
     } catch (error) {
       console.error('Error deleting quiz:', error);
-      alert('❌ Lỗi khi xóa quiz: ' + error.message);
+      showToast('Lỗi khi xóa quiz: ' + error.message, 'error');
     }
   };
 
@@ -234,9 +235,10 @@ const QuizzList = () => {
         return newData;
       });
       setEditingDocument(false);
+      showToast('Cập nhật thời gian thành công!', 'success');
     } catch (error) {
       console.error('Error updating document times:', error);
-      alert('Lỗi khi cập nhật thời gian: ' + error.message);
+      showToast('Lỗi khi cập nhật thời gian: ' + error.message, 'error');
     }
   };
 
@@ -525,9 +527,6 @@ const QuizEditForm = ({ quiz, quizKey, onSave, onDelete, onCancel }) => {
                 placeholder="Nhập số (VD: 4 sẽ tạo A, B, C, D)"
                 required
               />
-              <small style={{ color: '#666', fontSize: '0.85em' }}>
-                💡 Nhập số 4 → tự động tạo A, B, C, D. Tối đa 10 đáp án (A-J)
-              </small>
               {formData.soLuongDapAn && parseInt(formData.soLuongDapAn) > 0 && (
                 <div style={{
                   marginTop: '8px',
@@ -562,7 +561,7 @@ const QuizEditForm = ({ quiz, quizKey, onSave, onDelete, onCancel }) => {
               <textarea
                 value={formData.giaiThich}
                 onChange={(e) => setFormData(prev => ({ ...prev, giaiThich: e.target.value }))}
-                rows={4}
+                rows={5}
                 required
               />
             </div>

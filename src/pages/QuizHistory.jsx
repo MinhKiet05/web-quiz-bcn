@@ -129,7 +129,26 @@ const QuizHistory = () => {
             correctAnswers[`Quiz${quiz.quizNumber}`] = quiz.correctAnswer;
           });
           const score = calculateWeekScore(userData, correctAnswers);
-          setWeekScore(score);
+          
+          // Tính tổng điểm dựa trên quiz number (Quiz1=1 điểm, Quiz5=5 điểm)
+          let totalPoints = 0;
+          let earnedPoints = 0;
+          
+          for (const [quizKey, userAnswer] of Object.entries(userData)) {
+            const quizNumber = parseInt(quizKey.replace('Quiz', ''));
+            if (!isNaN(quizNumber) && correctAnswers[quizKey] !== undefined) {
+              totalPoints += quizNumber; // Điểm tối đa của quiz = số quiz
+              if (userAnswer === correctAnswers[quizKey]) {
+                earnedPoints += quizNumber; // Điểm đạt được nếu đúng
+              }
+            }
+          }
+          
+          setWeekScore({
+            ...score,
+            totalPoints, // Tổng điểm tối đa có thể đạt
+            earnedPoints // Tổng điểm thực tế đạt được
+          });
         }
         
       } catch (err) {
@@ -226,25 +245,26 @@ const QuizHistory = () => {
                     
                     if (now > endTime) {
                       if (hasUserAnswers) {
-                        // Tính điểm để xác định đúng/sai
+                        // Tính điểm để xác định đúng/sai với logic mới
                         const correctAnswers = {};
                         const weekQuizzes = allWeekQuizzes.filter(q => q.weekId === currentWeek);
                         weekQuizzes.forEach(quiz => {
                           correctAnswers[`Quiz${quiz.quizNumber}`] = quiz.correctAnswer;
                         });
                         
-                        let correct = 0;
-                        let total = 0;
+                        let earnedPoints = 0;
+                        let totalPoints = 0;
                         for (const [quizKey, userAnswer] of Object.entries(userWeekData)) {
-                          if (correctAnswers[quizKey] !== undefined) {
-                            total++;
+                          const quizNumber = parseInt(quizKey.replace('Quiz', ''));
+                          if (!isNaN(quizNumber) && correctAnswers[quizKey] !== undefined) {
+                            totalPoints += quizNumber;
                             if (userAnswer === correctAnswers[quizKey]) {
-                              correct++;
+                              earnedPoints += quizNumber;
                             }
                           }
                         }
                         
-                        const percentage = total > 0 ? (correct / total) * 100 : 0;
+                        const percentage = totalPoints > 0 ? (earnedPoints / totalPoints) * 100 : 0;
                         return percentage >= 50 ? 'week-finished-correct' : 'week-finished-incorrect';
                       } else {
                         return 'week-finished-incorrect';
@@ -271,32 +291,36 @@ const QuizHistory = () => {
                   
                   const filteredWeeks = availableWeeks.filter(weekId => {
                     // Lọc các tuần có startTime <= hiện tại
-                    const weekQuizData = allWeekQuizzes.find(quiz => quiz.weekId === weekId);
+                    // Thử nhiều cách để tìm quiz của tuần này
+                    const weekNumber = weekId.replace('week', ''); // 'week1' -> '1'
                     
-                    console.log(`Checking ${weekId}:`, {
-                      weekQuizData: !!weekQuizData,
-                      startTime: weekQuizData?.startTime ? 'exists' : 'missing',
-                      allWeekQuizzesCount: allWeekQuizzes.length
+                    const weekQuizzes = allWeekQuizzes.filter(quiz => {
+                      // Thử các cách match khác nhau
+                      const matchWeekId = quiz.weekId === weekId;
+                      const matchWeek = quiz.week === weekId || quiz.week === weekNumber;
+                      const matchTitle = quiz.title && quiz.title.includes(weekNumber);
+                      const matchQuizNumber = quiz.quizNumber && quiz.quizNumber.toString().startsWith(weekNumber);
+                      const matchId = quiz.id && quiz.id.includes(weekId);
+                      
+                      return matchWeekId || matchWeek || matchTitle || matchQuizNumber || matchId;
                     });
                     
-                    if (!weekQuizData || !weekQuizData.startTime) {
-                      console.log(`${weekId}: No quiz data or startTime, hiding`);
+                    if (weekQuizzes.length === 0) {
+                      return false;
+                    }
+                    
+                    const firstQuiz = weekQuizzes[0];
+                    if (!firstQuiz.startTime) {
                       return false;
                     }
                     
                     const now = new Date();
-                    const startTime = weekQuizData.startTime.toDate ? weekQuizData.startTime.toDate() : new Date(weekQuizData.startTime);
-                    const canShow = startTime <= now;
-                    
-                    console.log(`${weekId}: startTime=${startTime.toLocaleString()}, now=${now.toLocaleString()}, canShow=${canShow}`);
-                    
-                    return canShow;
+                    const startTime = firstQuiz.startTime.toDate ? firstQuiz.startTime.toDate() : new Date(firstQuiz.startTime);
+                    return startTime <= now;
                   });
                   
                   // Fallback: nếu không có tuần nào được filter, hiển thị tuần đầu tiên
                   const weeksToShow = filteredWeeks.length > 0 ? filteredWeeks : availableWeeks.slice(0, 1);
-                  
-                  console.log('Final weeks to show:', weeksToShow);
                   
                   return weeksToShow.map(weekId => (
                     <option key={weekId} value={weekId}>
@@ -385,6 +409,12 @@ const QuizHistory = () => {
                   <div className="stat-item-inline">
                     <span className="stat-label">Tỷ lệ:</span>
                     <span className="stat-value percentage">{weekFinished ? `${weekScore.percentage}%` : '-%'}</span>
+                  </div>
+                  <div className="stat-item-inline">
+                    <span className="stat-label">Tổng điểm:</span>
+                    <span className="stat-value percentage">
+                      {weekFinished ? `${weekScore.earnedPoints || 0}/${weekScore.totalPoints || 0}đ` : '-/15đ'}
+                    </span>
                   </div>
                 </div>
               </div>

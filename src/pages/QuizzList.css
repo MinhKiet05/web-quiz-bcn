@@ -30,9 +30,9 @@
 /* Week Navigation */
 .week-navigation {
   display: flex;
+  flex-direction: column;   /* xếp dọc: indicator trên, buttons dưới */
   align-items: center;
-  justify-content: center;
-  gap: 16px;
+  gap: 12px;
   margin: 16px 0;
   padding: 12px;
   background: #f8f9fa;
@@ -40,16 +40,23 @@
   border: 2px solid #e9ecef;
 }
 
+.nav-buttons {
+  display: flex;    /* nhóm 3 nút thành 1 khối */
+  gap: 8px;         /* khoảng cách giữa các nút */
+  flex-wrap: nowrap; /* không cho wrap */
+}
+
 .nav-btn {
   background: #74b9ff;
   color: white;
   border: none;
-  padding: 8px 8px;
+  padding: 8px 16px;
   border-radius: 6px;
   cursor: pointer;
   font-weight: 600;
   transition: all 0.3s;
-  min-width: 68px;
+  min-width: 80px;
+  font-size: 0.9rem;
 }
 
 .nav-btn:hover:not(:disabled) {
@@ -76,27 +83,12 @@
   font-weight: 600;
   color: #2d3436;
   background: white;
-  padding: 8px 16px;
+  padding: 10px 20px;
   border-radius: 6px;
   border: 2px solid #74b9ff;
-  white-space: nowrap; /* ép toàn bộ text nằm 1 dòng */
-  display: inline-block;
-}
-.week-navigation {
-  display: flex;
-  flex-direction: column;   /* xếp dọc: indicator trên, buttons dưới */
-  align-items: center;
-  gap: 12px;
-}
-
-.nav-buttons {
-  display: inline-block;    /* nhóm 3 nút thành 1 khối */
-  white-space: nowrap;      /* giữ chúng trên cùng 1 dòng */
-}
-
-.nav-buttons button {
-  display: inline-block;    /* nút nằm trên 1 dòng */
-  margin: 0 6px;
+  white-space: nowrap;
+  text-align: center;
+  font-size: 1rem;
 }
 .document-info {
   display: grid;
@@ -523,6 +515,27 @@
   .quizz-header {
     flex-direction: column;
     text-align: center;
+    padding: 16px;
+  }
+  
+  .quizz-header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .week-navigation {
+    padding: 8px;
+    gap: 8px;
+  }
+  
+  .week-indicator {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
+  
+  .nav-btn {
+    padding: 6px 12px;
+    min-width: 60px;
+    font-size: 0.8rem;
   }
   
   .questions-grid {
