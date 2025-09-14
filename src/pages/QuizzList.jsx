@@ -162,6 +162,43 @@ const QuizzList = () => {
     }
   };
 
+  const handleDeleteQuiz = async (quizKey) => {
+    // Confirm deletion
+    const confirmDelete = window.confirm(
+      `⚠️ Bạn có chắc chắn muốn xóa ${quizKey}?\n\nHành động này không thể hoàn tác!`
+    );
+    
+    if (!confirmDelete) return;
+
+    try {
+      // Get current week
+      const currentWeek = allWeeksData[currentWeekIndex];
+
+      // Delete from Firebase by setting to null
+      await updateQuizInWeek(currentWeek.id, quizKey, null);
+
+      // Update local state - remove the quiz
+      setAllWeeksData(prev => {
+        const newData = [...prev];
+        const updatedWeek = { ...newData[currentWeekIndex] };
+        delete updatedWeek[quizKey];
+        newData[currentWeekIndex] = updatedWeek;
+        return newData;
+      });
+
+      // Close edit modal
+      setEditingQuiz(null);
+      // Cho phép scroll body lại
+      document.body.classList.remove('modal-open');
+
+      // Show success message
+      alert('🗑️ Xóa quiz thành công!');
+    } catch (error) {
+      console.error('Error deleting quiz:', error);
+      alert('❌ Lỗi khi xóa quiz: ' + error.message);
+    }
+  };
+
   const handleCancelEdit = () => {
     setEditingQuiz(null);
     // Reset expanded state để tránh conflicts
@@ -218,9 +255,11 @@ const QuizzList = () => {
   if (loading) {
     return (
       <div className="quizz-container">
-        <div className="loading">
-          <div className="spinner"></div>
-          <p>Đang tải danh sách quiz...</p>
+        <div className="quizz-content">
+          <div className="loading">
+            <div className="spinner"></div>
+            <p>Đang tải danh sách quiz...</p>
+          </div>
         </div>
       </div>
     );
@@ -229,9 +268,11 @@ const QuizzList = () => {
   if (allWeeksData.length === 0) {
     return (
       <div className="quizz-container">
-        <div className="empty-state">
-          <h2>📭 Không có dữ liệu quiz</h2>
-          <p>Hiện tại chưa có document nào trong Firebase.</p>
+        <div className="quizz-content">
+          <div className="empty-state">
+            <h2>📭 Không có dữ liệu quiz</h2>
+            <p>Hiện tại chưa có document nào trong Firebase.</p>
+          </div>
         </div>
       </div>
     );
@@ -239,162 +280,165 @@ const QuizzList = () => {
 
   return (
     <div className="quizz-container">
-      <header className="quizz-header">
-        <h1>📚 {currentWeekData.id || 'Loading...'} - Quiz List</h1>
+      <div className="quizz-content">
+        <header className="quizz-header">
+          <h1>📚 {currentWeekData.id || 'Loading...'} - Quiz List</h1>
 
-        {/* Week Navigation */}
-        {allWeeksData.length > 1 && (
-          <div className="week-navigation">
+          {/* Week Navigation */}
+          {allWeeksData.length > 1 && (
+            <div className="week-navigation">
 
-            <span className="week-indicator">
-              Week {currentWeekIndex + 1} of {allWeeksData.length}
-            </span>
-            <div className='nav-buttons'>
-              <button
-                onClick={() => setCurrentWeekIndex(Math.max(0, currentWeekIndex - 1))}
-                disabled={currentWeekIndex === 0}
-                className="nav-btn prev-btn"
-              >
-                ←Trước
-              </button>
-              <button
-                onClick={() => {
-                  const currentIdx = findCurrentWeekIndex(allWeeksData);
-                  if (currentIdx !== -1) setCurrentWeekIndex(currentIdx);
-                }}
-                className="nav-btn current-week-btn"
-                title="Chuyển đến tuần hiện tại"
-              >
-                📅Hiện tại
-              </button>
-              <button
-                onClick={() => setCurrentWeekIndex(Math.min(allWeeksData.length - 1, currentWeekIndex + 1))}
-                disabled={currentWeekIndex === allWeeksData.length - 1}
-                className="nav-btn next-btn"
-              >
-                Sau→
-              </button>
+              <span className="week-indicator">
+                Week {currentWeekIndex + 1} of {allWeeksData.length}
+              </span>
+              <div className='nav-buttons'>
+                <button
+                  onClick={() => setCurrentWeekIndex(Math.max(0, currentWeekIndex - 1))}
+                  disabled={currentWeekIndex === 0}
+                  className="nav-btn prev-btn"
+                >
+                  ←Trước
+                </button>
+                <button
+                  onClick={() => {
+                    const currentIdx = findCurrentWeekIndex(allWeeksData);
+                    if (currentIdx !== -1) setCurrentWeekIndex(currentIdx);
+                  }}
+                  className="nav-btn current-week-btn"
+                  title="Chuyển đến tuần hiện tại"
+                >
+                  📅Hiện tại
+                </button>
+                <button
+                  onClick={() => setCurrentWeekIndex(Math.min(allWeeksData.length - 1, currentWeekIndex + 1))}
+                  disabled={currentWeekIndex === allWeeksData.length - 1}
+                  className="nav-btn next-btn"
+                >
+                  Sau→
+                </button>
+              </div>
+
+
             </div>
+          )}
 
-
+          <div className="document-info">
+            <p><strong>Tuần:</strong> {currentWeekData.id || 'N/A'}</p>
+            <p><strong>Tổng quiz:</strong> {quizKeys.length}</p>
+            <p><strong>Open:</strong> {currentWeekData.startTime ? formatDateTime(currentWeekData.startTime) : 'N/A'}</p>
+            <p><strong>Close:</strong> {currentWeekData.endTime ? formatDateTime(currentWeekData.endTime) : 'N/A'}</p>
+            <button onClick={handleEditDocument} className="edit-document-btn">
+              ✏️ Chỉnh sửa thời gian
+            </button>
           </div>
-        )}
+        </header>
 
-        <div className="document-info">
-          <p><strong>Document ID:</strong> {currentWeekData.id || 'N/A'}</p>
-          <p><strong>Tổng quiz:</strong> {quizKeys.length}</p>
-          <p><strong>Thời gian bắt đầu:</strong> {currentWeekData.startTime ? formatDateTime(currentWeekData.startTime) : 'N/A'}</p>
-          <p><strong>Thời gian kết thúc:</strong> {currentWeekData.endTime ? formatDateTime(currentWeekData.endTime) : 'N/A'}</p>
-          <button onClick={handleEditDocument} className="edit-document-btn">
-            ✏️ Chỉnh sửa thời gian
-          </button>
-        </div>
-      </header>
+        <div className="quizz-grid">
+          {quizKeys.map((quizKey) => {
+            const quiz = currentWeekData[quizKey];
+            const isExpanded = expandedQuiz === quizKey;
+            const isEditing = editingQuiz === quizKey;
 
-      <div className="quizz-grid">
-        {quizKeys.map((quizKey) => {
-          const quiz = currentWeekData[quizKey];
-          const isExpanded = expandedQuiz === quizKey;
-          const isEditing = editingQuiz === quizKey;
+            return (
+              <div key={quizKey} className={`quiz-card ${editingQuiz ? 'disabled' : ''}`}>
+                <div className="quiz-header">
+                  <h3>📝 {quizKey}</h3>
+                  <span className="answer-count">{quiz.soDapAn.length} đáp án</span>
+                </div>
 
-          return (
-            <div key={quizKey} className={`quiz-card ${editingQuiz ? 'disabled' : ''}`}>
-              <div className="quiz-header">
-                <h3>📝 {quizKey}</h3>
-                <span className="answer-count">{quiz.soDapAn.length} đáp án</span>
-              </div>
+                <div className="quiz-info">
+                  <p><strong>Đáp án đúng:</strong> <span className="correct-answer">{quiz.dapAnDung}</span></p>
+                  <p><strong>Số đáp án:</strong> {quiz.soDapAn.length} ({quiz.soDapAn.join(', ')})</p>
+                  <p><strong>Link:</strong>
+                    <a href={quiz.link} target="_blank" rel="noopener noreferrer" className="quiz-link">
+                      📎 Xem file
+                    </a>
+                  </p>
+                </div>
 
-              <div className="quiz-info">
-                <p><strong>Đáp án đúng:</strong> <span className="correct-answer">{quiz.dapAnDung}</span></p>
-                <p><strong>Số đáp án:</strong> {quiz.soDapAn.length} ({quiz.soDapAn.join(', ')})</p>
-                <p><strong>Link:</strong>
-                  <a href={quiz.link} target="_blank" rel="noopener noreferrer" className="quiz-link">
-                    📎 Xem file
-                  </a>
-                </p>
-              </div>
+                <div className="quiz-actions">
+                  <button
+                    onClick={() => toggleExpand(quizKey)}
+                    className="expand-btn"
+                    disabled={editingQuiz && !isEditing}
+                  >
+                    {isExpanded ? '🔼 Thu gọn' : '🔽 Xem chi tiết'}
+                  </button>
+                  <button
+                    onClick={() => handleEditQuiz(quizKey)}
+                    className="edit-btn"
+                    disabled={editingQuiz && !isEditing}
+                  >
+                    ✏️ Chỉnh sửa
+                  </button>
+                </div>
 
-              <div className="quiz-actions">
-                <button
-                  onClick={() => toggleExpand(quizKey)}
-                  className="expand-btn"
-                  disabled={editingQuiz && !isEditing}
-                >
-                  {isExpanded ? '🔼 Thu gọn' : '🔽 Xem chi tiết'}
-                </button>
-                <button
-                  onClick={() => handleEditQuiz(quizKey)}
-                  className="edit-btn"
-                  disabled={editingQuiz && !isEditing}
-                >
-                  ✏️ Chỉnh sửa
-                </button>
-              </div>
+                {isExpanded && (
+                  <div className="quiz-details">
+                    <h4>📋 Chi tiết {quizKey}:</h4>
 
-              {isExpanded && (
-                <div className="quiz-details">
-                  <h4>📋 Chi tiết {quizKey}:</h4>
-
-                  <div className="quiz-detail-content">
-                    <div className="quiz-image-section">
-                      <p><strong>Hình ảnh câu hỏi:</strong></p>
-                      <ImageDisplay
-                        url={quiz.link}
-                        alt={`${quizKey} image`}
-                        className="quiz-image"
-                      />
-                    </div>
-
-                    <div className="quiz-explanation">
-                      <p><strong>Giải thích:</strong></p>
-                      <div className="explanation-text">{quiz.giaiThich}</div>
-                    </div>
-
-                    <div className="answer-choices">
-                      <p><strong>Các lựa chọn đáp án:</strong></p>
-                      <div className="choices-grid">
-                        {quiz.soDapAn.map((answer) => (
-                          <span
-                            key={answer}
-                            className={`choice-item ${answer === quiz.dapAnDung ? 'correct' : ''}`}
-                          >
-                            {answer}
-                          </span>
-                        ))}
+                    <div className="quiz-detail-content">
+                      <div className="quiz-image-section">
+                        <p><strong>Hình ảnh câu hỏi:</strong></p>
+                        <ImageDisplay
+                          url={quiz.link}
+                          alt={`${quizKey} image`}
+                          className="quiz-image"
+                        />
                       </div>
+                      <div className="answer-choices">
+                        <p><strong>Các lựa chọn đáp án:</strong></p>
+                        <div className="choices-grid">
+                          {quiz.soDapAn.map((answer) => (
+                            <span
+                              key={answer}
+                              className={`choice-item ${answer === quiz.dapAnDung ? 'correct' : ''}`}
+                            >
+                              {answer}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="quiz-explanation">
+                        <p><strong>Giải thích:</strong></p>
+                        <div className="explanation-text">{quiz.giaiThich}</div>
+                      </div>
+
+
                     </div>
                   </div>
-                </div>
-              )}
-            </div>
-          );
-        })}
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Quiz Edit Modal - Di chuyển ra ngoài để hiển thị đúng */}
+        {editingQuiz && (
+          <QuizEditForm
+            quiz={currentWeekData[editingQuiz]}
+            quizKey={editingQuiz}
+            onSave={handleSaveQuiz}
+            onDelete={handleDeleteQuiz}
+            onCancel={handleCancelEdit}
+          />
+        )}
+
+        {editingDocument && (
+          <DocumentEditModal
+            startTime={currentWeekData.startTime}
+            endTime={currentWeekData.endTime}
+            onSave={handleSaveDocument}
+            onCancel={() => setEditingDocument(false)}
+          />
+        )}
       </div>
-
-      {/* Quiz Edit Modal - Di chuyển ra ngoài để hiển thị đúng */}
-      {editingQuiz && (
-        <QuizEditForm
-          quiz={currentWeekData[editingQuiz]}
-          quizKey={editingQuiz}
-          onSave={handleSaveQuiz}
-          onCancel={handleCancelEdit}
-        />
-      )}
-
-      {editingDocument && (
-        <DocumentEditModal
-          startTime={currentWeekData.startTime}
-          endTime={currentWeekData.endTime}
-          onSave={handleSaveDocument}
-          onCancel={() => setEditingDocument(false)}
-        />
-      )}
     </div>
   );
 };
 
 // Component để chỉnh sửa quiz
-const QuizEditForm = ({ quiz, quizKey, onSave, onCancel }) => {
+const QuizEditForm = ({ quiz, quizKey, onSave, onDelete, onCancel }) => {
   const [formData, setFormData] = useState({
     dapAnDung: quiz.dapAnDung,
     giaiThich: quiz.giaiThich,
@@ -524,8 +568,19 @@ const QuizEditForm = ({ quiz, quizKey, onSave, onCancel }) => {
             </div>
 
             <div className="form-actions">
-              <button type="submit" className="save-btn">💾 Lưu</button>
-              <button type="button" onClick={onCancel} className="cancel-btn">❌ Hủy</button>
+              <div className="danger-actions">
+                <button 
+                  type="button" 
+                  onClick={() => onDelete(quizKey)} 
+                  className="delete-btn"
+                >
+                  🗑️ Xóa quiz này
+                </button>
+              </div>
+              <div className="primary-actions">
+                <button type="button" onClick={onCancel} className="cancel-btn">❌ Hủy</button>
+                <button type="submit" className="save-btn">💾 Lưu</button>
+              </div>
             </div>
           </form>
         </div>

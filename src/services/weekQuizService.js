@@ -1,4 +1,4 @@
-import { doc, setDoc, getDoc, updateDoc, getDocs, collection } from 'firebase/firestore';
+import { doc, setDoc, getDoc, updateDoc, getDocs, collection, deleteField } from 'firebase/firestore';
 import { db } from '../config/firebase.js';
 
 const COLLECTION_NAME = 'Quiz';
@@ -111,10 +111,17 @@ export const updateQuizInWeek = async (weekId, quizId, quizData) => {
   try {
     const docRef = doc(db, COLLECTION_NAME, weekId);
     
-    // Đảm bảo quiz data KHÔNG chứa startTime, endTime
-    await updateDoc(docRef, {
-      [quizId]: cleanQuizData(quizData)
-    });
+    // Nếu quizData là null, xóa quiz field
+    if (quizData === null) {
+      await updateDoc(docRef, {
+        [quizId]: deleteField()
+      });
+    } else {
+      // Đảm bảo quiz data KHÔNG chứa startTime, endTime
+      await updateDoc(docRef, {
+        [quizId]: cleanQuizData(quizData)
+      });
+    }
   } catch (error) {
     console.error('Error updating quiz in week: ', error);
     throw error;
@@ -208,6 +215,53 @@ export const deleteQuizFromWeek = async (weekId, quizId) => {
     });
   } catch (error) {
     console.error('Error deleting quiz from week: ', error);
+    throw error;
+  }
+};
+
+/**
+ * Lấy danh sách quiz của một tuần
+ * @param {string} weekId - ID của week (vd: 'week1', 'week2')
+ * @returns {Promise<Array>} - Mảng các quiz đã được format
+ */
+export const getQuizzesByWeek = async (weekId) => {
+  try {
+    const weekData = await getWeekById(weekId);
+    if (!weekData) {
+      return [];
+    }
+
+    const quizzes = [];
+    const quizKeys = Object.keys(weekData).filter(key => key.startsWith('Quiz'));
+    
+    quizKeys.forEach(quizKey => {
+      const quizNumber = quizKey.replace('Quiz', '');
+      const quizData = weekData[quizKey];
+      
+      // Format quiz data để tương thích với QuizHistoryCard
+      const formattedQuiz = {
+        quizNumber: parseInt(quizNumber),
+        question: quizData.link || 'Câu hỏi không có nội dung',
+        optionA: quizData.soDapAn && quizData.soDapAn.A ? quizData.soDapAn.A : '',
+        optionB: quizData.soDapAn && quizData.soDapAn.B ? quizData.soDapAn.B : '',
+        optionC: quizData.soDapAn && quizData.soDapAn.C ? quizData.soDapAn.C : '',
+        optionD: quizData.soDapAn && quizData.soDapAn.D ? quizData.soDapAn.D : '',
+        correctAnswer: quizData.dapAnDung,
+        explanation: quizData.giaiThich || '',
+        imageUrl: quizData.imageUrl || '',
+        startTime: weekData.startTime,
+        endTime: weekData.endTime
+      };
+      
+      quizzes.push(formattedQuiz);
+    });
+    
+    // Sắp xếp theo quizNumber
+    quizzes.sort((a, b) => a.quizNumber - b.quizNumber);
+    
+    return quizzes;
+  } catch (error) {
+    console.error('Error getting quizzes by week: ', error);
     throw error;
   }
 };

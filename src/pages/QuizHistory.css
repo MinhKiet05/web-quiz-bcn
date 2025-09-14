@@ -1,0 +1,422 @@
+/* Main background - Giống QuizPlayer */
+main {
+  background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+  min-height: 100vh;
+  padding: 0;
+  margin: 0;
+}
+
+/* Quiz History Styles - Style giống QuizPlayer */
+.quiz-history-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+}
+
+/* Header Styles - Giống QuizPlayer */
+.quiz-history-header {
+  text-align: center;
+  margin-bottom: 40px;
+  background: white;
+  padding: 30px;
+  padding-bottom: 40px;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+  position: relative;
+}
+
+.quiz-history-header h1 {
+  margin: 0 0 20px 0;
+  color: #2c3e50;
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Week Navigation */
+.week-navigation {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.navigation-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.nav-btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  background: #3498db;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.nav-btn:hover:not(:disabled) {
+  background: #2980b9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+.nav-btn:disabled {
+  background: #bdc3c7;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.nav-btn.current {
+  background: #27ae60;
+}
+
+.nav-btn.current:hover:not(:disabled) {
+  background: #229954;
+}
+
+.current-week-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.week-label {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.week-score {
+  font-size: 0.9rem;
+  color: #27ae60;
+  font-weight: 600;
+  background: #d5f4e6;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+}
+
+/* Week Time Info */
+.week-time-info {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin: 0.75rem 0;
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.time-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.time-item .time-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.time-item .time-value {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #495057;
+  text-align: center;
+}
+
+/* Week Summary Inline */
+.week-summary-inline {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid #e9ecef;
+  width: 100%;
+  max-width: 600px;
+}
+
+.summary-stats-inline {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: 1rem;
+}
+
+.stat-item-inline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.stat-item-inline .stat-label {
+  color: #6c757d;
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
+.stat-item-inline .stat-value {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #2c3e50;
+}
+
+.stat-item-inline .stat-value.correct {
+  color: #27ae60;
+}
+
+.stat-item-inline .stat-value.percentage {
+  color: #3498db;
+}
+
+/* Quiz List - Style giống QuizPlayer */
+.quiz-history-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  margin-bottom: 2rem;
+}
+
+/* Loading và Error States - Style giống QuizPlayer */
+.quiz-history-loading,
+.quiz-history-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 50vh;
+  color: #666;
+}
+
+.loading-spinner {
+  font-size: 48px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.quiz-history-loading p,
+.quiz-history-error p {
+  color: #7f8c8d;
+  font-size: 1.1rem;
+  margin: 10px 0 0 0;
+}
+
+.quiz-history-error p {
+  color: #e74c3c;
+}
+
+/* No Quiz Message - Style giống QuizPlayer */
+.no-quiz-message {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+}
+
+.no-quiz-message p {
+  font-size: 1.2rem;
+  margin: 0;
+  color: #7f8c8d;
+}
+
+/* Week Summary */
+.week-summary {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-top: 2rem;
+  border: 1px solid #e9ecef;
+}
+
+.week-summary h3 {
+  color: #2c3e50;
+  margin: 0 0 1rem 0;
+  font-size: 1.3rem;
+  text-align: center;
+}
+
+.summary-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+}
+
+.stat-label {
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.stat-value {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #2c3e50;
+}
+
+.stat-value.correct {
+  color: #27ae60;
+}
+
+.stat-value.percentage {
+  color: #3498db;
+}
+
+/* Responsive Design - Style giống QuizPlayer */
+@media (max-width: 768px) {
+  .quiz-history-container {
+    padding: 15px;
+  }
+
+  .quiz-history-header {
+    padding: 20px;
+    margin-bottom: 30px;
+  }
+
+  .quiz-history-header h1 {
+    font-size: 2rem;
+    margin-bottom: 15px;
+  }
+
+  .navigation-row {
+    gap: 0.5rem;
+  }
+
+  .nav-btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  .current-week-info {
+    order: -1;
+    margin-bottom: 0.5rem;
+  }
+
+  .week-label {
+    font-size: 1rem;
+  }
+
+  .week-score {
+    font-size: 0.8rem;
+  }
+
+  .summary-stats-inline {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .week-summary-inline {
+    padding: 0.75rem;
+  }
+
+  .week-time-info {
+    gap: 1rem;
+    padding: 0.5rem;
+  }
+
+  .time-item .time-label {
+    font-size: 0.8rem;
+  }
+
+  .time-item .time-value {
+    font-size: 0.85rem;
+  }
+
+  .quiz-history-list {
+    gap: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .quiz-history-container {
+    padding: 10px;
+  }
+
+  .quiz-history-header {
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+
+  .quiz-history-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .navigation-row {
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  .nav-btn {
+    width: 100%;
+    max-width: 200px;
+  }
+
+  .current-week-info {
+    margin-bottom: 0.5rem;
+  }
+
+  .summary-stats-inline {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .stat-item-inline .stat-label {
+    font-size: 0.75rem;
+  }
+
+  .stat-item-inline .stat-value {
+    font-size: 1rem;
+  }
+
+  .week-time-info {
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.5rem;
+  }
+
+  .time-item {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .time-item .time-label {
+    font-size: 0.75rem;
+  }
+
+  .time-item .time-value {
+    font-size: 0.8rem;
+  }
+
+  .quiz-history-list {
+    gap: 16px;
+  }
+}

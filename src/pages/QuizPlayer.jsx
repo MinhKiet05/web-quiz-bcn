@@ -9,10 +9,14 @@ const QuizPlayer = () => {
   const [quizzes, setQuizzes] = useState([]);
   const [userAnswers, setUserAnswers] = useState({});
   const [loading, setLoading] = useState(true);
-  const [selectedQuiz, setSelectedQuiz] = useState(null);
-  const [showQuizModal, setShowQuizModal] = useState(false);
   const [currentAnswers, setCurrentAnswers] = useState({});
   const [weekInfo, setWeekInfo] = useState(null);
+  const [savingAnswers, setSavingAnswers] = useState({}); // Track saving state for each quiz
+
+  // Initialize current answers with user answers
+  useEffect(() => {
+    setCurrentAnswers(userAnswers);
+  }, [userAnswers]);
 
   // Lấy quiz và thông tin thời gian từ week1 document
   const fetchQuizzes = useCallback(async () => {
@@ -59,15 +63,6 @@ const QuizPlayer = () => {
     }
   }, [user, fetchQuizzes, fetchUserAnswers]);
 
-  const openQuiz = (quiz) => {
-    console.log('Opening quiz:', quiz); // Debug log
-    setSelectedQuiz(quiz);
-    const quizNumber = quiz.title?.replace('Quiz', '') || '1';
-    const savedAnswer = userAnswers[`Quiz${quizNumber}`];
-    setCurrentAnswers(savedAnswer ? { [`Quiz${quizNumber}`]: savedAnswer } : {});
-    setShowQuizModal(true);
-  };
-
   const handleAnswerChange = (quizKey, answer) => {
     setCurrentAnswers({
       ...currentAnswers,
@@ -75,11 +70,17 @@ const QuizPlayer = () => {
     });
   };
 
-  const submitAnswer = async () => {
+  const submitSingleAnswer = async (quizNumber) => {
     try {
-      const quizKey = Object.keys(currentAnswers)[0]; // e.g., "Quiz1"
+      setSavingAnswers(prev => ({ ...prev, [quizNumber]: true }));
+      
+      const quizKey = `Quiz${quizNumber}`;
       const answer = currentAnswers[quizKey];
-      const quizNumber = quizKey.replace('Quiz', '');
+      
+      if (!answer) {
+        alert('Vui lòng chọn đáp án trước khi lưu!');
+        return;
+      }
       
       const updatedAnswers = await quizService.saveUserAnswer(
         user.studentId || user.uid,
@@ -90,13 +91,13 @@ const QuizPlayer = () => {
       
       // Update local state
       setUserAnswers(updatedAnswers);
-      setShowQuizModal(false);
-      setSelectedQuiz(null);
       
       alert('Đáp án đã được lưu thành công!');
     } catch (error) {
       console.error('Error submitting answer:', error);
       alert('Có lỗi xảy ra khi lưu đáp án!');
+    } finally {
+      setSavingAnswers(prev => ({ ...prev, [quizNumber]: false }));
     }
   };
 
@@ -208,17 +209,6 @@ const QuizPlayer = () => {
                 </div>
                 
                 <div className="quiz-player-quiz-card-content">
-                  {/* Hiển thị hình ảnh */}
-                  {quiz.link && (
-                    <div className="quiz-player-quiz-image">
-                      <ImageDisplay
-                        url={quiz.link}
-                        alt={`Quiz ${quizNumber} - Câu hỏi`}
-                        className="quiz-player-quiz-image-display"
-                      />
-                    </div>
-                  )}
-                  
                   <div className="quiz-player-quiz-info">
                     <span className="quiz-player-quiz-points">📊 {quizNumber} điểm</span>
                   </div>
@@ -242,124 +232,83 @@ const QuizPlayer = () => {
                   )}
                 </div>
                 
-                <button 
-                  className="quiz-player-quiz-action-btn"
-                  onClick={() => openQuiz(quiz)}
-                  disabled={!canTake}
-                >
-                  {!canTake && timeStatus === 'not_started' ? '🔒 Chưa mở' :
-                   !canTake && timeStatus === 'expired' ? '❌ Đã hết hạn' :
-                   status === 'completed' ? '✏️ Sửa đáp án' : '▶️ Bắt đầu'}
-                </button>
+                {/* Quiz Content - Inline Interface */}
+                <div className="quiz-player-quiz-content">
+                  {quiz.link && (
+                    <div className="quiz-player-quiz-image-container">
+                      <ImageDisplay 
+                        url={quiz.link}
+                        alt={`${quiz.title} - Hình ảnh câu hỏi`}
+                        className="quiz-player-quiz-inline-image"
+                      />
+                    </div>
+                  )}
+                  
+                  {canTake && (
+                    <div className="quiz-player-quiz-options">
+                      <label htmlFor={`quiz-${quiz.title || quizNumber}`}>Chọn đáp án:</label>
+                      <select 
+                        id={`quiz-${quiz.title || quizNumber}`}
+                        value={currentAnswers[quiz.title || `Quiz${quizNumber}`] || ''}
+                        onChange={(e) => handleAnswerChange(quiz.title || `Quiz${quizNumber}`, e.target.value)}
+                        className="quiz-player-quiz-answer-select"
+                      >
+                        <option value="">-- Chọn đáp án --</option>
+                        
+                        {/* Render options based on soDapAn array or individual options */}
+                        {quiz.soDapAn && quiz.soDapAn.length > 0 ? (
+                          quiz.soDapAn.map((option, optionIndex) => (
+                            <option key={optionIndex} value={String.fromCharCode(65 + optionIndex)}>
+                              {String.fromCharCode(65 + optionIndex)}
+                            </option>
+                          ))
+                        ) : (
+                          ['A', 'B', 'C', 'D', 'E'].map(letter => {
+                            const optionKey = `luaChon${letter}`;
+                            const option = quiz[optionKey];
+                            return option ? (
+                              <option key={letter} value={letter}>
+                                {letter}
+                              </option>
+                            ) : null;
+                          })
+                        )}
+                        
+                        {/* Fallback if no options available */}
+                        {(!quiz.soDapAn || quiz.soDapAn.length === 0) &&
+                         !['A', 'B', 'C', 'D', 'E'].some(letter => quiz[`luaChon${letter}`]) && (
+                          <>
+                            <option value="A"></option>
+                            <option value="B"></option>
+                            <option value="C"></option>
+                            <option value="D"></option>
+                          </>
+                        )}
+                      </select>
+                      
+                      <button 
+                        onClick={() => submitSingleAnswer(quizNumber)}
+                        className="quiz-player-quiz-save-answer-btn"
+                        disabled={savingAnswers[quizNumber] || !currentAnswers[quiz.title || `Quiz${quizNumber}`]}
+                      >
+                        {savingAnswers[quizNumber] ? 'Đang lưu...' : 'Lưu đáp án'}
+                      </button>
+                    </div>
+                  )}
+                  
+                  {/* Show current saved answer */}
+                  {userAnswers[quiz.title || `Quiz${quizNumber}`] && (
+                    <div className="quiz-player-quiz-saved-answer">
+                      Đã lưu: {userAnswers[quiz.title || `Quiz${quizNumber}`]}
+                    </div>
+                  )}
+                </div>
               </div>
             );
           })
         )}
       </div>
 
-      {/* Quiz Modal */}
-      {showQuizModal && selectedQuiz && (
-        <div className="quiz-player-quiz-modal-overlay" onClick={() => setShowQuizModal(false)}>
-          <div className="quiz-player-quiz-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="quiz-player-quiz-modal-header">
-              <h2>{selectedQuiz.title}</h2>
-              <button 
-                className="quiz-player-quiz-modal-close"
-                onClick={() => setShowQuizModal(false)}
-              >
-                ✕
-              </button>
-            </div>
-            
-            <div className="quiz-player-quiz-modal-content">
-              {/* Hiển thị hình ảnh câu hỏi từ link */}
-              {selectedQuiz.link && (
-                <div className="quiz-player-question-image">
-                  <ImageDisplay
-                    url={selectedQuiz.link}
-                    alt={`${selectedQuiz.title} - Hình ảnh câu hỏi`}
-                    className="quiz-player-question-image-display"
-                  />
-                </div>
-              )}
-
-              
-              
-              <div className="quiz-player-quiz-options">
-                <h3>Lựa chọn:</h3>
-                {/* Kiểm tra nếu có soDapAn array */}
-                {selectedQuiz.soDapAn && selectedQuiz.soDapAn.length > 0 ? (
-                  selectedQuiz.soDapAn.map((option, index) => {
-                    const optionLetter = String.fromCharCode(65 + index); // A, B, C, D...
-                    const quizKey = selectedQuiz.title?.replace('Quiz', '') || '1';
-                    const isSelected = currentAnswers[`Quiz${quizKey}`] === optionLetter;
-                    
-                    return (
-                      <label key={index} className={`quiz-player-quiz-option ${isSelected ? 'selected' : ''}`}>
-                        <input
-                          type="radio"
-                          name="quizAnswer"
-                          value={optionLetter}
-                          checked={isSelected}
-                          onChange={(e) => handleAnswerChange(`Quiz${quizKey}`, e.target.value)}
-                        />
-                        <span className="quiz-player-option-letter">{optionLetter}</span>
-                        <span className="quiz-player-option-text">{option}</span>
-                      </label>
-                    );
-                  })
-                ) : (
-                  /* Fallback: Kiểm tra các field luaChonA, luaChonB, etc */
-                  ['A', 'B', 'C', 'D', 'E'].map((letter) => {
-                    const optionKey = `luaChon${letter}`;
-                    const option = selectedQuiz[optionKey];
-                    
-                    if (!option) return null;
-                    
-                    const quizKey = selectedQuiz.title?.replace('Quiz', '') || '1';
-                    const isSelected = currentAnswers[`Quiz${quizKey}`] === letter;
-                    
-                    return (
-                      <label key={letter} className={`quiz-player-quiz-option ${isSelected ? 'selected' : ''}`}>
-                        <input
-                          type="radio"
-                          name="quizAnswer"
-                          value={letter}
-                          checked={isSelected}
-                          onChange={(e) => handleAnswerChange(`Quiz${quizKey}`, e.target.value)}
-                        />
-                        <span className="quiz-player-option-letter">{letter}</span>
-                        <span className="quiz-player-option-text">{option}</span>
-                      </label>
-                    );
-                  }).filter(Boolean)
-                )}
-                
-                {(!selectedQuiz.soDapAn || selectedQuiz.soDapAn.length === 0) && 
-                 !['A', 'B', 'C', 'D', 'E'].some(letter => selectedQuiz[`luaChon${letter}`]) && (
-                  <p style={{ color: '#e74c3c', textAlign: 'center' }}>Chưa có lựa chọn nào được tạo</p>
-                )}
-              </div>
-            </div>
-            
-            <div className="quiz-player-quiz-modal-footer">
-              <button 
-                className="quiz-player-quiz-cancel-btn"
-                onClick={() => setShowQuizModal(false)}
-              >
-                Hủy
-              </button>
-              <button 
-                className="quiz-player-quiz-submit-btn"
-                onClick={submitAnswer}
-                disabled={!Object.keys(currentAnswers).length}
-              >
-                💾 Lưu đáp án
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

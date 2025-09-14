@@ -7,6 +7,7 @@ import Upload from './pages/Upload'
 import QuizzList from './pages/QuizzList'
 import UserManagement from './pages/UserManagement'
 import QuizPlayer from './pages/QuizPlayer'
+import QuizHistory from './pages/QuizHistory'
 import RedirectToHome from './components/RedirectToHome'
 import Login from './components/Login/Login'
 import { useState } from 'react'
@@ -102,7 +103,12 @@ function AppContent() {
           } />
           <Route path="/my-quizzes" element={
             <ProtectedRoute>
-              <MyQuizzes />
+              <QuizHistory />
+            </ProtectedRoute>
+          } />
+          <Route path="/quiz-history" element={
+            <ProtectedRoute>
+              <QuizHistory />
             </ProtectedRoute>
           } />
           <Route path="/news" element={<News />} />
@@ -363,12 +369,10 @@ const Dashboard = () => (
   </div>
 );
 
-const MyQuizzes = () => (
-  <div style={{ padding: '40px', textAlign: 'center' }}>
-    <h1>📝 Các quiz tôi tham gia</h1>
-    <p>Xem lại các quiz đã làm</p>
-  </div>
-);
+const MyQuizzes = () => {
+  // Redirect to QuizHistory component
+  return <QuizHistory />;
+};
 
 const News = () => (
   <div style={{ padding: '40px', textAlign: 'center' }}>
