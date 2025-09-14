@@ -11,9 +11,38 @@ const QuizHistory = () => {
   const [availableWeeks, setAvailableWeeks] = useState([]);
   const [userQuizData, setUserQuizData] = useState({});
   const [weekQuizzes, setWeekQuizzes] = useState([]);
+  const [allWeekQuizzes, setAllWeekQuizzes] = useState([]); // Thêm state để lưu tất cả quiz data
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [weekScore, setWeekScore] = useState({ correct: 0, total: 0, percentage: 0 });
+
+  // Tìm tuần quiz hiện tại dựa trên thời gian thực
+  const getCurrentWeekFromQuizData = async () => {
+    const now = new Date();
+    
+    // Duyệt qua tất cả available weeks để tìm tuần hiện tại
+    for (const weekId of availableWeeks) {
+      try {
+        const weekQuizData = await getQuizzesByWeek(weekId);
+        if (weekQuizData.length > 0) {
+          const quiz = weekQuizData[0]; // Lấy quiz đầu tiên để check time
+          if (quiz.startTime && quiz.endTime) {
+            const startTime = quiz.startTime.toDate ? quiz.startTime.toDate() : new Date(quiz.startTime);
+            const endTime = quiz.endTime.toDate ? quiz.endTime.toDate() : new Date(quiz.endTime);
+            
+            if (now >= startTime && now <= endTime) {
+              return weekId;
+            }
+          }
+        }
+      } catch (error) {
+        console.error(`Error checking week ${weekId}:`, error);
+      }
+    }
+    
+    // Nếu không tìm thấy tuần hiện tại, trả về tuần gần nhất
+    return availableWeeks[availableWeeks.length - 1] || 'week1';
+  };
 
   // Lấy tuần hiện tại dựa trên thời gian
   const getCurrentWeek = () => {
@@ -39,13 +68,28 @@ const QuizHistory = () => {
         const weeks = await getAvailableWeeks(user.username);
         setAvailableWeeks(weeks);
         
-        // Ưu tiên load tuần hiện tại
-        const currentWeekKey = getCurrentWeek();
-        let initialWeek = currentWeekKey; // Mặc định là tuần hiện tại
+        // Load quiz data cho tất cả các tuần để có thể filter
+        const allQuizzes = [];
+        for (const weekId of weeks) {
+          try {
+            const weekData = await getQuizzesByWeek(weekId);
+            allQuizzes.push(...weekData);
+          } catch (error) {
+            console.error(`Error loading quiz data for ${weekId}:`, error);
+          }
+        }
+        setAllWeekQuizzes(allQuizzes);
         
-        // Nếu tuần hiện tại không có dữ liệu, chọn tuần gần nhất
-        if (!weeks.includes(currentWeekKey)) {
-          initialWeek = weeks[weeks.length - 1] || 'week1';
+        // Tìm tuần hiện tại dựa trên thời gian quiz thực tế
+        let initialWeek = 'week1'; // Default fallback
+        
+        if (weeks.length > 0) {
+          try {
+            initialWeek = await getCurrentWeekFromQuizData() || weeks[weeks.length - 1];
+          } catch (error) {
+            console.error('Error getting current week from quiz data:', error);
+            initialWeek = weeks[weeks.length - 1]; // Fallback to latest week
+          }
         }
         
         setCurrentWeek(initialWeek);
@@ -59,6 +103,7 @@ const QuizHistory = () => {
     };
 
     loadInitialData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   // Load dữ liệu quiz của tuần được chọn
@@ -161,9 +206,105 @@ const QuizHistory = () => {
         <div className="quiz-history-header">
           <h1>Quiz Đã Làm</h1>
           
-                  <div className="week-navigation">
-                      <div className="current-week-info">
-              <span className="week-label">{currentWeek.replace('week', 'Tuần ')}</span>
+          <div className="week-navigation">
+            <div className="current-week-info">
+              <label htmlFor="week-select" className="week-select-label">Chọn tuần:</label>
+              <select 
+                id="week-select"
+                value={currentWeek}
+                onChange={(e) => setCurrentWeek(e.target.value)}
+                className={`week-select ${(() => {
+                  // Xác định class cho select dựa trên tuần hiện tại
+                  const weekQuizData = allWeekQuizzes.find(quiz => quiz.weekId === currentWeek);
+                  const userWeekData = userQuizData[currentWeek] || {};
+                  const hasUserAnswers = Object.keys(userWeekData).length > 0;
+                  
+                  if (weekQuizData && weekQuizData.startTime && weekQuizData.endTime) {
+                    const now = new Date();
+                    const startTime = weekQuizData.startTime.toDate ? weekQuizData.startTime.toDate() : new Date(weekQuizData.startTime);
+                    const endTime = weekQuizData.endTime.toDate ? weekQuizData.endTime.toDate() : new Date(weekQuizData.endTime);
+                    
+                    if (now > endTime) {
+                      if (hasUserAnswers) {
+                        // Tính điểm để xác định đúng/sai
+                        const correctAnswers = {};
+                        const weekQuizzes = allWeekQuizzes.filter(q => q.weekId === currentWeek);
+                        weekQuizzes.forEach(quiz => {
+                          correctAnswers[`Quiz${quiz.quizNumber}`] = quiz.correctAnswer;
+                        });
+                        
+                        let correct = 0;
+                        let total = 0;
+                        for (const [quizKey, userAnswer] of Object.entries(userWeekData)) {
+                          if (correctAnswers[quizKey] !== undefined) {
+                            total++;
+                            if (userAnswer === correctAnswers[quizKey]) {
+                              correct++;
+                            }
+                          }
+                        }
+                        
+                        const percentage = total > 0 ? (correct / total) * 100 : 0;
+                        return percentage >= 50 ? 'week-finished-correct' : 'week-finished-incorrect';
+                      } else {
+                        return 'week-finished-incorrect';
+                      }
+                    } else if (now >= startTime && now <= endTime) {
+                      return hasUserAnswers ? 'week-in-progress-done' : 'week-in-progress-not-done';
+                    } else {
+                      return 'week-not-started';
+                    }
+                  }
+                  return 'week-not-started';
+                })()}`}
+              >
+                {(() => {
+                  // Nếu allWeekQuizzes chưa load xong, hiển thị tất cả tuần có sẵn
+                  if (allWeekQuizzes.length === 0) {
+                    console.log('allWeekQuizzes not loaded yet, showing all available weeks');
+                    return availableWeeks.map(weekId => (
+                      <option key={weekId} value={weekId}>
+                        {weekId.replace('week', 'Tuần ')}
+                      </option>
+                    ));
+                  }
+                  
+                  const filteredWeeks = availableWeeks.filter(weekId => {
+                    // Lọc các tuần có startTime <= hiện tại
+                    const weekQuizData = allWeekQuizzes.find(quiz => quiz.weekId === weekId);
+                    
+                    console.log(`Checking ${weekId}:`, {
+                      weekQuizData: !!weekQuizData,
+                      startTime: weekQuizData?.startTime ? 'exists' : 'missing',
+                      allWeekQuizzesCount: allWeekQuizzes.length
+                    });
+                    
+                    if (!weekQuizData || !weekQuizData.startTime) {
+                      console.log(`${weekId}: No quiz data or startTime, hiding`);
+                      return false;
+                    }
+                    
+                    const now = new Date();
+                    const startTime = weekQuizData.startTime.toDate ? weekQuizData.startTime.toDate() : new Date(weekQuizData.startTime);
+                    const canShow = startTime <= now;
+                    
+                    console.log(`${weekId}: startTime=${startTime.toLocaleString()}, now=${now.toLocaleString()}, canShow=${canShow}`);
+                    
+                    return canShow;
+                  });
+                  
+                  // Fallback: nếu không có tuần nào được filter, hiển thị tuần đầu tiên
+                  const weeksToShow = filteredWeeks.length > 0 ? filteredWeeks : availableWeeks.slice(0, 1);
+                  
+                  console.log('Final weeks to show:', weeksToShow);
+                  
+                  return weeksToShow.map(weekId => (
+                    <option key={weekId} value={weekId}>
+                      {weekId.replace('week', 'Tuần ')}
+                    </option>
+                  ));
+                })()}
+              </select>
             </div>
             <div className="navigation-row">
               <button 
