@@ -142,9 +142,10 @@ const Home = () => {
     <>
       <div style={{ padding: '40px', textAlign: 'center' }}>
         <div style={{
+          minWidth:'250px',
           background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
           color: 'white',
-          padding: '40px 24px',
+          padding: '0px 24px 20px 24px',
           borderRadius: '16px',
           boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
           textAlign: 'center',
@@ -153,7 +154,7 @@ const Home = () => {
           lineHeight: 1.6
         }}>
           <div style={{ fontSize: '64px', marginBottom: '20px' }}>🎯</div>
-          <h1 style={{ margin: '0 0 16px 0', fontSize: '32px' }}>
+          <h1 style={{ margin: '-10px 0 16px 0', fontSize: '32px' }}>
             Quiz Hàng Tuần
           </h1>
           <p style={{ fontSize: '18px', opacity: 0.9, marginBottom: '30px' }}>
