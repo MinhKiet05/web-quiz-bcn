@@ -8,10 +8,10 @@ import { useAuth } from '../contexts/AuthContext';
 import Login from '../components/Login/Login';
 
 const navLinks = [
-  { name: 'Trang chủ', path: '/' },
-  { name: 'Lịch quiz', path: '/schedule' },
-  { name: 'Quiz đã làm', path: '/completed-quizzes' },
-  { name: 'Bảng Xếp hạng', path: '/leaderboard' },
+  { name: 'Quiz', path: '/' },
+  { name: 'Quiz đã làm', path: '/my-quizzes' },
+  { name: 'Bảng xếp hạng', path: '/leaderboard' },
+  { name: 'Thể lệ', path: '/rules' },
   { 
     name: 'Quản lý', 
     path: '#',

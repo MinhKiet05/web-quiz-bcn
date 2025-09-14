@@ -74,17 +74,13 @@ const Upload = () => {
   };
 
   const addAnswerChoice = () => {
-    // Thêm đáp án rỗng để user có thể tự điền hoặc sử dụng auto-fill 
-    setSoDapAn([...soDapAn, '']);
-  };
-
-  // Helper function để auto-fill all answers với chữ cái
-  const autoFillLetters = () => {
-    const autoFilledAnswers = soDapAn.map((_, index) => String.fromCharCode(65 + index));
-    setSoDapAn(autoFilledAnswers);
-    setMessage('✅ Đã tự động điền các đáp án bằng chữ cái A, B, C, D...');
-    // Clear message after 3 seconds
-    setTimeout(() => setMessage(''), 3000);
+    // Tự động điền chữ cái cho đáp án mới
+    const newIndex = soDapAn.length;
+    const newLetter = String.fromCharCode(65 + newIndex); // A, B, C, D, E, F...
+    setSoDapAn([...soDapAn, newLetter]);
+    setMessage(`✅ Đã thêm đáp án "${newLetter}"`);
+    // Clear message after 2 seconds
+    setTimeout(() => setMessage(''), 2000);
   };
 
   const removeAnswerChoice = (index) => {
@@ -370,23 +366,6 @@ const Upload = () => {
                   className="add-answer-btn"
                 >
                   ➕ Thêm lựa chọn đáp án
-                </button>
-                
-                <button
-                  type="button"
-                  onClick={autoFillLetters}
-                  className="auto-fill-btn"
-                  style={{
-                    marginLeft: '10px',
-                    backgroundColor: '#e3f2fd',
-                    color: '#1976d2',
-                    border: '1px solid #1976d2',
-                    padding: '8px 12px',
-                    borderRadius: '4px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  🔤 Tự động điền A, B, C, D...
                 </button>
               </div>
             </div>

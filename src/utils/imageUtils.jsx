@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getAlternativeUrls } from './imageHelpers.js';
 
 /**
- * Component hiển thị ảnh với xử lý Google Drive links
+ * Component hiển thị ảnh với xử lý Google Drive links - Tối ưu tốc độ tải
  */
 export const ImageDisplay = ({ 
   url, 
@@ -10,85 +10,127 @@ export const ImageDisplay = ({
   className = "", 
   style = {},
   fallbackSrc = "",
+  silentMode = true,
   ...props 
 }) => {
-  const alternativeUrls = getAlternativeUrls(url);
-  const [currentUrlIndex, setCurrentUrlIndex] = useState(0);
-  const [hasError, setHasError] = useState(false);
+  const [currentUrl, setCurrentUrl] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  
-  const currentUrl = alternativeUrls[currentUrlIndex] || '';
+  const [hasError, setHasError] = useState(false);
+  const [alternativeUrls, setAlternativeUrls] = useState([]);
 
-  const handleError = (e) => {
-    console.error('Image failed to load:', currentUrl, 'Error:', e.type || 'Unknown error');
-    
-    // Thử URL tiếp theo trong danh sách
-    if (currentUrlIndex < alternativeUrls.length - 1) {
-      setCurrentUrlIndex(currentUrlIndex + 1);
-      setIsLoading(true);
-      setHasError(false);
+  useEffect(() => {
+    if (!url) {
+      setHasError(true);
+      setIsLoading(false);
       return;
     }
-    
-    // Thử fallback nếu có
-    if (fallbackSrc && !alternativeUrls.includes(fallbackSrc)) {
-      alternativeUrls.push(fallbackSrc);
-      setCurrentUrlIndex(alternativeUrls.length - 1);
-      setIsLoading(true);
-      setHasError(false);
-      return;
+
+    let urls = getAlternativeUrls(url);
+    if (fallbackSrc && !urls.includes(fallbackSrc)) {
+      urls.push(fallbackSrc);
     }
     
-    // Tất cả URL đều thất bại
-    console.error('All alternative URLs failed for:', url);
+    setAlternativeUrls(urls);
+    setIsLoading(true);
+    setHasError(false);
+
+    // Parallel loading strategy - test all URLs simultaneously to find fastest working one
+    let resolved = false;
+
+    const testImage = (testUrl) => {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        
+        img.onload = () => {
+          if (!resolved) {
+            resolved = true;
+            setCurrentUrl(testUrl);
+            setIsLoading(false);
+            setHasError(false);
+          }
+          resolve({ url: testUrl, success: true });
+        };
+
+        img.onerror = () => {
+          if (!silentMode) {
+            console.warn('Image failed to load:', testUrl);
+          }
+          reject({ url: testUrl, success: false });
+        };
+
+        // Timeout to prevent hanging
+        setTimeout(() => {
+          if (!resolved) {
+            reject({ url: testUrl, success: false, timeout: true });
+          }
+        }, 6000);
+
+        img.src = testUrl;
+      });
+    };
+
+    // Start parallel loading for all URLs
+    const imagePromises = urls.map(testUrl => testImage(testUrl));
+
+    // Use Promise.any to get the first successful load
+    Promise.any(imagePromises)
+      .then((result) => {
+        if (!silentMode) {
+          console.log('Image loaded successfully:', result.url);
+        }
+      })
+      .catch(() => {
+        // All URLs failed
+        if (!resolved) {
+          setIsLoading(false);
+          setHasError(true);
+        }
+      });
+
+    return () => {
+      resolved = true;
+    };
+
+  }, [url, fallbackSrc, silentMode]);
+
+  const handleError = () => {
     setHasError(true);
     setIsLoading(false);
   };
 
   const handleLoad = () => {
-    setHasError(false);
     setIsLoading(false);
-  };
-
-  // Reset khi URL thay đổi
-  useEffect(() => {
-    setCurrentUrlIndex(0);
     setHasError(false);
-    setIsLoading(true);
-  }, [url]);
-
-  // Show loading state
-  if (isLoading && !hasError && currentUrl) {
+  };
+  // Loading state - much faster with parallel loading
+  if (isLoading && !hasError) {
     return (
       <div 
         className={`image-loading ${className}`} 
         style={{
           display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
           backgroundColor: '#e3f2fd',
           color: '#1976d2',
           border: '1px solid #bbdefb',
           minHeight: '100px',
+          padding: '15px',
           borderRadius: '8px',
           ...style
         }}
       >
         <div style={{ textAlign: 'center' }}>
-          <div>📥 Đang tải ảnh...</div>
-          <small>Thử URL {currentUrlIndex + 1}/{alternativeUrls.length}</small>
+          <div style={{ fontSize: '20px', marginBottom: '8px' }}>⚡</div>
+          <div>Đang tải ảnh...</div>
+          <small>Tìm nguồn tốt nhất...</small>
         </div>
-        <img
-          src={currentUrl}
-          alt={alt}
-          style={{ display: 'none' }}
-          onError={handleError}
-          onLoad={handleLoad}
-        />
       </div>
     );
   }
 
+  // Error state
   if (hasError || !currentUrl) {
     return (
       <div 
@@ -116,9 +158,10 @@ export const ImageDisplay = ({
           </small>
           <button 
             onClick={() => {
-              setCurrentUrlIndex(0);
-              setHasError(false);
               setIsLoading(true);
+              setHasError(false);
+              // Force re-render to trigger useEffect
+              setAlternativeUrls([...alternativeUrls]);
             }}
             style={{
               padding: '6px 12px',
@@ -151,6 +194,7 @@ export const ImageDisplay = ({
     );
   }
 
+  // Success state - image loaded
   return (
     <img
       src={currentUrl}

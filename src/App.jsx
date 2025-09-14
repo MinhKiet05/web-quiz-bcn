@@ -6,7 +6,10 @@ import { AuthProvider, useAuth } from './contexts/AuthContext'
 import Upload from './pages/Upload'
 import QuizzList from './pages/QuizzList'
 import UserManagement from './pages/UserManagement'
+import QuizPlayer from './pages/QuizPlayer'
 import RedirectToHome from './components/RedirectToHome'
+import Login from './components/Login/Login'
+import { useState } from 'react'
 
 const ProtectedRoute = ({ children, requireAdmin = false, requireEditor = false }) => {
   const { user, isAdmin, hasRole } = useAuth();
@@ -47,7 +50,8 @@ function AppContent() {
         alignItems: 'center',
         height: '100vh',
         flexDirection: 'column',
-        background: '#f5f5f5'
+        background: '#f5f5f5',
+        color: '#555'
       }}>
         <div style={{
           padding: '20px',
@@ -70,6 +74,7 @@ function AppContent() {
       <main>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/rules" element={<Rules />} />
           <Route path="/upload" element={
             <ProtectedRoute requireEditor={true}>
               <Upload />
@@ -125,6 +130,144 @@ function App() {
 // Temporary components cho các route chưa có
 const Home = () => {
   const { user } = useAuth();
+  const [showLogin, setShowLogin] = useState(false);
+
+  // If user is logged in, show QuizPlayer
+  if (user) {
+    return <QuizPlayer />;
+  }
+
+  // If not logged in, show welcome page
+  return (
+    <>
+      <div style={{ padding: '40px', textAlign: 'center' }}>
+        <div style={{
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          color: 'white',
+          padding: '40px 24px',
+          borderRadius: '16px',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+          textAlign: 'center',
+          maxWidth: '600px',
+          margin: '20px auto',
+          lineHeight: 1.6
+        }}>
+          <div style={{ fontSize: '64px', marginBottom: '20px' }}>🎯</div>
+          <h1 style={{ margin: '0 0 16px 0', fontSize: '32px' }}>
+            Quiz Hàng Tuần
+          </h1>
+          <p style={{ fontSize: '18px', opacity: 0.9, marginBottom: '30px' }}>
+            Hệ thống quiz trực tuyến dành cho Ban Công Nghệ
+          </p>
+          
+          <div>
+            <p style={{ fontSize: '16px', opacity: 0.9, marginBottom: '20px' }}>
+              Đăng nhập để tham gia các quiz và hoạt động thú vị!
+            </p>
+            <div style={{
+              background: 'rgba(255,255,255,0.1)',
+              padding: '16px',
+              borderRadius: '8px',
+              fontSize: '14px',
+              marginBottom: '24px'
+            }}>
+              💡 Bạn sẽ có thể tham gia quiz hàng tuần và nhận coins thưởng
+            </div>
+            
+            {/* Login Button */}
+            <button 
+              onClick={() => setShowLogin(true)}
+              style={{
+                background: 'rgba(255,255,255,0.2)',
+                color: 'white',
+                border: '2px solid rgba(255,255,255,0.3)',
+                padding: '12px 32px',
+                borderRadius: '25px',
+                fontSize: '16px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                backdropFilter: 'blur(10px)',
+                boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
+              }}
+              onMouseOver={(e) => {
+                e.target.style.background = 'rgba(255,255,255,0.3)';
+                e.target.style.transform = 'translateY(-2px)';
+                e.target.style.boxShadow = '0 6px 20px rgba(0,0,0,0.15)';
+              }}
+              onMouseOut={(e) => {
+                e.target.style.background = 'rgba(255,255,255,0.2)';
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.boxShadow = '0 4px 15px rgba(0,0,0,0.1)';
+              }}
+            >
+              🚀 Đăng nhập ngay
+            </button>
+          </div>
+        </div>
+
+        {/* Features Preview */}
+        <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+        gap: '20px',
+        maxWidth: '800px',
+        margin: '40px auto'
+      }}>
+        <div style={{
+          background: 'white',
+          padding: '24px',
+          borderRadius: '12px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+          textAlign: 'center'
+        }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>📝</div>
+          <h3 style={{ color: '#2c3e50', marginBottom: '8px' }}>Quiz Hàng Tuần</h3>
+          <p style={{ color: '#7f8c8d', fontSize: '14px' }}>
+            5 câu hỏi từ dễ đến khó, cập nhật mỗi tuần
+          </p>
+        </div>
+
+        <div style={{
+          background: 'white',
+          padding: '24px',
+          borderRadius: '12px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+          textAlign: 'center'
+        }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏆</div>
+          <h3 style={{ color: '#2c3e50', marginBottom: '8px' }}>Xếp Hạng</h3>
+          <p style={{ color: '#7f8c8d', fontSize: '14px' }}>
+            Top 3 cao điểm nhận coins thưởng
+          </p>
+        </div>
+
+        <div style={{
+          background: 'white',
+          padding: '24px',
+          borderRadius: '12px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+          textAlign: 'center'
+        }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>📊</div>
+          <h3 style={{ color: '#2c3e50', marginBottom: '8px' }}>Theo Dõi</h3>
+          <p style={{ color: '#7f8c8d', fontSize: '14px' }}>
+            Xem lại quiz đã làm và tiến độ
+          </p>
+        </div>
+      </div>
+      </div>
+      
+      {/* Login Modal */}
+      {showLogin && (
+        <Login onClose={() => setShowLogin(false)} />
+      )}
+    </>
+  );
+};
+
+const Rules = () => {
+  const { user } = useAuth();
 
   return (
     <div style={{ padding: '40px', textAlign: 'center' }}>
@@ -142,8 +285,8 @@ const Home = () => {
       )}
       
       <div style={{
-        background: 'rgba(23, 23, 23, 0.95)',
-        color: 'white',
+        background: 'white',
+        color: 'black',
         padding: '24px',
         borderRadius: '12px',
         boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
@@ -153,56 +296,54 @@ const Home = () => {
         lineHeight: 1.6
       }}>
         <h2 style={{ textAlign: 'center', marginBottom: '16px' }}>
-          {user ? `Xin chào ${user.name} 👋` : 'Hãy đăng nhập để trải nghiệm đầy đủ tính năng!'}
+          {user ? `Xin chào ${user.name} 👋` : '📋 Thể lệ Quiz Hàng Tuần'}
         </h2>
         
-        {user ? (
-          <>
-            <p>
-              Ngoài những buổi <b>hướng dẫn C</b> do <b>Ban Công Nghệ</b> tổ chức,
-              chúng mình sẽ có thêm một hoạt động thú vị giúp các bạn củng cố kiến thức C:
-            </p>
-            <p style={{ textAlign: 'center', fontSize: '18px', fontWeight: '600', margin: '12px 0' }}>
-              🎯 Tham gia Quiz Hàng Tuần 🎯
-            </p>
+        <p>
+          Ngoài những buổi <b>hướng dẫn C</b> do <b>Ban Công Nghệ</b> tổ chức,
+          chúng mình sẽ có thêm một hoạt động thú vị giúp các bạn củng cố kiến thức C:
+        </p>
+        <p style={{ textAlign: 'center', fontSize: '18px', fontWeight: '600', margin: '12px 0' }}>
+          🎯 Tham gia Quiz Hàng Tuần 🎯
+        </p>
 
-            <h3>🎲 Thể lệ</h3>
-            <ul>
-              <li>Mỗi tuần có <b>5 câu quiz</b> (từ dễ → khó).</li>
-              <li>Câu 1 → 4: <b>Trắc nghiệm</b>.</li>
-              <li>Câu 5: <b>Mức khó nhất</b>, có thể là trắc nghiệm hoặc điền đáp án.</li>
-            </ul>
+        <h3>🎲 Thể lệ</h3>
+        <ul>
+          <li>Mỗi tuần có <b>5 câu quiz</b> (từ dễ → khó).</li>
+          <li>Câu 1 → 4: <b>Trắc nghiệm</b>.</li>
+          <li>Câu 5: <b>Mức khó nhất</b>, có thể là trắc nghiệm hoặc điền đáp án.</li>
+        </ul>
 
-            <h3>👉 Cách tính điểm</h3>
-            <ul>
-              <li>Mỗi câu đúng sẽ được điểm tương ứng
-                (VD: Quiz 1 = 1 điểm, Quiz 5 = 5 điểm).</li>
-              <li><b>Tổng điểm</b> các câu = điểm tuần của bạn.</li>
-              <li><b>Thứ 2 hàng tuần</b>: Công bố đáp án + Bảng xếp hạng.</li>
-            </ul>
+        <h3>👉 Cách tính điểm</h3>
+        <ul>
+          <li>Mỗi câu đúng sẽ được điểm tương ứng
+            (VD: Quiz 1 = 1 điểm, Quiz 5 = 5 điểm).</li>
+          <li><b>Tổng điểm</b> các câu = điểm tuần của bạn.</li>
+          <li><b>Thứ 2 hàng tuần</b>: Công bố đáp án + Bảng xếp hạng.</li>
+        </ul>
 
-            <h3>🏆 Phần thưởng</h3>
-            <p>Ban Công Nghệ sẽ tuyên dương <b>Top 3 bạn cao điểm nhất tuần</b>:</p>
-            <ul>
-              <li>🥇 Top 1: <b>3 Coins</b></li>
-              <li>🥈 Top 2: <b>2 Coins</b></li>
-              <li>🥉 Top 3: <b>1 Coin</b></li>
-            </ul>
+        <h3>🏆 Phần thưởng</h3>
+        <p>Ban Công Nghệ sẽ tuyên dương <b>Top 3 bạn cao điểm nhất tuần</b>:</p>
+        <ul>
+          <li>🥇 Top 1: <b>3 Coins</b></li>
+          <li>🥈 Top 2: <b>2 Coins</b></li>
+          <li>🥉 Top 3: <b>1 Coin</b></li>
+        </ul>
 
-            <h3>📌 Lưu ý</h3>
-            <p>
-              Nếu nhiều bạn bằng điểm trong Top 3 → <b>tất cả đều được thưởng</b>.
-              <br />Ví dụ: 2 bạn cùng 15đ (Top 1), 1 bạn 14đ (Top 3).
-            </p>
-            <p style={{ marginTop: '12px' }}>
-              Khi vào Top, các bạn nhắn <b>Minh Kiệt (key bạc)</b> để nhận thưởng nha ✨
-            </p>
-          </>
-        ) : (
-          <div style={{ textAlign: 'center', padding: '20px' }}>
+        <h3>📌 Lưu ý</h3>
+        <p>
+          Nếu nhiều bạn bằng điểm trong Top 3 → <b>tất cả đều được thưởng</b>.
+          <br />Ví dụ: 2 bạn cùng 15đ (Top 1), 1 bạn 14đ (Top 3).
+        </p>
+        <p style={{ marginTop: '12px' }}>
+          Khi vào Top, các bạn nhắn <b>Minh Kiệt (key bạc)</b> để nhận thưởng nha ✨
+        </p>
+
+        {!user && (
+          <div style={{ textAlign: 'center', padding: '20px', marginTop: '20px', borderTop: '1px solid #444' }}>
             <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔐</div>
             <p style={{ fontSize: '16px', marginBottom: '8px' }}>
-              Đăng nhập để xem thông tin về các quiz và tham gia các hoạt động thú vị!
+              Đăng nhập để tham gia các quiz và hoạt động thú vị!
             </p>
             <p style={{ fontSize: '14px', opacity: 0.8 }}>
               Bạn sẽ có thể tham gia quiz hàng tuần và nhận coins thưởng
@@ -230,8 +371,20 @@ const MyQuizzes = () => (
 
 const News = () => (
   <div style={{ padding: '40px', textAlign: 'center' }}>
-    <h1>📰 Tin tức và thông báo quiz</h1>
-    <p>Cập nhật mới nhất về quiz</p>
+    <h1>📰 Tin tức</h1>
+    <p>Thông tin mới nhất từ Ban Công Nghệ</p>
+    <div style={{
+      background: 'white',
+      padding: '24px',
+      borderRadius: '12px',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+      textAlign: 'left',
+      maxWidth: '600px',
+      margin: '20px auto'
+    }}>
+      <h3>🚀 Thông báo</h3>
+      <p>Trang tin tức đang được phát triển. Các thông báo quan trọng sẽ được cập nhật tại đây.</p>
+    </div>
   </div>
 );
 

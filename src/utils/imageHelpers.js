@@ -16,12 +16,18 @@ export const convertGoogleDriveUrl = (url) => {
   
   if (match) {
     const fileId = match[1];
-    // Thử multiple formats cho Google Drive
+    // Sắp xếp URLs theo độ tin cậy - URLs thường hoạt động tốt nhất trước
     return [
+      // Format tin cậy nhất - thường hoạt động ngay
       `https://drive.google.com/uc?export=view&id=${fileId}`,
-      `https://drive.google.com/uc?id=${fileId}&export=download`,
+      `https://lh3.googleusercontent.com/d/${fileId}=w1000`,
+      // Backup formats với kích thước khác nhau
       `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`,
-      `https://lh3.googleusercontent.com/d/${fileId}=w1000`
+      `https://drive.google.com/thumbnail?id=${fileId}&sz=w800`,
+      // Alternative endpoints
+      `https://docs.google.com/uc?export=view&id=${fileId}`,
+      `https://drive.google.com/uc?id=${fileId}&export=download`,
+      `https://drive.google.com/thumbnail?id=${fileId}&sz=w600`
     ];
   }
   
