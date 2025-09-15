@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleUser, faBars, faTimes, faSignInAlt, faSignOutAlt, faCrown, faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import './Header.css';
-import logo from '../assets/logo.png';
+import logo from '../../../public/logo.png';
 import { Link, useLocation } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import Login from '../components/Login/Login';
+import { useAuth } from '../../contexts/AuthContext';
+import Login from '../Login/Login';
 
 const navLinks = [
   { name: 'Quiz tuần', path: '/' },

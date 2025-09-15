@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { getAllAvailableWeeks } from '../services/userQuizService';
-import { getQuizzesByWeek } from '../services/weekQuizService';
+import { getAllAvailableWeeks } from '../../services/userQuizService';
+import { getQuizzesByWeek } from '../../services/weekQuizService';
 import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { db } from '../../config/firebase';
 import './Leaderboard.css';
 
 const Leaderboard = () => {
   const [currentWeek, setCurrentWeek] = useState('');
-  const [availableWeeks, setAvailableWeeks] = useState([]);
   const [finishedWeeks, setFinishedWeeks] = useState([]); // Chỉ tuần đã kết thúc
   const [leaderboardData, setLeaderboardData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -38,12 +37,6 @@ const Leaderboard = () => {
     return finished.sort(); // Sắp xếp theo thứ tự tuần
   };
 
-  // Tìm tuần gần nhất đã kết thúc
-  const getLatestFinishedWeek = (finishedWeeks) => {
-    if (finishedWeeks.length === 0) return null;
-    return finishedWeeks[finishedWeeks.length - 1];
-  };
-
   // Load dữ liệu ban đầu
   useEffect(() => {
     const loadInitialData = async () => {
@@ -51,15 +44,14 @@ const Leaderboard = () => {
         setLoading(true);
         
         const weeks = await getAllAvailableWeeks();
-        setAvailableWeeks(weeks);
         
         // Lấy danh sách tuần đã kết thúc
         const finished = await getFinishedWeeks(weeks);
         setFinishedWeeks(finished);
         
+        // Chọn tuần mới nhất đã kết thúc
         if (finished.length > 0) {
-          // Chọn tuần gần nhất đã kết thúc
-          const latestFinished = getLatestFinishedWeek(finished);
+          const latestFinished = finished[finished.length - 1]; // Tuần đã kết thúc gần nhất
           setCurrentWeek(latestFinished);
         } else {
           setError('Chưa có tuần nào kết thúc để hiển thị bảng xếp hạng');
@@ -278,7 +270,7 @@ const Leaderboard = () => {
                 ) : (
                   finishedWeeks.map(week => (
                     <option key={week} value={week}>
-                      {week.replace('week', 'Tuần ')}
+                      {week.replace('week', '')}
                     </option>
                   ))
                 )}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { getAllUsers, updateUser, deleteUser } from '../services/userService.js';
-import { useAuth } from '../contexts/AuthContext';
-import { showToast } from '../utils/toastUtils.js';
+import { getAllUsers, updateUser, deleteUser } from '../../services/userService.js';
+import { useAuth } from '../../contexts/AuthContext.jsx';
+import { showToast } from '../../utils/toastUtils.js';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import './UserManagement.css';

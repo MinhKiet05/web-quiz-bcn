@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../config/firebase.js';
-import { updateWeekTimes, updateQuizInWeek } from '../services/weekQuizService.js';
-import { ImageDisplay } from '../utils/imageUtils.jsx';
-import { showToast } from '../utils/toastUtils.js';
+import { db } from '../../config/firebase.js';
+import { updateWeekTimes, updateQuizInWeek } from '../../services/weekQuizService.js';
+import { ImageDisplay } from '../../utils/imageUtils.jsx';
+import { showToast } from '../../utils/toastUtils.js';
 import './QuizzList.css';
 
 const QuizzList = () => {

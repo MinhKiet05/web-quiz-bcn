@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { getUserQuizByWeek, getAllAvailableWeeks, calculateWeekScore } from '../services/userQuizService';
-import { getQuizzesByWeek } from '../services/weekQuizService';
-import QuizHistoryCard from '../components/QuizHistoryCard';
+import { useAuth } from '../../contexts/AuthContext';
+import { getUserQuizByWeek, getAllAvailableWeeks, calculateWeekScore } from '../../services/userQuizService';
+import { getQuizzesByWeek } from '../../services/weekQuizService';
+import QuizHistoryCard from '../../components/QuizHistoryCard';
 import './QuizHistory.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
@@ -16,42 +16,6 @@ const QuizHistory = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [weekScore, setWeekScore] = useState({ correct: 0, total: 0, percentage: 0 });
-
-  // Tìm tuần quiz hiện tại dựa trên thời gian thực
-  const getCurrentWeekFromQuizData = async () => {
-    const now = new Date();
-    
-    // Duyệt qua tất cả available weeks để tìm tuần hiện tại
-    for (const weekId of availableWeeks) {
-      try {
-        const weekQuizData = await getQuizzesByWeek(weekId);
-        if (weekQuizData.length > 0) {
-          const quiz = weekQuizData[0]; // Lấy quiz đầu tiên để check time
-          if (quiz.startTime && quiz.endTime) {
-            const startTime = quiz.startTime.toDate ? quiz.startTime.toDate() : new Date(quiz.startTime);
-            const endTime = quiz.endTime.toDate ? quiz.endTime.toDate() : new Date(quiz.endTime);
-            
-            if (now >= startTime && now <= endTime) {
-              return weekId;
-            }
-          }
-        }
-      } catch (error) {
-        console.error(`Error checking week ${weekId}:`, error);
-      }
-    }
-    
-    // Nếu không tìm thấy tuần hiện tại, trả về tuần gần nhất
-    return availableWeeks[availableWeeks.length - 1] || 'week1';
-  };
-
-  // Lấy tuần hiện tại dựa trên thời gian
-  const getCurrentWeek = () => {
-    const now = new Date();
-    const startOfYear = new Date(now.getFullYear(), 0, 1);
-    const weekNumber = Math.ceil(((now - startOfYear) / (24 * 60 * 60 * 1000) + startOfYear.getDay() + 1) / 7);
-    return `week${weekNumber}`;
-  };
 
   // Load dữ liệu ban đầu
   useEffect(() => {
@@ -81,16 +45,12 @@ const QuizHistory = () => {
         }
         setAllWeekQuizzes(allQuizzes);
         
-        // Tìm tuần hiện tại dựa trên thời gian quiz thực tế
+        // Hiển thị tuần lớn nhất có sẵn khi load trang
         let initialWeek = 'week1'; // Default fallback
         
         if (weeks.length > 0) {
-          try {
-            initialWeek = await getCurrentWeekFromQuizData() || weeks[weeks.length - 1];
-          } catch (error) {
-            console.error('Error getting current week from quiz data:', error);
-            initialWeek = weeks[weeks.length - 1]; // Fallback to latest week
-          }
+          // Luôn hiển thị tuần lớn nhất (tuần cuối cùng trong danh sách)
+          initialWeek = weeks[weeks.length - 1];
         }
         
         setCurrentWeek(initialWeek);
@@ -104,7 +64,6 @@ const QuizHistory = () => {
     };
 
     loadInitialData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   // Load dữ liệu quiz của tuần được chọn
@@ -172,12 +131,6 @@ const QuizHistory = () => {
       newIndex = Math.max(0, currentIndex - 1);
     } else if (direction === 'next') {
       newIndex = Math.min(availableWeeks.length - 1, currentIndex + 1);
-    } else if (direction === 'current') {
-      const currentWeekKey = getCurrentWeek();
-      if (availableWeeks.includes(currentWeekKey)) {
-        setCurrentWeek(currentWeekKey);
-        return;
-      }
     }
     
     if (newIndex !== undefined && availableWeeks[newIndex]) {
@@ -196,7 +149,6 @@ const QuizHistory = () => {
     return now > weekEndTime;
   };
 
-  const isCurrentWeek = currentWeek === getCurrentWeek();
   const canGoPrev = availableWeeks.indexOf(currentWeek) > 0;
   const canGoNext = availableWeeks.indexOf(currentWeek) < availableWeeks.length - 1;
   const weekFinished = isWeekFinished();
@@ -336,21 +288,14 @@ const QuizHistory = () => {
                 disabled={!canGoPrev}
                 className="nav-btn prev"
               >
-                ←Trước
-              </button>
-              <button 
-                onClick={() => navigateWeek('current')} 
-                disabled={isCurrentWeek}
-                className="nav-btn current"
-              >
-                Hiện tại
+                ← Trước
               </button>
               <button 
                 onClick={() => navigateWeek('next')} 
                 disabled={!canGoNext}
                 className="nav-btn next"
               >
-                Sau→
+                Sau →
               </button>
             </div>
             

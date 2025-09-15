@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import quizService from '../services/quizService';
-import { ImageDisplay } from '../utils/imageUtils.jsx';
-import { showToast } from '../utils/toastUtils.js';
+import { useAuth } from '../../contexts/AuthContext.jsx';
+import quizService from '../../services/quizService.js';
+import { ImageDisplay } from '../../utils/imageUtils.jsx';
+import { showToast } from '../../utils/toastUtils.js';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import './QuizPlayer.css';

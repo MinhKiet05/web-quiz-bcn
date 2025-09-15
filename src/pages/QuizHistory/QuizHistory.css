@@ -171,6 +171,7 @@ input[type="date"]::-webkit-calendar-picker {
   cursor: pointer;
   transition: all 0.3s ease;
   font-size: 0.9rem;
+  width: 110px;
 }
 
 .nav-btn:hover:not(:disabled) {
