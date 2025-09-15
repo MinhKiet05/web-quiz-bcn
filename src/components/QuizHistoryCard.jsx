@@ -58,20 +58,11 @@ const QuizHistoryCard = ({ quiz, userAnswer, hasParticipated}) => {
       <div className="history-card-card-header">
         <div className="history-card-quiz-info">
           <h3>Quiz {quiz.quizNumber}</h3>
+          
         </div>
         
         {/* Hiển thị trạng thái */}
-        <div className="history-card-participation-status">
-          {hasParticipated ? (
-            <div className="history-card-status-badge history-card-selected">
-              Đã chọn: {getAnswerLabel(userAnswer)}
-            </div>
-          ) : (
-            <div className="history-card-status-badge history-card-not-selected">
-              Chưa chọn
-            </div>
-          )}
-        </div>
+        
       </div>
 
       {/* Nội dung câu hỏi */}
@@ -95,9 +86,8 @@ const QuizHistoryCard = ({ quiz, userAnswer, hasParticipated}) => {
                 display: 'block',
                 margin: '10px 0'
               }}
-              onLoad={(e) => console.log('✅ Image loaded successfully:', e.target.src)}
+              onLoad={() => {}}
               onError={(e) => {
-                console.log('❌ Image failed to load:', e.target.src);
                 // Fallback to ImageDisplay component
                 e.target.style.display = 'none';
                 e.target.nextElementSibling.style.display = 'block';
@@ -119,10 +109,18 @@ const QuizHistoryCard = ({ quiz, userAnswer, hasParticipated}) => {
         {/* Chỉ hiển thị thông tin thêm khi đã qua endTime */}
         {expired && (
           <>
-            {/* Hiển thị đáp án đúng */}
-            <div className="history-card-correct-answer-section">
-              <h4>Đáp án đúng: {getAnswerLabel(quiz.correctAnswer)}</h4>
+            {/* Hiển thị đáp án đã chọn và đáp án đúng */}
+            <div className="history-card-answers-section">
+              {hasParticipated && (
+                <div className={`history-card-user-answer ${isCorrect ? 'history-card-correct-user-answer' : 'history-card-incorrect-user-answer'}`}>
+                  <h4>Bạn đã chọn: {getAnswerLabel(userAnswer)}</h4>
+                </div>
+              )}
+              
+              <div className="history-card-correct-answer-section">
+                <h4>Đáp án đúng: {getAnswerLabel(quiz.correctAnswer)}</h4>
               </div>
+            </div>
 
             {/* Hiển thị giải thích nếu có */}
             {quiz.explanation && (

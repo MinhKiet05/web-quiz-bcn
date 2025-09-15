@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { getUserQuizByWeek, getAvailableWeeks, calculateWeekScore } from '../services/userQuizService';
+import { getUserQuizByWeek, getAllAvailableWeeks, calculateWeekScore } from '../services/userQuizService';
 import { getQuizzesByWeek } from '../services/weekQuizService';
 import QuizHistoryCard from '../components/QuizHistoryCard';
 import './QuizHistory.css';
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 const QuizHistory = () => {
   const { user } = useAuth();
   const [currentWeek, setCurrentWeek] = useState('');
@@ -65,7 +66,7 @@ const QuizHistory = () => {
         setLoading(true);
         
         // Lấy danh sách tuần có dữ liệu
-        const weeks = await getAvailableWeeks(user.username);
+        const weeks = await getAllAvailableWeeks();
         setAvailableWeeks(weeks);
         
         // Load quiz data cho tất cả các tuần để có thể filter
@@ -203,7 +204,7 @@ const QuizHistory = () => {
   if (loading) {
     return (
       <div className="quiz-history-loading">
-        <div className="loading-spinner"></div>
+        <div className="loading-spinner"><FontAwesomeIcon icon={faSpinner} spin /></div>
         <p>Đang tải lịch sử quiz...</p>
       </div>
     );
@@ -281,7 +282,6 @@ const QuizHistory = () => {
                 {(() => {
                   // Nếu allWeekQuizzes chưa load xong, hiển thị tất cả tuần có sẵn
                   if (allWeekQuizzes.length === 0) {
-                    console.log('allWeekQuizzes not loaded yet, showing all available weeks');
                     return availableWeeks.map(weekId => (
                       <option key={weekId} value={weekId}>
                         {weekId.replace('week', 'Tuần ')}
@@ -407,15 +407,29 @@ const QuizHistory = () => {
                     <span className="stat-value correct">{weekFinished ? weekScore.correct : '-'}</span>
                   </div>
                   <div className="stat-item-inline">
-                    <span className="stat-label">Tỷ lệ:</span>
-                    <span className="stat-value percentage">{weekFinished ? `${weekScore.percentage}%` : '-%'}</span>
-                  </div>
-                  <div className="stat-item-inline">
                     <span className="stat-label">Tổng điểm:</span>
                     <span className="stat-value percentage">
                       {weekFinished ? `${weekScore.earnedPoints || 0}/${weekScore.totalPoints || 0}đ` : '-/15đ'}
                     </span>
                   </div>
+                  {userQuizData.thoiGian && (
+                    <div className="stat-item-inline">
+                      <span className="stat-label">Nộp bài:</span>
+                      <span className="stat-value time">
+                        ⏰ {(userQuizData.thoiGian.toDate ? 
+                          userQuizData.thoiGian.toDate() : 
+                          new Date(userQuizData.thoiGian)
+                        ).toLocaleString('vi-VN', {
+                          day: '2-digit',
+                          month: '2-digit',
+                          year: 'numeric', 
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          second: '2-digit'
+                        })}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             )}

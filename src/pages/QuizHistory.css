@@ -219,7 +219,9 @@ input[type="date"]::-webkit-calendar-picker {
   align-items: center;
   gap: 0.25rem;
 }
-
+.quiz-history-loading, .quiz-history-loading p{
+  color: #dee2e6!important;
+}
 .time-item .time-label {
   font-size: 0.85rem;
   font-weight: 600;

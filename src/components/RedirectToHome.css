@@ -5,9 +5,11 @@
   min-height: 80vh;
   padding: 20px;
   background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+ 
 }
 
 .redirect-content {
+   margin-top: 20px;
   background: white;
   border-radius: 20px;
   padding: 40px;

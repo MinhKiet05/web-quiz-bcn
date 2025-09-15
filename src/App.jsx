@@ -8,6 +8,7 @@ import QuizzList from './pages/QuizzList'
 import UserManagement from './pages/UserManagement'
 import QuizPlayer from './pages/QuizPlayer'
 import QuizHistory from './pages/QuizHistory'
+import Leaderboard from './pages/Leaderboard'
 import RedirectToHome from './components/RedirectToHome'
 import Login from './components/Login/Login'
 import ToastContainer from './components/ToastContainer'
@@ -112,6 +113,11 @@ function AppContent() {
               <QuizHistory />
             </ProtectedRoute>
           } />
+          <Route path="/leaderboard" element={
+            <ProtectedRoute>
+              <Leaderboard />
+            </ProtectedRoute>
+          } />
           <Route path="/news" element={<News />} />
           {/* Catch-all route for 404 errors */}
           <Route path="*" element={
@@ -158,7 +164,7 @@ const Home = () => {
           boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
           textAlign: 'center',
           maxWidth: '600px',
-          margin: '20px auto',
+          margin: '0px auto 20px auto',
           lineHeight: 1.6
         }}>
           <div style={{ fontSize: '64px', marginBottom: '20px' }}>🎯</div>
@@ -285,7 +291,7 @@ const Rules = () => {
           background: '#fff3e0',
           padding: '20px',
           borderRadius: '8px',
-          margin: '20px auto',
+          margin: '0px auto 20px auto',
           maxWidth: '400px',
           color: '#ef6c00'
         }}>
@@ -334,16 +340,16 @@ const Rules = () => {
         <h3>🏆 Phần thưởng</h3>
         <p>Ban Công Nghệ sẽ tuyên dương <b>Top 3 bạn cao điểm nhất tuần</b>:</p>
         <ul>
-          <li>🥇 Top 1: <b>3 Coins</b></li>
-          <li>🥈 Top 2: <b>2 Coins</b></li>
-          <li>🥉 Top 3: <b>1 Coin</b></li>
+          <li>🥇 Top 1: <b>10 Coins</b></li>
+          <li>🥈 Top 2: <b>6 Coins</b></li>
+          <li>🥉 Top 3: <b>3 Coins</b></li>
         </ul>
 
         <h3>📌 Lưu ý</h3>
-        <p>
-          Nếu nhiều bạn bằng điểm trong Top 3 → <b>tất cả đều được thưởng</b>.
-          <br />Ví dụ: 2 bạn cùng 15đ (Top 1), 1 bạn 14đ (Top 3).
-        </p>
+        <ul>
+          <li>Mỗi tuần chỉ có duy nhất <b>1 Top 1, 1 Top 2, 1 Top 3</b>.</li>
+          <li>Nếu có nhiều bạn bằng điểm → <b>xét theo thời gian nộp</b>: ai nộp sớm hơn sẽ được xếp hạng cao hơn.</li>
+        </ul>
         <p style={{ marginTop: '12px' }}>
           Khi vào Top, các bạn nhắn <b>Minh Kiệt (key bạc)</b> để nhận thưởng nha ✨
         </p>

@@ -66,15 +66,16 @@ export const quizService = {
     }
   },
 
-  // Lấy đáp án của user cho một tuần
+  // Lấy đáp án của user cho một tuần với cấu trúc mới: users_quiz/{weekX}/{userId}
   async getUserAnswersByWeek(userId, week) {
     try {
-      const userDocRef = doc(db, 'users_quiz', userId);
-      const userDoc = await getDoc(userDocRef);
+      const weekKey = `week${week}`;
+      const weekDocRef = doc(db, 'users_quiz', weekKey);
+      const weekDoc = await getDoc(weekDocRef);
       
-      if (userDoc.exists()) {
-        const userData = userDoc.data();
-        return userData[`week${week}`] || {};
+      if (weekDoc.exists()) {
+        const weekData = weekDoc.data();
+        return weekData[userId] || {};
       }
       
       return {};
@@ -84,57 +85,71 @@ export const quizService = {
     }
   },
 
-  // Lưu đáp án của user
+  // Lưu đáp án của user với cấu trúc mới: users_quiz/{weekX}/{userId}
   async saveUserAnswer(userId, week, quizNumber, answer) {
     try {
-      const userDocRef = doc(db, 'users_quiz', userId);
       const weekKey = `week${week}`;
       const quizKey = `Quiz${quizNumber}`;
       
-      // Get current user data
-      const userDoc = await getDoc(userDocRef);
-      const userData = userDoc.exists() ? userDoc.data() : {};
+      // Reference to the week document in users_quiz collection
+      const weekDocRef = doc(db, 'users_quiz', weekKey);
       
-      // Update the specific week and quiz
-      const updatedWeekData = {
-        ...userData[weekKey],
-        [quizKey]: answer
+      // Get current week data
+      const weekDoc = await getDoc(weekDocRef);
+      const weekData = weekDoc.exists() ? weekDoc.data() : {};
+      
+      // Get user's current answers for this week
+      const userCurrentAnswers = weekData[userId] || {};
+      
+      // Create timestamp for when the answer is submitted
+      const now = new Date();
+      
+      // Update the specific quiz answer with timestamp
+      const updatedUserAnswers = {
+        ...userCurrentAnswers,
+        [quizKey]: answer,
+        thoiGian: now // Lưu timestamp khi nộp/thay đổi đáp án
       };
       
-      await setDoc(userDocRef, {
-        ...userData,
-        [weekKey]: updatedWeekData
+      // Update the week document with user's new answers
+      await setDoc(weekDocRef, {
+        ...weekData,
+        [userId]: updatedUserAnswers
       }, { merge: true });
       
-      return updatedWeekData;
+      return updatedUserAnswers;
     } catch (error) {
       console.error('Error saving user answer:', error);
       throw error;
     }
   },
 
-  // Lưu nhiều đáp án cùng lúc
+  // Lưu nhiều đáp án cùng lúc với cấu trúc mới: users_quiz/{weekX}/{userId}
   async saveUserAnswers(userId, week, answers) {
     try {
-      const userDocRef = doc(db, 'users_quiz', userId);
       const weekKey = `week${week}`;
+      const weekDocRef = doc(db, 'users_quiz', weekKey);
       
-      // Get current user data
-      const userDoc = await getDoc(userDocRef);
-      const userData = userDoc.exists() ? userDoc.data() : {};
+      // Get current week data
+      const weekDoc = await getDoc(weekDocRef);
+      const weekData = weekDoc.exists() ? weekDoc.data() : {};
       
-      // Update the specific week with new answers
-      const updatedWeekData = {
-        ...userData[weekKey],
+      // Get user's current answers for this week
+      const userCurrentAnswers = weekData[userId] || {};
+      
+      // Update with new answers
+      const updatedUserAnswers = {
+        ...userCurrentAnswers,
         ...answers
       };
       
-      await setDoc(userDocRef, {
-        ...userData,
-        [weekKey]: updatedWeekData
+      // Update the week document with user's updated answers
+      await setDoc(weekDocRef, {
+        ...weekData,
+        [userId]: updatedUserAnswers
       }, { merge: true });
       
-      return updatedWeekData;
+      return updatedUserAnswers;
     } catch (error) {
       console.error('Error saving user answers:', error);
       throw error;

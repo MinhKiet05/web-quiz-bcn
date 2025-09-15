@@ -26,7 +26,6 @@ const QuizPlayer = () => {
   // Tự động tìm tuần hiện tại dựa trên thời gian
   const findCurrentWeek = useCallback(async () => {
     try {
-      console.log('🔍 Finding current week...');
       const now = new Date();
       
       // Thử từ week1 đến week10 để tìm tuần hiện tại
@@ -41,16 +40,14 @@ const QuizPlayer = () => {
               
               // Kiểm tra nếu tuần này đang active hoặc sắp tới
               if (now >= startTime && now <= endTime) {
-                console.log(`📅 Found current active week: week${week}`);
                 return week;
               } else if (now < startTime) {
-                console.log(`📅 Found upcoming week: week${week}`);
                 return week;
               }
             }
           }
         } catch {
-          console.log(`Week ${week} not found, continuing...`);
+          // Week not found, continuing...
         }
       }
       
@@ -59,7 +56,6 @@ const QuizPlayer = () => {
         try {
           const quizData = await quizService.getQuizzesFromWeekDocument(`week${week}`);
           if (quizData.length > 0) {
-            console.log(`📅 Using latest available week: week${week}`);
             return week;
           }
         } catch {
@@ -67,7 +63,6 @@ const QuizPlayer = () => {
         }
       }
       
-      console.log('📅 No weeks found, defaulting to week1');
       return 1;
     } catch (error) {
       console.error('Error finding current week:', error);
@@ -83,7 +78,6 @@ const QuizPlayer = () => {
       
       console.log(`🔍 Fetching quizzes from week${week} document...`);
       const quizData = await quizService.getQuizzesFromWeekDocument(`week${week}`);
-      console.log(`📝 All quizzes from week${week}:`, quizData);
       
       // Lấy thông tin thời gian từ quiz đầu tiên hoặc document level
       if (quizData.length > 0) {
@@ -123,24 +117,17 @@ const QuizPlayer = () => {
     }
   }, [user, fetchQuizzes, fetchUserAnswers]);
 
-  const handleAnswerChange = (quizKey, answer) => {
+  const handleAnswerChange = async (quizKey, answer) => {
+    // Update current answers immediately
     setCurrentAnswers({
       ...currentAnswers,
       [quizKey]: answer
     });
-  };
 
-  const submitSingleAnswer = async (quizNumber) => {
+    // Auto-save the answer
+    const quizNumber = quizKey.replace('Quiz', '');
     try {
       setSavingAnswers(prev => ({ ...prev, [quizNumber]: true }));
-      
-      const quizKey = `Quiz${quizNumber}`;
-      const answer = currentAnswers[quizKey];
-      
-      if (!answer) {
-        showToast('Vui lòng chọn đáp án trước khi lưu!', 'warning');
-        return;
-      }
       
       const updatedAnswers = await quizService.saveUserAnswer(
         user.studentId || user.uid,
@@ -152,9 +139,21 @@ const QuizPlayer = () => {
       // Update local state
       setUserAnswers(updatedAnswers);
       
-      showToast('Đáp án đã được lưu thành công!', 'success');
+      // Format thời gian để hiển thị trong toast
+      const now = new Date();
+      const timeString = now.toLocaleString('vi-VN', {
+        year: 'numeric',
+        month: '2-digit', 
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
+      
+      showToast(`Đáp án đã được lưu tự động! Thời gian: ${timeString}`, 'success');
     } catch (error) {
-      console.error('Error submitting answer:', error);
+      console.error('Error auto-saving answer:', error);
       showToast('Có lỗi xảy ra khi lưu đáp án!', 'error');
     } finally {
       setSavingAnswers(prev => ({ ...prev, [quizNumber]: false }));
@@ -294,7 +293,115 @@ const QuizPlayer = () => {
                 
                 {/* Quiz Content - Inline Interface */}
                 <div className="quiz-player-quiz-content">
-                  {quiz.link && (
+                  {canTake && (
+                    <div className="quiz-player-quiz-interface">
+                      {/* Quiz Image */}
+                      {quiz.link && (
+                        <div className="quiz-player-quiz-image-container">
+                          <ImageDisplay 
+                            url={quiz.link}
+                            alt={`${quiz.title} - Hình ảnh câu hỏi`}
+                            className="quiz-player-quiz-inline-image"
+                          />
+                        </div>
+                      )}
+                      
+                      {/* Quiz Options */}
+                      <div className="quiz-player-quiz-options-container">
+                        <div className="quiz-player-quiz-options">
+                          <h4>Chọn đáp án:</h4>
+                          
+                          {/* Radio buttons for answers */}
+                          <div className="quiz-player-radio-options">
+                            {/* Render options based on soDapAn array or individual options */}
+                            {quiz.soDapAn && quiz.soDapAn.length > 0 ? (
+                              quiz.soDapAn.map((option, optionIndex) => {
+                                const letter = String.fromCharCode(65 + optionIndex);
+                                const isSelected = currentAnswers[quiz.title || `Quiz${quizNumber}`] === letter;
+                                const isSaving = savingAnswers[quizNumber] && isSelected;
+                                
+                                return (
+                                  <label key={optionIndex} className={`quiz-player-radio-option ${isSelected ? 'selected' : ''}`}>
+                                    <input
+                                      type="radio"
+                                      name={`quiz-${quiz.title || quizNumber}`}
+                                      value={letter}
+                                      checked={isSelected}
+                                      onChange={(e) => handleAnswerChange(quiz.title || `Quiz${quizNumber}`, e.target.value)}
+                                      disabled={isSaving}
+                                    />
+                                    <span className="quiz-player-radio-custom"></span>
+                                    <span className="quiz-player-option-text">
+                                      {letter}
+                                      {isSaving && <FontAwesomeIcon icon={faSpinner} spin className="quiz-player-saving-icon" />}
+                                    </span>
+                                  </label>
+                                );
+                              })
+                            ) : (
+                              ['A', 'B', 'C', 'D', 'E'].map(letter => {
+                                const optionKey = `luaChon${letter}`;
+                                const option = quiz[optionKey];
+                                
+                                if (!option) return null;
+                                
+                                const isSelected = currentAnswers[quiz.title || `Quiz${quizNumber}`] === letter;
+                                const isSaving = savingAnswers[quizNumber] && isSelected;
+                                
+                                return (
+                                  <label key={letter} className={`quiz-player-radio-option ${isSelected ? 'selected' : ''}`}>
+                                    <input
+                                      type="radio"
+                                      name={`quiz-${quiz.title || quizNumber}`}
+                                      value={letter}
+                                      checked={isSelected}
+                                      onChange={(e) => handleAnswerChange(quiz.title || `Quiz${quizNumber}`, e.target.value)}
+                                      disabled={isSaving}
+                                    />
+                                    <span className="quiz-player-radio-custom"></span>
+                                    <span className="quiz-player-option-text">
+                                      {letter}
+                                      {isSaving && <FontAwesomeIcon icon={faSpinner} spin className="quiz-player-saving-icon" />}
+                                    </span>
+                                  </label>
+                                );
+                              })
+                            )}
+                            
+                            {/* Fallback if no options available */}
+                            {(!quiz.soDapAn || quiz.soDapAn.length === 0) &&
+                             !['A', 'B', 'C', 'D', 'E'].some(letter => quiz[`luaChon${letter}`]) && (
+                              ['A', 'B', 'C', 'D'].map(letter => {
+                                const isSelected = currentAnswers[quiz.title || `Quiz${quizNumber}`] === letter;
+                                const isSaving = savingAnswers[quizNumber] && isSelected;
+                                
+                                return (
+                                  <label key={letter} className={`quiz-player-radio-option ${isSelected ? 'selected' : ''}`}>
+                                    <input
+                                      type="radio"
+                                      name={`quiz-${quiz.title || quizNumber}`}
+                                      value={letter}
+                                      checked={isSelected}
+                                      onChange={(e) => handleAnswerChange(quiz.title || `Quiz${quizNumber}`, e.target.value)}
+                                      disabled={isSaving}
+                                    />
+                                    <span className="quiz-player-radio-custom"></span>
+                                    <span className="quiz-player-option-text">
+                                      {letter}
+                                      {isSaving && <FontAwesomeIcon icon={faSpinner} spin className="quiz-player-saving-icon" />}
+                                    </span>
+                                  </label>
+                                );
+                              })
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Non-interactive quiz image for non-available quizzes */}
+                  {!canTake && quiz.link && (
                     <div className="quiz-player-quiz-image-container">
                       <ImageDisplay 
                         url={quiz.link}
@@ -304,62 +411,10 @@ const QuizPlayer = () => {
                     </div>
                   )}
                   
-                  {canTake && (
-                    <div className="quiz-player-quiz-options">
-                      <label htmlFor={`quiz-${quiz.title || quizNumber}`}>Chọn đáp án:</label>
-                      <select 
-                        id={`quiz-${quiz.title || quizNumber}`}
-                        value={currentAnswers[quiz.title || `Quiz${quizNumber}`] || ''}
-                        onChange={(e) => handleAnswerChange(quiz.title || `Quiz${quizNumber}`, e.target.value)}
-                        className="quiz-player-quiz-answer-select"
-                      >
-                        <option value="">-- Chọn đáp án --</option>
-                        
-                        {/* Render options based on soDapAn array or individual options */}
-                        {quiz.soDapAn && quiz.soDapAn.length > 0 ? (
-                          quiz.soDapAn.map((option, optionIndex) => (
-                            <option key={optionIndex} value={String.fromCharCode(65 + optionIndex)}>
-                              {String.fromCharCode(65 + optionIndex)}
-                            </option>
-                          ))
-                        ) : (
-                          ['A', 'B', 'C', 'D', 'E'].map(letter => {
-                            const optionKey = `luaChon${letter}`;
-                            const option = quiz[optionKey];
-                            return option ? (
-                              <option key={letter} value={letter}>
-                                {letter}
-                              </option>
-                            ) : null;
-                          })
-                        )}
-                        
-                        {/* Fallback if no options available */}
-                        {(!quiz.soDapAn || quiz.soDapAn.length === 0) &&
-                         !['A', 'B', 'C', 'D', 'E'].some(letter => quiz[`luaChon${letter}`]) && (
-                          <>
-                            <option value="A"></option>
-                            <option value="B"></option>
-                            <option value="C"></option>
-                            <option value="D"></option>
-                          </>
-                        )}
-                      </select>
-                      
-                      <button 
-                        onClick={() => submitSingleAnswer(quizNumber)}
-                        className="quiz-player-quiz-save-answer-btn"
-                        disabled={savingAnswers[quizNumber] || !currentAnswers[quiz.title || `Quiz${quizNumber}`]}
-                      >
-                        {savingAnswers[quizNumber] ? 'Đang lưu...' : 'Lưu đáp án'}
-                      </button>
-                    </div>
-                  )}
-                  
                   {/* Show current saved answer */}
                   {userAnswers[quiz.title || `Quiz${quizNumber}`] && (
                     <div className="quiz-player-quiz-saved-answer">
-                      Đã lưu: {userAnswers[quiz.title || `Quiz${quizNumber}`]}
+                      ✅ Đã lưu: {userAnswers[quiz.title || `Quiz${quizNumber}`]}
                     </div>
                   )}
                 </div>
