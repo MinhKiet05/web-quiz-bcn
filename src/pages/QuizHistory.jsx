@@ -407,30 +407,38 @@ const QuizHistory = () => {
                     <span className="stat-value correct">{weekFinished ? weekScore.correct : '-'}</span>
                   </div>
                   <div className="stat-item-inline">
-                    <span className="stat-label">Tổng điểm:</span>
+                    <span className="stat-label">% Đúng:</span>
                     <span className="stat-value percentage">
-                      {weekFinished ? `${weekScore.earnedPoints || 0}/${weekScore.totalPoints || 0}đ` : '-/15đ'}
+                      {weekFinished ? `${Math.round(weekScore.correct / weekScore.total * 100) || 0}%` : '-'}
                     </span>
                   </div>
-                  {userQuizData.thoiGian && (
-                    <div className="stat-item-inline">
-                      <span className="stat-label">Nộp bài:</span>
-                      <span className="stat-value time">
-                        ⏰ {(userQuizData.thoiGian.toDate ? 
-                          userQuizData.thoiGian.toDate() : 
-                          new Date(userQuizData.thoiGian)
-                        ).toLocaleString('vi-VN', {
-                          day: '2-digit',
-                          month: '2-digit',
-                          year: 'numeric', 
-                          hour: '2-digit',
-                          minute: '2-digit',
-                          second: '2-digit'
-                        })}
-                      </span>
-                    </div>
-                  )}
+                  <div className="stat-item-inline">
+                    <span className="stat-label">Tổng:</span>
+                    <span className="stat-value percentage">
+                      {weekFinished ? `${weekScore.earnedPoints || 0}đ` : '-'}
+                    </span>
+                  </div>
                 </div>
+                
+                {/* Thời gian nộp bài ở dòng riêng */}
+                {userQuizData.thoiGian && (
+                  <div className="submission-time-row">
+                    <span className="stat-label">Nộp bài:</span>
+                    <span className="stat-value time">
+                      ⏰ {(userQuizData.thoiGian.toDate ? 
+                        userQuizData.thoiGian.toDate() : 
+                        new Date(userQuizData.thoiGian)
+                      ).toLocaleString('vi-VN', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric', 
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                      })}
+                    </span>
+                  </div>
+                )}
               </div>
             )}
           </div>

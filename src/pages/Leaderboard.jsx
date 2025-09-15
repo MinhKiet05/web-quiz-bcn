@@ -206,7 +206,7 @@ const Leaderboard = () => {
       case 2:
         return { icon: '🥈', color: '#C0C0C0', label: 'Top 2', coins: '6 Coins' };
       case 3:
-        return { icon: '🥉', color: '#CD7F32', label: 'Top 3', coins: '3 Coin' };
+        return { icon: '🥉', color: '#CD7F32', label: 'Top 3', coins: '3 Coins' };
       default:
         return { icon: '🏆', color: '#667eea', label: `Top ${rank}`, coins: '1 Coin' };
     }
