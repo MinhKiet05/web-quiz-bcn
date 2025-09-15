@@ -76,7 +76,6 @@ const QuizPlayer = () => {
       const week = await findCurrentWeek();
       setCurrentWeek(week);
       
-      console.log(`🔍 Fetching quizzes from week${week} document...`);
       const quizData = await quizService.getQuizzesFromWeekDocument(`week${week}`);
       
       // Lấy thông tin thời gian từ quiz đầu tiên hoặc document level

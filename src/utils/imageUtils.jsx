@@ -52,9 +52,10 @@ export const ImageDisplay = ({
         };
 
         img.onerror = () => {
-          if (!silentMode) {
-            console.warn('Image failed to load:', testUrl);
-          }
+          // Silent mode: no console warnings for production
+          // if (!silentMode) {
+          //   console.warn('Image failed to load:', testUrl);
+          // }
           reject({ url: testUrl, success: false });
         };
 
@@ -74,10 +75,9 @@ export const ImageDisplay = ({
 
     // Use Promise.any to get the first successful load
     Promise.any(imagePromises)
-      .then((result) => {
-        if (!silentMode) {
-          console.log('Image loaded successfully:', result.url);
-        }
+      .then(() => {
+        // Silent mode: no console logs for production
+        // Image loaded successfully but we don't need to log it
       })
       .catch(() => {
         // All URLs failed

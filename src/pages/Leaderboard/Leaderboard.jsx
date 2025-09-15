@@ -16,7 +16,7 @@ const Leaderboard = () => {
   const getFinishedWeeks = async (weeks) => {
     const now = new Date();
     const finished = [];
-    
+
     for (const weekId of weeks) {
       try {
         const weekQuizData = await getQuizzesByWeek(weekId);
@@ -33,7 +33,7 @@ const Leaderboard = () => {
         console.error(`Error checking week ${weekId}:`, error);
       }
     }
-    
+
     return finished.sort(); // Sắp xếp theo thứ tự tuần
   };
 
@@ -42,13 +42,13 @@ const Leaderboard = () => {
     const loadInitialData = async () => {
       try {
         setLoading(true);
-        
+
         const weeks = await getAllAvailableWeeks();
-        
+
         // Lấy danh sách tuần đã kết thúc
         const finished = await getFinishedWeeks(weeks);
         setFinishedWeeks(finished);
-        
+
         // Chọn tuần mới nhất đã kết thúc
         if (finished.length > 0) {
           const latestFinished = finished[finished.length - 1]; // Tuần đã kết thúc gần nhất
@@ -56,7 +56,7 @@ const Leaderboard = () => {
         } else {
           setError('Chưa có tuần nào kết thúc để hiển thị bảng xếp hạng');
         }
-        
+
       } catch (err) {
         console.error('Lỗi khi load dữ liệu ban đầu:', err);
         setError('Có lỗi khi tải dữ liệu');
@@ -75,7 +75,7 @@ const Leaderboard = () => {
 
       try {
         setLoading(true);
-        
+
         // Lấy dữ liệu quiz của tuần để tính điểm
         const weekQuizzes = await getQuizzesByWeek(currentWeek);
         if (weekQuizzes.length === 0) {
@@ -92,19 +92,19 @@ const Leaderboard = () => {
         // Lấy dữ liệu user answers từ Firebase collection users_quiz
         const weekRef = doc(db, 'users_quiz', currentWeek);
         const weekSnap = await getDoc(weekRef);
-        
+
         if (!weekSnap.exists()) {
           setLeaderboardData([]);
           return;
         }
 
         const weekData = weekSnap.data();
-        
+
         // Lấy thông tin users để có username/displayName
         const usersRef = collection(db, 'users');
         const usersSnap = await getDocs(usersRef);
         const usersData = {};
-        
+
         usersSnap.forEach(doc => {
           const userData = doc.data();
           // Document ID chính là MSSV, userData.name là tên thật
@@ -113,10 +113,10 @@ const Leaderboard = () => {
 
         // Tính điểm cho từng user
         const leaderboard = [];
-        
+
         Object.keys(weekData).forEach(userId => {
           const userAnswers = weekData[userId];
-          
+
           let totalScore = 0;
           let correctCount = 0;
           let totalQuestions = 0;
@@ -136,12 +136,12 @@ const Leaderboard = () => {
           // Chỉ thêm user nếu họ đã làm ít nhất 1 quiz
           if (totalQuestions > 0) {
             const userInfo = usersData[userId] || {};
-            
+
             // Lấy thời gian nộp bài từ thoiGian field
-            const submissionTime = userAnswers.thoiGian ? 
-              (userAnswers.thoiGian.toDate ? userAnswers.thoiGian.toDate() : new Date(userAnswers.thoiGian)) : 
+            const submissionTime = userAnswers.thoiGian ?
+              (userAnswers.thoiGian.toDate ? userAnswers.thoiGian.toDate() : new Date(userAnswers.thoiGian)) :
               new Date();
-            
+
             leaderboard.push({
               userId, // MSSV (chính là Document ID trong collection users)
               username: userInfo.name || `User ${userId}`, // Tên thật từ field "name"
@@ -161,7 +161,7 @@ const Leaderboard = () => {
           if (b.totalScore !== a.totalScore) {
             return b.totalScore - a.totalScore;
           }
-          
+
           // Nếu điểm bằng nhau, xếp theo thời gian (ai nộp trước thì xếp cao hơn)
           const timeA = a.submissionTime ? new Date(a.submissionTime) : new Date();
           const timeB = b.submissionTime ? new Date(b.submissionTime) : new Date();
@@ -178,7 +178,7 @@ const Leaderboard = () => {
         const top3 = rankedLeaderboard.slice(0, 3);
 
         setLeaderboardData(top3);
-        
+
       } catch (err) {
         console.error('Lỗi khi load dữ liệu bảng xếp hạng:', err);
         setError('Có lỗi khi tải dữ liệu bảng xếp hạng');
@@ -208,13 +208,13 @@ const Leaderboard = () => {
   const navigateWeek = (direction) => {
     const currentIndex = finishedWeeks.indexOf(currentWeek);
     let newIndex;
-    
+
     if (direction === 'prev') {
       newIndex = Math.max(0, currentIndex - 1);
     } else if (direction === 'next') {
       newIndex = Math.min(finishedWeeks.length - 1, currentIndex + 1);
     }
-    
+
     if (newIndex !== undefined && finishedWeeks[newIndex]) {
       setCurrentWeek(finishedWeeks[newIndex]);
     }
@@ -239,27 +239,20 @@ const Leaderboard = () => {
     );
   }
 
-    return (
-      
-        <div className="leaderboard-container">
-            
+  return (
+
+    <div className="leaderboard-container">
+
       <div className="leaderboard-content">
-                {/* Header */}
-                {/* Week Selection Section */}
+        {/* Header */}
+        {/* Week Selection Section */}
         <div className="leaderboard-week-selection">
           <h3>📅 Chọn tuần xem bảng xếp hạng</h3>
           <div className="leaderboard-week-controls">
-            <button 
-              onClick={() => navigateWeek('prev')}
-              disabled={!canGoPrev}
-              className="leaderboard-nav-btn"
-            >
-              ← Tuần trước
-            </button>
-            
+
             <div className="leaderboard-week-selector">
               <label htmlFor="week-select">Tuần:</label>
-              <select 
+              <select
                 id="week-select"
                 value={currentWeek}
                 onChange={(e) => handleWeekSelect(e.target.value)}
@@ -276,16 +269,29 @@ const Leaderboard = () => {
                 )}
               </select>
             </div>
-            
-            <button 
+            <div className="leaderboard-week-nav-buttons">
+              <button
+              onClick={() => navigateWeek('prev')}
+              disabled={!canGoPrev}
+              className="leaderboard-nav-btn"
+            >
+              ← Trước
+              </button>
+              <button
               onClick={() => navigateWeek('next')}
               disabled={!canGoNext}
               className="leaderboard-nav-btn"
             >
-              Tuần sau →
+              Sau → 
             </button>
+            </div>
+            
+
+
+
+            
           </div>
-          
+
           {currentWeek && (
             <div className="leaderboard-selected-week">
               <strong>Đang xem: Bảng xếp hạng {currentWeek.replace('week', 'Tuần ')}</strong>
@@ -305,7 +311,7 @@ const Leaderboard = () => {
           <p>Top 3 điểm cao nhất tuần</p>
         </div>
 
-        
+
 
         {/* Leaderboard */}
         {!error && (
@@ -319,7 +325,7 @@ const Leaderboard = () => {
               <div className="leaderboard-rankings">
                 {leaderboardData.map((user, index) => {
                   const rankInfo = getRankInfo(user.rank);
-                  
+
                   return (
                     <div key={`${user.userId}-${index}`} className={`leaderboard-rank-card rank-${user.rank}`}>
                       <div className="leaderboard-rank-info">
@@ -331,7 +337,7 @@ const Leaderboard = () => {
                           <div className="leaderboard-rank-reward">🪙 {rankInfo.coins}</div>
                         </div>
                       </div>
-                      
+
                       <div className="leaderboard-user-info">
                         <div className="leaderboard-username">
                           <div className="user-display-name">{user.displayName || user.username}</div>
@@ -345,7 +351,7 @@ const Leaderboard = () => {
                           <span className="leaderboard-time">
                             ⏰ {user.submissionTime.toLocaleString('vi-VN', {
                               day: '2-digit',
-                              month: '2-digit', 
+                              month: '2-digit',
                               year: 'numeric',
                               hour: '2-digit',
                               minute: '2-digit',
@@ -362,7 +368,7 @@ const Leaderboard = () => {
           </div>
         )}
 
-        
+
       </div>
     </div>
   );
