@@ -13,7 +13,7 @@ const Upload = () => {
   const [soDapAn, setSoDapAn] = useState(['A', 'B', 'C', 'D']);
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
-  
+
   // UI state
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -56,7 +56,7 @@ const Upload = () => {
             const startTimeString = formatDateTimeLocal(startDate);
             setStartTime(startTimeString);
           }
-          
+
           if (weekData.endTime) {
             const endDate = weekData.endTime.toDate ? weekData.endTime.toDate() : new Date(weekData.endTime);
             const endTimeString = formatDateTimeLocal(endDate);
@@ -109,7 +109,7 @@ const Upload = () => {
 
   const validateForm = () => {
     const weekToUse = selectedWeek === 'new' ? newWeek : selectedWeek;
-    
+
     if (!weekToUse) {
       setMessage('❌ Vui lòng chọn hoặc tạo week mới');
       return false;
@@ -130,7 +130,7 @@ const Upload = () => {
       setMessage('❌ Tất cả lựa chọn đáp án phải được điền');
       return false;
     }
-    
+
     // Chỉ validate thời gian khi tạo week mới
     if (selectedWeek === 'new') {
       if (!startTime) {
@@ -151,7 +151,7 @@ const Upload = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     setLoading(true);
@@ -159,15 +159,15 @@ const Upload = () => {
 
     try {
       const weekToUse = selectedWeek === 'new' ? newWeek : selectedWeek;
-      
+
       // Chỉ validate và tạo Date objects khi tạo week mới
       let startDateTime = null, endDateTime = null;
-      
+
       if (selectedWeek === 'new') {
         // Create and validate Date objects
         startDateTime = new Date(startTime);
         endDateTime = new Date(endTime);
-        
+
         if (isNaN(startDateTime.getTime()) || isNaN(endDateTime.getTime())) {
           setMessage('❌ Thời gian bắt đầu và kết thúc không hợp lệ');
           setLoading(false);
@@ -214,7 +214,7 @@ const Upload = () => {
     <div className="upload-container">
       <div className="upload-form-wrapper">
         <h1>📝 Thêm Quiz Mới</h1>
-        
+
         {message && (
           <div className={`message ${message.includes('✅') ? 'success' : 'error'}`}>
             {message}
@@ -262,7 +262,7 @@ const Upload = () => {
               <label htmlFor="startTime">
                 Thời gian bắt đầu:
                 {selectedWeek && selectedWeek !== 'new' && (
-                  <span style={{fontSize: '0.8em', color: '#666', fontWeight: 'normal'}}>
+                  <span style={{ fontSize: '0.8em', color: '#666', fontWeight: 'normal' }}>
                     {' '}(Tự động từ week đã chọn)
                   </span>
                 )}
@@ -285,7 +285,7 @@ const Upload = () => {
               <label htmlFor="endTime">
                 Thời gian kết thúc:
                 {selectedWeek && selectedWeek !== 'new' && (
-                  <span style={{fontSize: '0.8em', color: '#666', fontWeight: 'normal'}}>
+                  <span style={{ fontSize: '0.8em', color: '#666', fontWeight: 'normal' }}>
                     {' '}(Tự động từ week đã chọn)
                   </span>
                 )}
@@ -310,14 +310,19 @@ const Upload = () => {
             <h3>🎯 Thông tin Quiz</h3>
             <div className="form-group">
               <label htmlFor="quizId">Quiz ID:</label>
-              <input
-                type="text"
+              <select
                 id="quizId"
                 value={quizId}
                 onChange={(e) => setQuizId(e.target.value)}
-                placeholder="VD: Quiz1, Quiz2, Quiz3"
                 required
-              />
+              >
+                <option value="">-- Chọn Quiz ID --</option>
+                <option value="Quiz1">Quiz1</option>
+                <option value="Quiz2">Quiz2</option>
+                <option value="Quiz3">Quiz3</option>
+                <option value="Quiz4">Quiz4</option>
+                <option value="Quiz5">Quiz5</option>
+              </select>
             </div>
 
             <div className="form-group">
@@ -333,10 +338,10 @@ const Upload = () => {
 
             {/* Answer Choices */}
             <div className="form-group">
-              <label style={{marginBottom: '10px', display: 'block'}}>Các lựa chọn đáp án:</label>
+              <label style={{ marginBottom: '10px', display: 'block' }}>Các lựa chọn đáp án:</label>
               {soDapAn.map((answer, index) => (
-                <div key={index} className="answer-choice-group" style={{marginBottom: '10px'}}>
-                  <div className="form-group" style={{margin: '0'}}>
+                <div key={index} className="answer-choice-group" style={{ marginBottom: '10px' }}>
+                  <div className="form-group" style={{ margin: '0' }}>
                     <label htmlFor={`answer-${index}`}>Đáp án {String.fromCharCode(65 + index)}:</label>
                     <input
                       type="text"
@@ -358,8 +363,8 @@ const Upload = () => {
                   </div>
                 </div>
               ))}
-              
-              <div style={{marginTop: '10px'}}>
+
+              <div style={{ marginTop: '10px' }}>
                 <button
                   type="button"
                   onClick={addAnswerChoice}
@@ -393,7 +398,7 @@ const Upload = () => {
                 }
               </select>
               {soDapAn.filter(answer => answer.trim()).length === 0 && (
-                <p style={{color: '#666', fontSize: '0.9em', margin: '5px 0 0 0'}}>
+                <p style={{ color: '#666', fontSize: '0.9em', margin: '5px 0 0 0' }}>
                   💡 Vui lòng thêm ít nhất một đáp án ở trên để chọn đáp án đúng
                 </p>
               )}
@@ -416,7 +421,7 @@ const Upload = () => {
             <button type="submit" disabled={loading} className="submit-btn">
               {loading ? '⏳ Đang xử lý...' : (isEditMode ? '💾 Cập nhật' : '✅ Thêm quiz')}
             </button>
-            
+
             <button type="button" onClick={resetForm} className="reset-btn">
               🔄 Reset form
             </button>
