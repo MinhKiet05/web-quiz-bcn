@@ -38,9 +38,20 @@ const UsersQuizByWeek = () => {
   const exportToExcel = () => {
     if (rows.length === 0 || !selectedWeek) return;
 
+    // Helper function to escape CSV values
+    const escapeCSV = (value) => {
+      if (!value) return '';
+      const str = String(value);
+      // If value contains comma, quote, or newline, wrap in quotes and escape internal quotes
+      if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+        return `"${str.replace(/"/g, '""')}"`;
+      }
+      return str;
+    };
+
     // Create CSV content
     const headers = ['MSSV', 'Quiz1', 'Quiz2', 'Quiz3', 'Quiz4', 'Quiz5', 'Thời gian'];
-    const csvRows = [headers.join(',')];
+    const csvRows = [headers.map(escapeCSV).join(',')];
     
     rows.forEach(r => {
       const a = r.answers || {};
@@ -63,7 +74,7 @@ const UsersQuizByWeek = () => {
         a.Quiz5 || '',
         timeStr
       ];
-      csvRows.push(row.join(','));
+      csvRows.push(row.map(escapeCSV).join(','));
     });
 
     // Download CSV file

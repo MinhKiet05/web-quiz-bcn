@@ -360,7 +360,7 @@ const QuizzList = () => {
                     className="expand-btn"
                     disabled={editingQuiz && !isEditing}
                   >
-                    {isExpanded ? '🔼 Thu gọn' : '🔽 Xem chi tiết'}
+                    {isExpanded ? 'Thu gọn' : 'Xem chi tiết'}
                   </button>
                   <button
                     onClick={() => handleEditQuiz(quizKey)}

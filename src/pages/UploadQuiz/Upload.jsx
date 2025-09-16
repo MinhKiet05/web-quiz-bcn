@@ -66,7 +66,7 @@ const Upload = () => {
             setEndTime(endTimeString);
           }
         }
-      } catch (error) {
+      } catch {
         // Silent error handling for week data fetch
       }
     } else if (weekValue === 'new') {
