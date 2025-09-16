@@ -144,7 +144,7 @@ const QuizHistoryCard = ({ quiz, userAnswer, hasParticipated}) => {
           <div className="history-card-action-section">
             <button 
               className="history-card-do-quiz-btn"
-              onClick={() => navigate('/quiz')}
+              onClick={() => navigate('/')}
               title="Quay về trang Quiz tuần"
             >
               Làm ngay
