@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getAllWeeks, addQuizToWeek, updateQuizInWeek, getWeekById } from '../../services/weekQuizService';
+import { uploadImageToCloudinary } from '../../utils/cloudinaryUtils.js';
 import './Upload.css';
 
 const Upload = () => {
@@ -9,7 +10,10 @@ const Upload = () => {
   const [quizId, setQuizId] = useState('');
   const [dapAnDung, setDapAnDung] = useState('');
   const [giaiThich, setGiaiThich] = useState('');
-  const [link, setLink] = useState('');
+  const [imageFile, setImageFile] = useState(null);
+  const [imageUrl, setImageUrl] = useState('');
+  const [imagePreview, setImagePreview] = useState('');
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [soDapAn, setSoDapAn] = useState(['A', 'B', 'C', 'D']);
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
@@ -29,7 +33,6 @@ const Upload = () => {
       const data = await getAllWeeks();
       setWeeks(data);
     } catch (error) {
-      console.error('Error fetching weeks:', error);
       setMessage('Lỗi khi tải danh sách week: ' + error.message);
     }
   };
@@ -64,7 +67,7 @@ const Upload = () => {
           }
         }
       } catch (error) {
-        console.error('Error fetching week data:', error);
+        // Silent error handling for week data fetch
       }
     } else if (weekValue === 'new') {
       // Clear times when creating new week
@@ -96,11 +99,67 @@ const Upload = () => {
     setSoDapAn(newAnswers);
   };
 
+  // Handle file selection and preview
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) {
+      setImageFile(null);
+      setImagePreview('');
+      return;
+    }
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setMessage('❌ Vui lòng chọn file ảnh hợp lệ');
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    const maxSize = 10 * 1024 * 1024;
+    if (file.size > maxSize) {
+      setMessage('❌ Kích thước file phải nhỏ hơn 10MB');
+      return;
+    }
+
+    setImageFile(file);
+    
+    // Create preview URL
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setImagePreview(e.target.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Upload image to Cloudinary
+  const uploadImage = async () => {
+    if (!imageFile) return null;
+
+    try {
+      setUploadingImage(true);
+      setMessage('📤 Đang tải ảnh lên...');
+      
+      const uploadedUrl = await uploadImageToCloudinary(imageFile);
+      setImageUrl(uploadedUrl);
+      setMessage('✅ Tải ảnh thành công!');
+      
+      return uploadedUrl;
+    } catch (error) {
+      console.error('Image upload error:', error);
+      setMessage(`❌ Lỗi tải ảnh: ${error.message}`);
+      return null;
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   const resetForm = () => {
     setQuizId('');
     setDapAnDung('');
     setGiaiThich('');
-    setLink('');
+    setImageFile(null);
+    setImageUrl('');
+    setImagePreview('');
     setSoDapAn(['A', 'B', 'C', 'D']);
     setStartTime('');
     setEndTime('');
@@ -160,6 +219,16 @@ const Upload = () => {
     try {
       const weekToUse = selectedWeek === 'new' ? newWeek : selectedWeek;
 
+      // Upload image first if there's a new image file
+      let finalImageUrl = imageUrl; // Use existing URL if available
+      if (imageFile && !imageUrl) {
+        finalImageUrl = await uploadImage();
+        if (!finalImageUrl) {
+          setLoading(false);
+          return; // Upload failed, stop execution
+        }
+      }
+
       // Chỉ validate và tạo Date objects khi tạo week mới
       let startDateTime = null, endDateTime = null;
 
@@ -178,7 +247,7 @@ const Upload = () => {
       const quizData = {
         dapAnDung,
         giaiThich,
-        link,
+        link: finalImageUrl || '', // Use Cloudinary URL instead of Google Drive link
         soDapAn: soDapAn.filter(answer => answer.trim()), // Loại bỏ câu trả lời trống
         // Note: Don't include startTime/endTime in quizData for service
       };
@@ -326,14 +395,64 @@ const Upload = () => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="link">Link hình ảnh (Google Drive):</label>
+              <label htmlFor="image">Hình ảnh câu hỏi:</label>
               <input
-                type="url"
-                id="link"
-                value={link}
-                onChange={(e) => setLink(e.target.value)}
-                placeholder="https://drive.google.com/file/d/..."
+                type="file"
+                id="image"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="file-input"
+                style={{height: '200px', border: '1px solid #ccc', borderRadius: '4px'}}
               />
+              <small style={{ color: '#666', fontSize: '12px', marginTop: '5px', display: 'block' }}>
+                Chọn file ảnh (JPG, PNG, GIF, WebP). Tối đa 10MB.
+              </small>
+              
+              {/* Image Preview */}
+              {imagePreview && (
+                <div className="image-preview" style={{ marginTop: '10px' }}>
+                  <img 
+                    src={imagePreview} 
+                    alt="Preview" 
+                    style={{ 
+                      maxWidth: '300px', 
+                      maxHeight: '200px', 
+                      border: '1px solid #ddd', 
+                      borderRadius: '4px',
+                      objectFit: 'contain'
+                    }} 
+                  />
+                  <p style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>
+                    {imageFile?.name} ({(imageFile?.size / 1024 / 1024).toFixed(2)} MB)
+                  </p>
+                </div>
+              )}
+              
+              {/* Show current uploaded image URL if exists */}
+              {imageUrl && !imagePreview && (
+                <div className="current-image" style={{ marginTop: '10px' }}>
+                  <p style={{ fontSize: '12px', color: '#22543d', marginBottom: '5px' }}>
+                    ✅ Ảnh đã được tải lên
+                  </p>
+                  <img 
+                    src={imageUrl} 
+                    alt="Current" 
+                    style={{ 
+                      maxWidth: '300px', 
+                      maxHeight: '200px', 
+                      border: '1px solid #ddd', 
+                      borderRadius: '4px',
+                      objectFit: 'contain'
+                    }} 
+                  />
+                </div>
+              )}
+              
+              {uploadingImage && (
+                <div style={{ marginTop: '10px', color: '#667eea' }}>
+                  📤 Đang tải ảnh lên...
+                </div>
+              )}
             </div>
 
             {/* Answer Choices */}

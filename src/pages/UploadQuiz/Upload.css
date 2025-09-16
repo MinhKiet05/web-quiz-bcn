@@ -48,6 +48,35 @@
   gap: 24px;
 }
 
+/* File input styling */
+.file-input {
+  padding: 8px 12px !important;
+  border: 2px dashed #ddd !important;
+  border-radius: 8px !important;
+  background: #fafafa !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+}
+
+.file-input:hover {
+  border-color: #667eea !important;
+  background: #f0f2ff !important;
+}
+
+.file-input:focus {
+  border-color: #667eea !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+}
+
+.image-preview {
+  text-align: center;
+}
+
+.current-image {
+  text-align: center;
+}
+
 .form-section {
   border: 2px solid #f8f9fa;
   border-radius: 12px;

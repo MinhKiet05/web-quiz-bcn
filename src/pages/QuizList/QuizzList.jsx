@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../config/firebase.js';
 import { updateWeekTimes, updateQuizInWeek } from '../../services/weekQuizService.js';
-import { ImageDisplay } from '../../utils/imageUtils.jsx';
 import { showToast } from '../../utils/toastUtils.js';
+import { uploadImageToCloudinary } from '../../utils/cloudinaryUtils.js';
 import './QuizzList.css';
 
 const QuizzList = () => {
@@ -107,8 +107,7 @@ const QuizzList = () => {
         if (currentWeekIdx !== -1) {
           setCurrentWeekIndex(currentWeekIdx);
         }
-      } catch (error) {
-        console.error('Error fetching weeks data:', error);
+      } catch {
         setAllWeeksData([]);
       } finally {
         setLoading(false);
@@ -158,7 +157,6 @@ const QuizzList = () => {
       // Show success message
       showToast('Cập nhật quiz thành công!', 'success');
     } catch (error) {
-      console.error('Error updating quiz:', error);
       showToast('Lỗi khi cập nhật quiz: ' + error.message, 'error');
     }
   };
@@ -195,7 +193,6 @@ const QuizzList = () => {
       // Show success message
       showToast('Xóa quiz thành công!', 'success');
     } catch (error) {
-      console.error('Error deleting quiz:', error);
       showToast('Lỗi khi xóa quiz: ' + error.message, 'error');
     }
   };
@@ -237,7 +234,6 @@ const QuizzList = () => {
       setEditingDocument(false);
       showToast('Cập nhật thời gian thành công!', 'success');
     } catch (error) {
-      console.error('Error updating document times:', error);
       showToast('Lỗi khi cập nhật thời gian: ' + error.message, 'error');
     }
   };
@@ -382,10 +378,20 @@ const QuizzList = () => {
                     <div className="quiz-detail-content">
                       <div className="quiz-image-section">
                         <p><strong>Hình ảnh câu hỏi:</strong></p>
-                        <ImageDisplay
-                          url={quiz.link}
+                        <img
+                          src={quiz.link}
                           alt={`${quizKey} image`}
                           className="quiz-image"
+                          style={{
+                            maxWidth: '100%',
+                            maxHeight: '300px',
+                            objectFit: 'contain',
+                            border: '1px solid #ddd',
+                            borderRadius: '4px'
+                          }}
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                          }}
                         />
                       </div>
                       <div className="answer-choices">
@@ -448,6 +454,11 @@ const QuizEditForm = ({ quiz, quizKey, onSave, onDelete, onCancel }) => {
     soLuongDapAn: quiz.soDapAn.length // Thay đổi: lưu số lượng thay vì chuỗi
   });
 
+  // Image upload states
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState('');
+  const [uploadingImage, setUploadingImage] = useState(false);
+
   // Handle ESC key to close modal
   useEffect(() => {
     const handleEscKey = (e) => {
@@ -471,13 +482,76 @@ const QuizEditForm = ({ quiz, quizKey, onSave, onDelete, onCancel }) => {
     return answers;
   };
 
-  const handleSubmit = (e) => {
+  // Handle file selection and preview
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) {
+      setImageFile(null);
+      setImagePreview('');
+      return;
+    }
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      showToast('❌ Vui lòng chọn file ảnh hợp lệ', 'error');
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    const maxSize = 10 * 1024 * 1024;
+    if (file.size > maxSize) {
+      showToast('❌ Kích thước file phải nhỏ hơn 10MB', 'error');
+      return;
+    }
+
+    setImageFile(file);
+    
+    // Create preview URL
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setImagePreview(e.target.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Upload image to Cloudinary
+  const uploadImage = async () => {
+    if (!imageFile) return null;
+
+    try {
+      setUploadingImage(true);
+      showToast('📤 Đang tải ảnh lên...', 'info');
+      
+      const uploadedUrl = await uploadImageToCloudinary(imageFile);
+      showToast('✅ Tải ảnh thành công!', 'success');
+      
+      return uploadedUrl;
+    } catch (error) {
+      showToast(`❌ Lỗi tải ảnh: ${error.message}`, 'error');
+      return null;
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    let finalImageUrl = formData.link;
+
+    // Upload new image if selected
+    if (imageFile) {
+      finalImageUrl = await uploadImage();
+      if (!finalImageUrl) {
+        return; // Upload failed, stop submission
+      }
+    }
+
     const updatedQuiz = {
       ...quiz,
       dapAnDung: formData.dapAnDung,
       giaiThich: formData.giaiThich,
-      link: formData.link,
+      link: finalImageUrl,
       soDapAn: generateAnswers(parseInt(formData.soLuongDapAn)) // Tạo đáp án tự động
     };
     onSave(quizKey, updatedQuiz);
@@ -507,13 +581,73 @@ const QuizEditForm = ({ quiz, quizKey, onSave, onDelete, onCancel }) => {
         <div className="modal-body">
           <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <label>Link:</label>
+              <label>Hình ảnh câu hỏi:</label>
               <input
-                type="url"
-                value={formData.link}
-                onChange={(e) => setFormData(prev => ({ ...prev, link: e.target.value }))}
-                required
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="file-input"
+                style={{marginBottom: '10px', height: '100px'}}
               />
+              <small style={{ color: '#666', fontSize: '12px', display: 'block', marginBottom: '10px' }}>
+                Chọn file ảnh mới (JPG, PNG, GIF, WebP). Tối đa 10MB. Để trống nếu không muốn thay đổi.
+              </small>
+              
+              {/* Image Preview for new file */}
+              {imagePreview && (
+                <div className="image-preview" style={{ marginBottom: '10px' }}>
+                  <p style={{ fontSize: '12px', color: '#666', marginBottom: '5px' }}>
+                    Ảnh mới sẽ được upload:
+                  </p>
+                  <img 
+                    src={imagePreview} 
+                    alt="Preview" 
+                    style={{ 
+                      maxWidth: '200px', 
+                      maxHeight: '150px', 
+                      border: '1px solid #ddd', 
+                      borderRadius: '4px',
+                      objectFit: 'contain'
+                    }} 
+                  />
+                  <p style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>
+                    {imageFile?.name} ({(imageFile?.size / 1024 / 1024).toFixed(2)} MB)
+                  </p>
+                </div>
+              )}
+              
+              {/* Current image display */}
+              {formData.link && !imagePreview && (
+                <div className="current-image" style={{ marginBottom: '10px' }}>
+                  <p style={{ fontSize: '14px', color: '#22543d', marginBottom: '5px' }}>
+                    Ảnh hiện tại:
+                  </p>
+                  <img 
+                    src={formData.link} 
+                    alt="Current" 
+                    style={{ 
+                      width: '100%', 
+                      height: 'auto', 
+                      border: '1px solid #ddd', 
+                      borderRadius: '4px',
+                      objectFit: 'contain'
+                    }} 
+                  />
+                </div>
+              )}
+              
+              {uploadingImage && (
+                <div style={{ marginBottom: '10px', color: '#667eea' }}>
+                  📤 Đang tải ảnh lên...
+                </div>
+              )}
+
+              
+              {imageFile && (
+                <small style={{ color: '#666', fontSize: '11px', display: 'block', marginTop: '5px' }}>
+                  Link sẽ được cập nhật tự động sau khi upload file ảnh mới
+                </small>
+              )}
             </div>
 
             <div className="form-group">
