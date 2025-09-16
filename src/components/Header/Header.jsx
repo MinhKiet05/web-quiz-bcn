@@ -9,7 +9,7 @@ import Login from '../Login/Login';
 
 const navLinks = [
   { name: 'Quiz tuần', path: '/' },
-  { name: 'Quiz đã làm', path: '/my-quizzes' },
+  { name: 'Lịch sử Quiz', path: '/my-quizzes' },
   { name: 'Bảng xếp hạng', path: '/leaderboard' },
   { name: 'Thể lệ', path: '/rules' },
   { 

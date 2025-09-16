@@ -176,7 +176,7 @@ const QuizHistory = () => {
         
         {/* Header với navigation */}
         <div className="quiz-history-header">
-          <h1>Quiz Đã Làm</h1>
+          <h1>Lịch sử Quiz</h1>
           
           <div className="week-navigation">
             <div className="current-week-info">
@@ -386,6 +386,9 @@ const QuizHistory = () => {
                 )}
               </div>
             )}
+          </div>
+          <div>
+            <p style={{ fontStyle: 'italic', color: '#888' }}>Lưu ý: quiz chỉ hiện đáp án và giải thích khi quiz đó đã kết thúc</p>
           </div>
         </div>
 

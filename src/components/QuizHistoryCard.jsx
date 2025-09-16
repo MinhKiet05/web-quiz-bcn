@@ -1,8 +1,11 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ImageDisplay } from '../utils/imageUtils.jsx';
 import './QuizHistoryCard.css';
 
 const QuizHistoryCard = ({ quiz, userAnswer, hasParticipated}) => {
+  const navigate = useNavigate();
+  
   if (!quiz) return null;
 
   // Kiểm tra xem quiz đã hết hạn chưa
@@ -58,7 +61,6 @@ const QuizHistoryCard = ({ quiz, userAnswer, hasParticipated}) => {
       <div className="history-card-card-header">
         <div className="history-card-quiz-info">
           <h3>Quiz {quiz.quizNumber}</h3>
-          
         </div>
         
         {/* Hiển thị trạng thái */}
@@ -106,20 +108,25 @@ const QuizHistoryCard = ({ quiz, userAnswer, hasParticipated}) => {
           </div>
         )}
 
+        {/* Hiển thị đáp án đã chọn với độ rộng to (luôn hiển thị) */}
+        <div className="history-card-answers-section">
+          {hasParticipated ? (
+            <div className={`history-card-user-answer ${expired && isCorrect ? 'history-card-correct-user-answer' : expired ? 'history-card-incorrect-user-answer' : 'history-card-selected-user-answer'}`}>
+              <h4>Bạn đã chọn: {getAnswerLabel(userAnswer)}</h4>
+            </div>
+          ) : (
+            <div className="history-card-user-answer history-card-not-answered-user-answer">
+              <h4>Chưa chọn đáp án</h4>
+            </div>
+          )}
+        </div>
+
         {/* Chỉ hiển thị thông tin thêm khi đã qua endTime */}
         {expired && (
           <>
-            {/* Hiển thị đáp án đã chọn và đáp án đúng */}
-            <div className="history-card-answers-section">
-              {hasParticipated && (
-                <div className={`history-card-user-answer ${isCorrect ? 'history-card-correct-user-answer' : 'history-card-incorrect-user-answer'}`}>
-                  <h4>Bạn đã chọn: {getAnswerLabel(userAnswer)}</h4>
-                </div>
-              )}
-              
-              <div className="history-card-correct-answer-section">
-                <h4>Đáp án đúng: {getAnswerLabel(quiz.correctAnswer)}</h4>
-              </div>
+            {/* Hiển thị đáp án đúng */}
+            <div className="history-card-correct-answer-section">
+              <h4>Đáp án đúng: {getAnswerLabel(quiz.correctAnswer)}</h4>
             </div>
 
             {/* Hiển thị giải thích nếu có */}
@@ -130,6 +137,19 @@ const QuizHistoryCard = ({ quiz, userAnswer, hasParticipated}) => {
               </div>
             )}
           </>
+        )}
+
+        {/* Nút Làm ngay - chỉ hiển thị với quiz chưa làm */}
+        {!hasParticipated && (
+          <div className="history-card-action-section">
+            <button 
+              className="history-card-do-quiz-btn"
+              onClick={() => navigate('/quiz')}
+              title="Quay về trang Quiz tuần"
+            >
+              Làm ngay
+            </button>
+          </div>
         )}
       </div>
     </div>

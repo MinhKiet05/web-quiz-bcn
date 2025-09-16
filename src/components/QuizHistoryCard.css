@@ -173,6 +173,20 @@ line-height: 25.5px!important;
   color: #721c24;
 }
 
+/* Đáp án đã chọn (chưa kết thúc) */
+.history-card-selected-user-answer {
+  border-color: #6c757d;
+  background: #e2e3e5;
+  color: #383d41;
+}
+
+/* Chưa chọn đáp án */
+.history-card-not-answered-user-answer {
+  border-color: #ffc107;
+  background: #fff3cd;
+  color: #856404;
+}
+
 /* Styles cho đáp án đúng */
 .history-card-correct-answer-section {
   padding: 1rem;
@@ -350,7 +364,46 @@ line-height: 25.5px!important;
   line-height: 1.6;
 }
 
-/* Responsive Design */
+/* Nút Làm ngay */
+.history-card-action-section {
+  display: flex;
+  justify-content: flex-end;
+  padding: 1rem 1.5rem;
+  background: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+}
+
+.history-card-do-quiz-btn {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.history-card-do-quiz-btn:hover {
+  background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+}
+
+.history-card-do-quiz-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 123, 255, 0.3);
+}
+
+.history-card-card-body {
+  position: relative;
+}
+
+/* Responsive Design cho Mobile */
 @media (max-width: 768px) {
   .history-card-quiz-history-card {
     margin-bottom: 1rem;
@@ -358,12 +411,6 @@ line-height: 25.5px!important;
 
   .history-card-card-header {
     padding: 1.25rem;
-  }
-
-  .history-card-quiz-info {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.75rem;
   }
 
   .history-card-quiz-info h3 {
@@ -418,5 +465,14 @@ line-height: 25.5px!important;
   .history-card-explanation-toggle {
     width: 100%;
     padding: 0.75rem;
+  }
+
+  .history-card-action-section {
+    padding: 0.75rem 1rem;
+  }
+
+  .history-card-do-quiz-btn {
+    font-size: 0.9rem;
+    padding: 0.6rem 1.2rem;
   }
 }

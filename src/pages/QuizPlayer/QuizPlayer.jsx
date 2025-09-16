@@ -92,6 +92,7 @@ const QuizPlayer = () => {
       setQuizzes(quizData);
     } catch (error) {
       console.error('Error fetching quizzes:', error);
+      setQuizzes([]);
     }
   }, [findCurrentWeek]);
 
@@ -104,15 +105,24 @@ const QuizPlayer = () => {
       setUserAnswers(answers);
     } catch (error) {
       console.error('Error fetching user answers:', error);
-    } finally {
-      setLoading(false);
     }
   }, [user, currentWeek]);
 
   useEffect(() => {
     if (user) {
-      fetchQuizzes();
-      fetchUserAnswers();
+      const loadData = async () => {
+        setLoading(true);
+        try {
+          await fetchQuizzes();
+          await fetchUserAnswers();
+        } catch (error) {
+          console.error('Error loading data:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+      
+      loadData();
     }
   }, [user, fetchQuizzes, fetchUserAnswers]);
 
@@ -244,7 +254,12 @@ const QuizPlayer = () => {
       </div>
 
       <div className="quiz-player-quiz-grid grid">
-        {quizzes.length === 0 ? (
+        {loading ? (
+          <div className="quiz-player-loading">
+            <FontAwesomeIcon icon={faSpinner} spin />
+            <p>Đang tải quiz...</p>
+          </div>
+        ) : quizzes.length === 0 ? (
           <div className="quiz-player-no-quiz">
             <div className="quiz-player-no-quiz-icon">📋</div>
             <h3>Chưa có quiz cho tuần này</h3>
