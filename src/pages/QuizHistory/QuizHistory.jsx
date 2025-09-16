@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { getUserQuizByWeek, getAllAvailableWeeks, calculateWeekScore } from '../../services/userQuizService';
 import { getQuizzesByWeek } from '../../services/weekQuizService';
-import QuizHistoryCard from '../../components/QuizHistoryCard';
+import QuizHistoryCard from '../../components/QuizHistoryCard/QuizHistoryCard';
 import './QuizHistory.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
@@ -12,10 +12,11 @@ const QuizHistory = () => {
   const [availableWeeks, setAvailableWeeks] = useState([]);
   const [userQuizData, setUserQuizData] = useState({});
   const [weekQuizzes, setWeekQuizzes] = useState([]);
-  const [allWeekQuizzes, setAllWeekQuizzes] = useState([]); // Thêm state để lưu tất cả quiz data
   const [loading, setLoading] = useState(true);
+  const [weekDataLoading, setWeekDataLoading] = useState(false);
   const [error, setError] = useState('');
   const [weekScore, setWeekScore] = useState({ correct: 0, total: 0, percentage: 0 });
+  const [weeksLoaded, setWeeksLoaded] = useState(false); // Cache flag cho weeks
 
   // Load dữ liệu ban đầu
   useEffect(() => {
@@ -26,24 +27,16 @@ const QuizHistory = () => {
         return;
       }
 
+      // Chỉ load weeks nếu chưa load
+      if (weeksLoaded) return;
+
       try {
         setLoading(true);
         
         // Lấy danh sách tuần có dữ liệu
         const weeks = await getAllAvailableWeeks();
         setAvailableWeeks(weeks);
-        
-        // Load quiz data cho tất cả các tuần để có thể filter
-        const allQuizzes = [];
-        for (const weekId of weeks) {
-          try {
-            const weekData = await getQuizzesByWeek(weekId);
-            allQuizzes.push(...weekData);
-          } catch (error) {
-            console.error(`Error loading quiz data for ${weekId}:`, error);
-          }
-        }
-        setAllWeekQuizzes(allQuizzes);
+        setWeeksLoaded(true);
         
         // Hiển thị tuần lớn nhất có sẵn khi load trang
         let initialWeek = 'week1'; // Default fallback
@@ -55,8 +48,7 @@ const QuizHistory = () => {
         
         setCurrentWeek(initialWeek);
         
-      } catch (err) {
-        console.error('Lỗi khi load dữ liệu ban đầu:', err);
+      } catch {
         setError('Có lỗi khi tải dữ liệu');
       } finally {
         setLoading(false);
@@ -64,7 +56,7 @@ const QuizHistory = () => {
     };
 
     loadInitialData();
-  }, [user]);
+  }, [user, weeksLoaded]);
 
   // Load dữ liệu quiz của tuần được chọn
   useEffect(() => {
@@ -72,14 +64,15 @@ const QuizHistory = () => {
       if (!currentWeek || !user || !user.username) return;
 
       try {
-        setLoading(true);
+        setWeekDataLoading(true);
         
-        // Lấy dữ liệu quiz đã làm của user
-        const userData = await getUserQuizByWeek(user.username, currentWeek);
+        // Load song song user data và quiz data
+        const [userData, quizzes] = await Promise.all([
+          getUserQuizByWeek(user.username, currentWeek),
+          getQuizzesByWeek(currentWeek)
+        ]);
+        
         setUserQuizData(userData);
-        
-        // Lấy dữ liệu quiz gốc từ hệ thống
-        const quizzes = await getQuizzesByWeek(currentWeek);
         setWeekQuizzes(quizzes);
         
         // Tính điểm số
@@ -111,11 +104,10 @@ const QuizHistory = () => {
           });
         }
         
-      } catch (err) {
-        console.error('Lỗi khi load dữ liệu tuần:', err);
+      } catch {
         setError('Có lỗi khi tải dữ liệu quiz');
       } finally {
-        setLoading(false);
+        setWeekDataLoading(false);
       }
     };
 
@@ -138,8 +130,8 @@ const QuizHistory = () => {
     }
   };
 
-  // Kiểm tra xem tuần đã kết thúc chưa
-  const isWeekFinished = () => {
+  // Kiểm tra xem tuần đã kết thúc chưa (cache với useMemo)
+  const isWeekFinished = useMemo(() => {
     if (weekQuizzes.length === 0) return false;
     const now = new Date();
     // Lấy endTime từ quiz đầu tiên (tất cả quiz trong tuần có cùng endTime)
@@ -147,13 +139,11 @@ const QuizHistory = () => {
     if (!endTime) return false;
     const weekEndTime = endTime.toDate ? endTime.toDate() : new Date(endTime);
     return now > weekEndTime;
-  };
+  }, [weekQuizzes]);
 
   const canGoPrev = availableWeeks.indexOf(currentWeek) > 0;
   const canGoNext = availableWeeks.indexOf(currentWeek) < availableWeeks.length - 1;
-  const weekFinished = isWeekFinished();
-
-  if (loading) {
+    const weekFinished = isWeekFinished;  if (loading) {
     return (
       <div className="quiz-history-loading">
         <div className="loading-spinner"><FontAwesomeIcon icon={faSpinner} spin /></div>
@@ -185,22 +175,45 @@ const QuizHistory = () => {
                 id="week-select"
                 value={currentWeek}
                 onChange={(e) => setCurrentWeek(e.target.value)}
-                className={`week-select ${(() => {
-                  // Xác định class cho select dựa trên tuần hiện tại
-                  const weekQuizData = allWeekQuizzes.find(quiz => quiz.weekId === currentWeek);
-                  const userWeekData = userQuizData[currentWeek] || {};
+                style={(() => {
+                  // Force inline style với !important không work, dùng cách khác
+                  const userWeekData = userQuizData || {};
                   const hasUserAnswers = Object.keys(userWeekData).length > 0;
                   
-                  if (weekQuizData && weekQuizData.startTime && weekQuizData.endTime) {
+                  // Check if this is an old week that user hasn't participated
+                  if (weekQuizzes.length > 0 && weekQuizzes[0].endTime) {
                     const now = new Date();
-                    const startTime = weekQuizData.startTime.toDate ? weekQuizData.startTime.toDate() : new Date(weekQuizData.startTime);
-                    const endTime = weekQuizData.endTime.toDate ? weekQuizData.endTime.toDate() : new Date(weekQuizData.endTime);
+                    const endTime = weekQuizzes[0].endTime.toDate ? weekQuizzes[0].endTime.toDate() : new Date(weekQuizzes[0].endTime);
+                    
+                    if (now > endTime && !hasUserAnswers) {
+                      return {
+                        backgroundColor: '#e2e3e5',
+                        color: '#6c757d',
+                        borderColor: '#ced4da',
+                        borderWidth: '2px',
+                        borderStyle: 'solid'
+                      };
+                    }
+                  }
+                  return {};
+                })()}
+                className={`week-select ${(() => {
+                  // Xác định class cho select dựa trên tuần hiện tại  
+                  const userWeekData = userQuizData || {};
+                  const hasUserAnswers = Object.keys(userWeekData).length > 0;
+                  
+                  if (weekQuizzes.length > 0 && weekQuizzes[0].startTime && weekQuizzes[0].endTime) {
+                    const now = new Date();
+                    const startTime = weekQuizzes[0].startTime.toDate ? weekQuizzes[0].startTime.toDate() : new Date(weekQuizzes[0].startTime);
+                    const endTime = weekQuizzes[0].endTime.toDate ? weekQuizzes[0].endTime.toDate() : new Date(weekQuizzes[0].endTime);
+                    
+                    let resultClass = '';
                     
                     if (now > endTime) {
+                      // Tuần đã kết thúc
                       if (hasUserAnswers) {
-                        // Tính điểm để xác định đúng/sai với logic mới
+                        // Đã làm quiz - tính điểm để xác định đúng/sai
                         const correctAnswers = {};
-                        const weekQuizzes = allWeekQuizzes.filter(q => q.weekId === currentWeek);
                         weekQuizzes.forEach(quiz => {
                           correctAnswers[`Quiz${quiz.quizNumber}`] = quiz.correctAnswer;
                         });
@@ -218,68 +231,27 @@ const QuizHistory = () => {
                         }
                         
                         const percentage = totalPoints > 0 ? (earnedPoints / totalPoints) * 100 : 0;
-                        return percentage >= 50 ? 'week-finished-correct' : 'week-finished-incorrect';
+                        resultClass = percentage >= 50 ? 'week-finished-correct' : 'week-finished-incorrect';
                       } else {
-                        return 'week-finished-incorrect';
+                        // Chưa làm quiz nhưng tuần đã kết thúc - dùng class đặc biệt với high specificity
+                        resultClass = 'week-finished-not-participated';
                       }
                     } else if (now >= startTime && now <= endTime) {
-                      return hasUserAnswers ? 'week-in-progress-done' : 'week-in-progress-not-done';
+                      resultClass = hasUserAnswers ? 'week-in-progress-done' : 'week-in-progress-not-done';
                     } else {
-                      return 'week-not-started';
+                      resultClass = 'week-not-started';
                     }
+                    
+                    return resultClass;
                   }
                   return 'week-not-started';
                 })()}`}
               >
-                {(() => {
-                  // Nếu allWeekQuizzes chưa load xong, hiển thị tất cả tuần có sẵn
-                  if (allWeekQuizzes.length === 0) {
-                    return availableWeeks.map(weekId => (
-                      <option key={weekId} value={weekId}>
-                        {weekId.replace('week', 'Tuần ')}
-                      </option>
-                    ));
-                  }
-                  
-                  const filteredWeeks = availableWeeks.filter(weekId => {
-                    // Lọc các tuần có startTime <= hiện tại
-                    // Thử nhiều cách để tìm quiz của tuần này
-                    const weekNumber = weekId.replace('week', ''); // 'week1' -> '1'
-                    
-                    const weekQuizzes = allWeekQuizzes.filter(quiz => {
-                      // Thử các cách match khác nhau
-                      const matchWeekId = quiz.weekId === weekId;
-                      const matchWeek = quiz.week === weekId || quiz.week === weekNumber;
-                      const matchTitle = quiz.title && quiz.title.includes(weekNumber);
-                      const matchQuizNumber = quiz.quizNumber && quiz.quizNumber.toString().startsWith(weekNumber);
-                      const matchId = quiz.id && quiz.id.includes(weekId);
-                      
-                      return matchWeekId || matchWeek || matchTitle || matchQuizNumber || matchId;
-                    });
-                    
-                    if (weekQuizzes.length === 0) {
-                      return false;
-                    }
-                    
-                    const firstQuiz = weekQuizzes[0];
-                    if (!firstQuiz.startTime) {
-                      return false;
-                    }
-                    
-                    const now = new Date();
-                    const startTime = firstQuiz.startTime.toDate ? firstQuiz.startTime.toDate() : new Date(firstQuiz.startTime);
-                    return startTime <= now;
-                  });
-                  
-                  // Fallback: nếu không có tuần nào được filter, hiển thị tuần đầu tiên
-                  const weeksToShow = filteredWeeks.length > 0 ? filteredWeeks : availableWeeks.slice(0, 1);
-                  
-                  return weeksToShow.map(weekId => (
-                    <option key={weekId} value={weekId}>
-                      {weekId.replace('week', 'Tuần ')}
-                    </option>
-                  ));
-                })()}
+                {availableWeeks.map(weekId => (
+                  <option key={weekId} value={weekId}>
+                    {weekId.replace('week', 'Tuần ')}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="navigation-row">
@@ -394,7 +366,12 @@ const QuizHistory = () => {
 
         {/* Danh sách quiz */}
         <div className="quiz-history-list">
-          {weekQuizzes.length === 0 ? (
+          {weekDataLoading ? (
+            <div className="loading-message">
+              <FontAwesomeIcon icon={faSpinner} spin className="loading-icon" />
+              <p>Đang tải dữ liệu quiz...</p>
+            </div>
+          ) : weekQuizzes.length === 0 ? (
             <div className="no-quiz-message">
               <p>Không có quiz nào trong tuần này</p>
             </div>

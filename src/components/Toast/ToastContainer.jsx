@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import Toast from './Toast/Toast';
-import { setToastFunction } from '../utils/toastUtils';
+import Toast from './Toast';
+import { setToastFunction } from '../../utils/toastUtils';
 
 const ToastContainer = () => {
   const [toasts, setToasts] = useState([]);

@@ -192,17 +192,9 @@
   max-width: 500px;
   padding: 40px;
   text-align: center;
+  color: #636e72;
 }
 
-.leaderboard-spinner {
-  width: 50px;
-  height: 50px;
-  border: 5px solid #f3f3f3;
-  border-top: 5px solid #74b9ff;
-  border-radius: 50%;
-  animation: leaderboard-spin 1s linear infinite;
-  margin-bottom: 20px;
-}
 
 @keyframes leaderboard-spin {
   0% { transform: rotate(0deg); }

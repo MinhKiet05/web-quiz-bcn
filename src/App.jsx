@@ -9,9 +9,9 @@ import UserManagement from './pages/UserManagement/UserManagement'
 import QuizPlayer from './pages/QuizPlayer/QuizPlayer'
 import QuizHistory from './pages/QuizHistory/QuizHistory'
 import Leaderboard from './pages/Leaderboard/Leaderboard'
-import RedirectToHome from './components/RedirectToHome'
+import RedirectToHome from './components/RedirectToHome/RedirectToHome'
 import Login from './components/Login/Login'
-import ToastContainer from './components/ToastContainer'
+import ToastContainer from './components/Toast/ToastContainer'
 import { useState } from 'react'
 
 const ProtectedRoute = ({ children, requireAdmin = false, requireEditor = false }) => {

@@ -1,41 +1,70 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { getAllAvailableWeeks } from '../../services/userQuizService';
 import { getQuizzesByWeek } from '../../services/weekQuizService';
 import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import './Leaderboard.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 const Leaderboard = () => {
   const [currentWeek, setCurrentWeek] = useState('');
   const [finishedWeeks, setFinishedWeeks] = useState([]); // Chỉ tuần đã kết thúc
   const [leaderboardData, setLeaderboardData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [weekDataLoading, setWeekDataLoading] = useState(false);
   const [error, setError] = useState('');
+  const [usersCache, setUsersCache] = useState({}); // Cache users data
+  const [usersCacheLoaded, setUsersCacheLoaded] = useState(false);
 
-  // Lấy danh sách tuần đã kết thúc (endTime < now)
+  // Lấy danh sách tuần đã kết thúc (endTime < now) - Parallel loading
   const getFinishedWeeks = async (weeks) => {
     const now = new Date();
-    const finished = [];
-
-    for (const weekId of weeks) {
+    
+    // Load tất cả weeks song song
+    const weekChecks = weeks.map(async (weekId) => {
       try {
         const weekQuizData = await getQuizzesByWeek(weekId);
         if (weekQuizData.length > 0) {
           const quiz = weekQuizData[0];
           if (quiz.endTime) {
             const endTime = quiz.endTime.toDate ? quiz.endTime.toDate() : new Date(quiz.endTime);
-            if (now > endTime) {
-              finished.push(weekId);
-            }
+            return now > endTime ? weekId : null;
           }
         }
+        return null;
       } catch (error) {
         console.error(`Error checking week ${weekId}:`, error);
+        return null;
       }
-    }
+    });
 
-    return finished.sort(); // Sắp xếp theo thứ tự tuần
+    const results = await Promise.all(weekChecks);
+    return results.filter(weekId => weekId !== null).sort();
   };
+
+  // Load và cache users data
+  const loadUsersData = useCallback(async () => {
+    if (usersCacheLoaded) return usersCache;
+
+    try {
+      const usersRef = collection(db, 'users');
+      const usersSnap = await getDocs(usersRef);
+      const usersData = {};
+
+      usersSnap.forEach(doc => {
+        const userData = doc.data();
+        usersData[doc.id] = userData;
+      });
+
+      setUsersCache(usersData);
+      setUsersCacheLoaded(true);
+      return usersData;
+    } catch (error) {
+      console.error('Error loading users data:', error);
+      return {};
+    }
+  }, [usersCacheLoaded, usersCache]);
 
   // Load dữ liệu ban đầu
   useEffect(() => {
@@ -74,10 +103,14 @@ const Leaderboard = () => {
       if (!currentWeek) return;
 
       try {
-        setLoading(true);
+        setWeekDataLoading(true);
 
-        // Lấy dữ liệu quiz của tuần để tính điểm
-        const weekQuizzes = await getQuizzesByWeek(currentWeek);
+        // Load song song quiz data và user answers
+        const [weekQuizzes, weekRef] = await Promise.all([
+          getQuizzesByWeek(currentWeek),
+          getDoc(doc(db, 'users_quiz', currentWeek))
+        ]);
+
         if (weekQuizzes.length === 0) {
           setLeaderboardData([]);
           return;
@@ -89,27 +122,15 @@ const Leaderboard = () => {
           correctAnswers[`Quiz${quiz.quizNumber}`] = quiz.correctAnswer;
         });
 
-        // Lấy dữ liệu user answers từ Firebase collection users_quiz
-        const weekRef = doc(db, 'users_quiz', currentWeek);
-        const weekSnap = await getDoc(weekRef);
-
-        if (!weekSnap.exists()) {
+        if (!weekRef.exists()) {
           setLeaderboardData([]);
           return;
         }
 
-        const weekData = weekSnap.data();
+        const weekData = weekRef.data();
 
-        // Lấy thông tin users để có username/displayName
-        const usersRef = collection(db, 'users');
-        const usersSnap = await getDocs(usersRef);
-        const usersData = {};
-
-        usersSnap.forEach(doc => {
-          const userData = doc.data();
-          // Document ID chính là MSSV, userData.name là tên thật
-          usersData[doc.id] = userData;
-        });
+        // Sử dụng cached users data
+        const usersData = await loadUsersData();
 
         // Tính điểm cho từng user
         const leaderboard = [];
@@ -183,12 +204,12 @@ const Leaderboard = () => {
         console.error('Lỗi khi load dữ liệu bảng xếp hạng:', err);
         setError('Có lỗi khi tải dữ liệu bảng xếp hạng');
       } finally {
-        setLoading(false);
+        setWeekDataLoading(false);
       }
     };
 
     loadLeaderboardData();
-  }, [currentWeek]);
+  }, [currentWeek, loadUsersData]);
 
   // Lấy icon và màu cho rank
   const getRankInfo = (rank) => {
@@ -203,6 +224,18 @@ const Leaderboard = () => {
         return { icon: '🏆', color: '#667eea', label: `Top ${rank}`, coins: '1 Coin' };
     }
   };
+
+  // Navigation state (cache với useMemo)
+  const navigationState = useMemo(() => {
+    const currentIndex = finishedWeeks.indexOf(currentWeek);
+    return {
+      canGoPrev: currentIndex > 0,
+      canGoNext: currentIndex < finishedWeeks.length - 1,
+      currentIndex
+    };
+  }, [finishedWeeks, currentWeek]);
+
+  const { canGoPrev, canGoNext } = navigationState;
 
   // Điều hướng tuần (chỉ trong finishedWeeks)
   const navigateWeek = (direction) => {
@@ -227,15 +260,12 @@ const Leaderboard = () => {
     }
   };
 
-  const canGoPrev = finishedWeeks.indexOf(currentWeek) > 0;
-  const canGoNext = finishedWeeks.indexOf(currentWeek) < finishedWeeks.length - 1;
-
   if (loading) {
     return (
       <div className="leaderboard-loading">
-        <div className="leaderboard-spinner"></div>
-        <p>Đang tải bảng xếp hạng...</p>
-      </div>
+              <FontAwesomeIcon icon={faSpinner} spin className="loading-icon" style={{fontSize: '50px', color: 'rgb(222,226,230)'}}/>
+              <p>Đang tải dữ liệu quiz...</p>
+            </div>
     );
   }
 
@@ -316,7 +346,12 @@ const Leaderboard = () => {
         {/* Leaderboard */}
         {!error && (
           <div className="leaderboard-list">
-            {leaderboardData.length === 0 ? (
+            {weekDataLoading ? (
+              <div className="leaderboard-loading">
+                <FontAwesomeIcon icon={faSpinner} spin className="loading-icon" />
+                <p>Đang tải bảng xếp hạng...</p>
+              </div>
+            ) : leaderboardData.length === 0 ? (
               <div className="leaderboard-empty">
                 <h3>🎯 Chưa có dữ liệu</h3>
                 <p>Chưa có ai hoàn thành quiz trong tuần này.</p>

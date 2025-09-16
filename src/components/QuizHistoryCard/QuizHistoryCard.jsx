@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ImageDisplay } from '../utils/imageUtils.jsx';
+import { ImageDisplay } from '../../utils/imageUtils.jsx';
 import './QuizHistoryCard.css';
 
 const QuizHistoryCard = ({ quiz, userAnswer, hasParticipated}) => {
