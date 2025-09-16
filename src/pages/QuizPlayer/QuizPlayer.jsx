@@ -424,13 +424,8 @@ const QuizPlayer = () => {
                       />
                     </div>
                   )}
+                
                   
-                  {/* Show current saved answer */}
-                  {userAnswers[quiz.title || `Quiz${quizNumber}`] && (
-                    <div className="quiz-player-quiz-saved-answer">
-                      ✅ Đã lưu: {userAnswers[quiz.title || `Quiz${quizNumber}`]}
-                    </div>
-                  )}
                 </div>
               </div>
             );
