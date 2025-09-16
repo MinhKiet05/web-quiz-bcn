@@ -1,0 +1,99 @@
+.users-quiz-by-week-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  background: #f8f9fa;
+  min-height: 100vh;
+  color: black!important;
+}
+
+.users-quiz-by-week {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  margin-bottom: 20px;
+}
+
+.users-quiz-by-week h2 {
+  margin-bottom: 16px;
+}
+
+.users-quiz-by-week-controls {
+  display: flex;
+  gap: 16px;
+  align-items: flex-end;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.users-quiz-by-week-control {
+  display: flex;
+  flex-direction: column;
+}
+
+.users-quiz-by-week-control label {
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.users-quiz-by-week-control select,
+.users-quiz-by-week-control input {
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  min-width: 200px;
+}
+
+.users-quiz-by-week-export-btn {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: auto;
+}
+
+.users-quiz-by-week-export-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(78, 205, 196, 0.4);
+}
+
+.users-quiz-by-week-export-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.users-quiz-by-week-week-data .users-quiz-by-week-loading {
+  padding: 12px;
+  color: #666;
+}
+
+.users-quiz-by-week-week-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.users-quiz-by-week-week-table th,
+.users-quiz-by-week-week-table td {
+  border: 1px solid #eee;
+  padding: 8px 10px;
+  text-align: left;
+}
+
+.users-quiz-by-week-week-table th {
+  background: #fafafa;
+}
+
+@media (max-width: 700px) {
+  .users-quiz-by-week-controls { flex-direction: column; align-items: stretch; }
+  .users-quiz-by-week-control select, .users-quiz-by-week-control input { width: 100%; }
+  .users-quiz-by-week-week-table th, .users-quiz-by-week-week-table td { font-size: 13px; }
+  .users-quiz-by-week-export-btn { margin-left: 0; margin-top: 10px; }
+}

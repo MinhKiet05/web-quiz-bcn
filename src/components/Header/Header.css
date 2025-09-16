@@ -171,7 +171,7 @@ body {
   color: black;
   border-radius: 10px;
   flex: 1;
-  max-width: 250px; /* bạn có thể tăng nếu cần */
+  max-width: 200px; /* bạn có thể tăng nếu cần */
 }
 
 .user-info {
@@ -186,9 +186,13 @@ body {
 
 .user-name {
   font-weight: 500;
-  white-space: nowrap;  /* ngăn xuống dòng */
-  overflow: hidden;     /* ẩn phần thừa */
+  white-space: nowrap;   /* ngăn xuống dòng */
+  overflow: hidden;      /* ẩn phần thừa */
   text-overflow: ellipsis;
+  max-width: 120px;
+
+  direction: rtl;        /* đảo chiều hiển thị */
+  text-align: left;  
 }
 
 .admin-badge {

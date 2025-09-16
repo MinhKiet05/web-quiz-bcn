@@ -213,7 +213,7 @@ const Upload = () => {
   return (
     <div className="upload-container">
       <div className="upload-form-wrapper">
-        <h1>📝 Thêm Quiz Mới</h1>
+        <h1>Thêm Quiz Mới</h1>
 
         {message && (
           <div className={`message ${message.includes('✅') ? 'success' : 'error'}`}>
@@ -224,7 +224,7 @@ const Upload = () => {
         <form onSubmit={handleSubmit} className="upload-form">
           {/* Week Selection */}
           <div className="form-section">
-            <h3>📅 Chọn Week</h3>
+            <h3>Chọn Week</h3>
             <div className="form-group">
               <label htmlFor="week">Week:</label>
               <select
@@ -307,7 +307,7 @@ const Upload = () => {
 
           {/* Quiz Information */}
           <div className="form-section">
-            <h3>🎯 Thông tin Quiz</h3>
+            <h3>Thông tin Quiz</h3>
             <div className="form-group">
               <label htmlFor="quizId">Quiz ID:</label>
               <select
@@ -370,7 +370,7 @@ const Upload = () => {
                   onClick={addAnswerChoice}
                   className="add-answer-btn"
                 >
-                  ➕ Thêm lựa chọn đáp án
+                  + Thêm lựa chọn đáp án
                 </button>
               </div>
             </div>
@@ -399,7 +399,7 @@ const Upload = () => {
               </select>
               {soDapAn.filter(answer => answer.trim()).length === 0 && (
                 <p style={{ color: '#666', fontSize: '0.9em', margin: '5px 0 0 0' }}>
-                  💡 Vui lòng thêm ít nhất một đáp án ở trên để chọn đáp án đúng
+                  Vui lòng thêm ít nhất một đáp án ở trên để chọn đáp án đúng
                 </p>
               )}
             </div>
@@ -419,11 +419,11 @@ const Upload = () => {
           {/* Submit Buttons */}
           <div className="form-actions">
             <button type="submit" disabled={loading} className="submit-btn">
-              {loading ? '⏳ Đang xử lý...' : (isEditMode ? '💾 Cập nhật' : '✅ Thêm quiz')}
+              {loading ? 'Đang xử lý...' : (isEditMode ? 'Cập nhật' : 'Thêm quiz')}
             </button>
 
             <button type="button" onClick={resetForm} className="reset-btn">
-              🔄 Reset form
+              Reset form
             </button>
           </div>
         </form>

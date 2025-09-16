@@ -342,7 +342,7 @@ const QuizHistory = () => {
                   <div className="submission-time-row">
                     <span className="stat-label">Nộp bài:</span>
                     <span className="stat-value time">
-                      ⏰ {(userQuizData.thoiGian.toDate ? 
+                      {(userQuizData.thoiGian.toDate ? 
                         userQuizData.thoiGian.toDate() : 
                         new Date(userQuizData.thoiGian)
                       ).toLocaleString('vi-VN', {

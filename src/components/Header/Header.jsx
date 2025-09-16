@@ -19,7 +19,8 @@ const navLinks = [
     dropdownItems: [
       { name: 'Thêm quiz', path: '/upload' },
       { name: 'Các quiz', path: '/quizzes' },
-      { name: 'Users', path: '/user-management' }
+      { name: 'Users', path: '/user-management' },
+      { name: 'Users Quiz By Week', path: '/users-quiz-by-week' }
     ]
   }
 ];
@@ -68,6 +69,11 @@ const Header = () => {
     
     if (item.path === '/user-management') {
       // Only admin and super_admin can access Users
+      return user.roles?.includes('admin') || user.roles?.includes('super_admin');
+    }
+    
+    if (item.path === '/users-quiz-by-week') {
+      // Only admin can access the Users Quiz By Week page
       return user.roles?.includes('admin') || user.roles?.includes('super_admin');
     }
     

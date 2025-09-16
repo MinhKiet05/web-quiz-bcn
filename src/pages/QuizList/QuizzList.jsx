@@ -272,7 +272,7 @@ const QuizzList = () => {
       <div className="quizz-container">
         <div className="quizz-content">
           <div className="empty-state">
-            <h2>📭 Không có dữ liệu quiz</h2>
+            <h2> Không có dữ liệu quiz</h2>
             <p>Hiện tại chưa có document nào trong Firebase.</p>
           </div>
         </div>
@@ -284,7 +284,7 @@ const QuizzList = () => {
     <div className="quizz-container">
       <div className="quizz-content">
         <header className="quizz-header">
-          <h1>📚 {currentWeekData.id || 'Loading...'} - Quiz List</h1>
+          <h1> {currentWeekData.id || 'Loading...'} - Quiz List</h1>
 
           {/* Week Navigation */}
           {allWeeksData.length > 1 && (
@@ -309,7 +309,7 @@ const QuizzList = () => {
                   className="nav-btn current-week-btn"
                   title="Chuyển đến tuần hiện tại"
                 >
-                  📅Hiện tại
+                  Hiện tại
                 </button>
                 <button
                   onClick={() => setCurrentWeekIndex(Math.min(allWeeksData.length - 1, currentWeekIndex + 1))}
@@ -330,7 +330,7 @@ const QuizzList = () => {
             <p><strong>Open:</strong> {currentWeekData.startTime ? formatDateTime(currentWeekData.startTime) : 'N/A'}</p>
             <p><strong>Close:</strong> {currentWeekData.endTime ? formatDateTime(currentWeekData.endTime) : 'N/A'}</p>
             <button onClick={handleEditDocument} className="edit-document-btn">
-              ✏️ Chỉnh sửa thời gian
+              Chỉnh sửa thời gian
             </button>
           </div>
         </header>
@@ -344,7 +344,7 @@ const QuizzList = () => {
             return (
               <div key={quizKey} className={`quiz-card ${editingQuiz ? 'disabled' : ''}`}>
                 <div className="quiz-header">
-                  <h3>📝 {quizKey}</h3>
+                  <h3>{quizKey}</h3>
                   <span className="answer-count">{quiz.soDapAn.length} đáp án</span>
                 </div>
 
@@ -353,7 +353,7 @@ const QuizzList = () => {
                   <p><strong>Số đáp án:</strong> {quiz.soDapAn.length} ({quiz.soDapAn.join(', ')})</p>
                   <p><strong>Link:</strong>
                     <a href={quiz.link} target="_blank" rel="noopener noreferrer" className="quiz-link">
-                      📎 Xem file
+                      Xem file
                     </a>
                   </p>
                 </div>
@@ -371,13 +371,13 @@ const QuizzList = () => {
                     className="edit-btn"
                     disabled={editingQuiz && !isEditing}
                   >
-                    ✏️ Chỉnh sửa
+                    Chỉnh sửa
                   </button>
                 </div>
 
                 {isExpanded && (
                   <div className="quiz-details">
-                    <h4>📋 Chi tiết {quizKey}:</h4>
+                    <h4>Chi tiết {quizKey}:</h4>
 
                     <div className="quiz-detail-content">
                       <div className="quiz-image-section">
@@ -573,7 +573,7 @@ const QuizEditForm = ({ quiz, quizKey, onSave, onDelete, onCancel }) => {
                   onClick={() => onDelete(quizKey)} 
                   className="delete-btn"
                 >
-                  🗑️ Xóa quiz này
+                  Xóa quiz này
                 </button>
               </div>
               <div className="primary-actions">
@@ -613,8 +613,8 @@ const DocumentEditModal = ({ startTime, endTime, onSave, onCancel }) => {
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <div className="modal-header">
-          <h3>⏰ Chỉnh sửa thời gian Document</h3>
+        <div className="modal-header" style={{borderRadius:'0px'}}>
+          <h3>Chỉnh sửa thời gian</h3>
           <button onClick={onCancel} className="close-btn">✕</button>
         </div>
         <form onSubmit={handleSubmit} className="document-edit-form">
@@ -638,9 +638,10 @@ const DocumentEditModal = ({ startTime, endTime, onSave, onCancel }) => {
             />
           </div>
 
-          <div className="form-actions">
-            <button type="submit" className="save-btn">💾 Lưu thay đổi</button>
+          <div className="form-actions" style={{padding:'0px 1vw'}}>
+            
             <button type="button" onClick={onCancel} className="cancel-btn">❌ Hủy</button>
+            <button type="submit" className="save-btn">Lưu thay đổi</button>
           </div>
         </form>
       </div>

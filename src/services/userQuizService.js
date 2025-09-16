@@ -163,3 +163,24 @@ export const calculateWeekScore = (userWeekData, correctAnswers) => {
   
   return { correct, total, percentage };
 };
+
+/**
+ * Lấy toàn bộ dữ liệu của một tuần (tất cả user trong tuần đó)
+ * @param {string} weekKey - Key của tuần (vd: 'week1')
+ * @returns {Promise<Object>} Dữ liệu document của tuần (mỗi key là mssv -> answers object)
+ */
+export const getWeekData = async (weekKey) => {
+  try {
+    const weekRef = doc(db, 'users_quiz', weekKey);
+    const weekSnap = await getDoc(weekRef);
+
+    if (weekSnap.exists()) {
+      return weekSnap.data();
+    }
+
+    return {};
+  } catch (error) {
+    console.error(`Lỗi khi lấy dữ liệu tuần ${weekKey}:`, error);
+    return {};
+  }
+};

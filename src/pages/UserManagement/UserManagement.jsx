@@ -200,7 +200,7 @@ const UserManagement = () => {
   return (
     <div className="user-management">
       <div className="user-management-header">
-        <h1>👥 Quản lý người dùng</h1>
+        <h1>Quản lý người dùng</h1>
         <p>Quản lý thông tin và quyền hạn của tất cả người dùng trong hệ thống</p>
       </div>
 
@@ -254,14 +254,14 @@ const UserManagement = () => {
                         className="btn btn-edit"
                         disabled={loading}
                       >
-                        ✏️ Sửa
+                        Sửa
                       </button>
                       <button
                         onClick={() => handleDeleteUser(userData.mssv)}
                         className="btn btn-delete"
                         disabled={loading}
                       >
-                        🗑️ Xóa
+                        Xóa
                       </button>
                     </>
                   )}
@@ -276,7 +276,7 @@ const UserManagement = () => {
 
         {filteredUsers.length === 0 && (
           <div className="no-users">
-            <p>📭 Không tìm thấy người dùng nào</p>
+            <p>Không tìm thấy người dùng nào</p>
           </div>
         )}
       </div>
@@ -313,14 +313,14 @@ const UserManagement = () => {
                     className="btn btn-edit"
                     disabled={loading}
                   >
-                    ✏️ Sửa
+                    Sửa
                   </button>
                   <button
                     onClick={() => handleDeleteUser(userData.mssv)}
                     className="btn btn-delete"
                     disabled={loading}
                   >
-                    🗑️ Xóa
+                    Xóa
                   </button>
                 </>
               )}
@@ -343,7 +343,7 @@ const UserManagement = () => {
         <div className="modal-overlay">
           <div className="modal">
             <div className="modal-header">
-              <h3>✏️ Chỉnh sửa thông tin người dùng</h3>
+              <h3>Chỉnh sửa thông tin người dùng</h3>
               <button
                 onClick={() => setShowEditModal(false)}
                 className="modal-close"
@@ -458,14 +458,14 @@ const UserManagement = () => {
                 className="btn btn-primary"
                 disabled={loading}
               >
-                {loading ? '🔄 Đang lưu...' : '💾 Lưu thay đổi'}
+                {loading ? 'Đang lưu...' : 'Lưu thay đổi'}
               </button>
               <button
                 onClick={() => setShowEditModal(false)}
                 className="btn btn-secondary"
                 disabled={loading}
               >
-                ❌ Hủy
+                Hủy
               </button>
             </div>
           </div>

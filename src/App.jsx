@@ -9,6 +9,7 @@ import UserManagement from './pages/UserManagement/UserManagement'
 import QuizPlayer from './pages/QuizPlayer/QuizPlayer'
 import QuizHistory from './pages/QuizHistory/QuizHistory'
 import Leaderboard from './pages/Leaderboard/Leaderboard'
+import UsersQuizByWeek from './pages/UsersQuizByWeek/UsersQuizByWeek'
 import RedirectToHome from './components/RedirectToHome/RedirectToHome'
 import Login from './components/Login/Login'
 import ToastContainer from './components/Toast/ToastContainer'
@@ -98,6 +99,11 @@ function AppContent() {
               <UserManagement />
             </ProtectedRoute>
           } />
+          <Route path="/users-quiz-by-week" element={
+            <ProtectedRoute requireAdmin={true}>
+              <UsersQuizByWeek />
+            </ProtectedRoute>
+          } />
           <Route path="/dashboard" element={
             <ProtectedRoute>
               <Dashboard />
@@ -167,7 +173,7 @@ const Home = () => {
           margin: '0px auto 20px auto',
           lineHeight: 1.6
         }}>
-          <div style={{ fontSize: '64px', marginBottom: '20px' }}>🎯</div>
+          
           <h1 style={{ margin: '-10px 0 16px 0', fontSize: '32px' }}>
             Quiz Hàng Tuần
           </h1>
@@ -186,7 +192,7 @@ const Home = () => {
               fontSize: '14px',
               marginBottom: '24px'
             }}>
-              💡 Bạn sẽ có thể tham gia quiz hàng tuần và nhận coins thưởng
+              Bạn sẽ có thể tham gia quiz hàng tuần và nhận coins thưởng
             </div>
             
             {/* Login Button */}
@@ -216,7 +222,7 @@ const Home = () => {
                 e.target.style.boxShadow = '0 4px 15px rgba(0,0,0,0.1)';
               }}
             >
-              🚀 Đăng nhập ngay
+              Đăng nhập ngay
             </button>
           </div>
         </div>
@@ -311,7 +317,7 @@ const Rules = () => {
         lineHeight: 1.6
       }}>
         <h2 style={{ textAlign: 'center', marginBottom: '16px' }}>
-          {user ? `Xin chào ${user.name} 👋` : '📋 Thể lệ Quiz Hàng Tuần'}
+          {user ? `Xin chào ${user.name}` : '📋 Thể lệ Quiz Hàng Tuần'}
         </h2>
         
         <p>
@@ -319,17 +325,17 @@ const Rules = () => {
           chúng mình sẽ có thêm một hoạt động thú vị giúp các bạn củng cố kiến thức C:
         </p>
         <p style={{ textAlign: 'center', fontSize: '18px', fontWeight: '600', margin: '12px 0' }}>
-          🎯 Tham gia Quiz Hàng Tuần 🎯
+          Tham gia Quiz Hàng Tuần
         </p>
 
-        <h3>🎲 Thể lệ</h3>
+        <h3>Thể lệ</h3>
         <ul>
           <li>Mỗi tuần có <b>5 câu quiz</b> (từ dễ → khó).</li>
           <li>Câu 1 → 4: <b>Trắc nghiệm</b>.</li>
           <li>Câu 5: <b>Mức khó nhất</b>, có thể là trắc nghiệm hoặc điền đáp án.</li>
         </ul>
 
-        <h3>👉 Cách tính điểm</h3>
+        <h3>Cách tính điểm</h3>
         <ul>
           <li>Mỗi câu đúng sẽ được điểm tương ứng
             (VD: Quiz 1 = 1 điểm, Quiz 5 = 5 điểm).</li>
@@ -337,7 +343,7 @@ const Rules = () => {
           <li><b>Thứ 2 hàng tuần</b>: Công bố đáp án + Bảng xếp hạng.</li>
         </ul>
 
-        <h3>🏆 Phần thưởng</h3>
+        <h3>Phần thưởng</h3>
         <p>Ban Công Nghệ sẽ tuyên dương <b>Top 3 bạn cao điểm nhất tuần</b>:</p>
         <ul>
           <li>🥇 Top 1: <b>10 Coins</b></li>
@@ -345,7 +351,7 @@ const Rules = () => {
           <li>🥉 Top 3: <b>3 Coins</b></li>
         </ul>
 
-        <h3>📌 Lưu ý</h3>
+        <h3>Lưu ý</h3>
         <ul>
           <li>Mỗi tuần chỉ có duy nhất <b>1 Top 1, 1 Top 2, 1 Top 3</b>.</li>
           <li>Nếu có nhiều bạn bằng điểm → <b>xét theo thời gian nộp</b>: ai nộp sớm hơn sẽ được xếp hạng cao hơn.</li>
@@ -356,7 +362,6 @@ const Rules = () => {
 
         {!user && (
           <div style={{ textAlign: 'center', padding: '20px', marginTop: '20px', borderTop: '1px solid #444' }}>
-            <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔐</div>
             <p style={{ fontSize: '16px', marginBottom: '8px' }}>
               Đăng nhập để tham gia các quiz và hoạt động thú vị!
             </p>

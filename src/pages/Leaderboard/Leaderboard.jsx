@@ -277,7 +277,7 @@ const Leaderboard = () => {
         {/* Header */}
         {/* Week Selection Section */}
         <div className="leaderboard-week-selection">
-          <h3>📅 Chọn tuần xem bảng xếp hạng</h3>
+          <h3>Chọn tuần xem bảng xếp hạng</h3>
           <div className="leaderboard-week-controls">
 
             <div className="leaderboard-week-selector">
@@ -337,7 +337,7 @@ const Leaderboard = () => {
           </div>
         )}
         <div className="leaderboard-header">
-          <h1>🏆 Bảng Xếp Hạng</h1>
+          <h1>Bảng Xếp Hạng</h1>
           <p>Top 3 điểm cao nhất tuần</p>
         </div>
 
@@ -353,7 +353,7 @@ const Leaderboard = () => {
               </div>
             ) : leaderboardData.length === 0 ? (
               <div className="leaderboard-empty">
-                <h3>🎯 Chưa có dữ liệu</h3>
+                <h3>Chưa có dữ liệu</h3>
                 <p>Chưa có ai hoàn thành quiz trong tuần này.</p>
               </div>
             ) : (
@@ -384,7 +384,7 @@ const Leaderboard = () => {
                             {user.correctCount}/{user.totalQuestions}
                           </span>
                           <span className="leaderboard-time">
-                            ⏰ {user.submissionTime.toLocaleString('vi-VN', {
+                            {user.submissionTime.toLocaleString('vi-VN', {
                               day: '2-digit',
                               month: '2-digit',
                               year: 'numeric',

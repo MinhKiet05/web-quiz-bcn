@@ -37,7 +37,7 @@ const RedirectToHome = ({ message, reason }) => {
           className="redirect-btn" 
           onClick={() => navigate('/')}
         >
-          🏠 Về trang chủ ngay
+          Về trang chủ ngay
         </button>
       </div>
     </div>

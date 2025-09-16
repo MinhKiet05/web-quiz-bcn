@@ -112,7 +112,10 @@ const Login = ({ onClose }) => {
       setError('Vui lòng nhập đầy đủ thông tin bắt buộc');
       return;
     }
-    
+    // if(name.length > 20 || name.trim().length < 2) {
+    //   setError('Tên hiển thị phải có ít nhất 2 ký tự');
+    //   return;
+    // }
     // Validate MSSV format - phải là đúng 8 số
     if (!/^\d{8}$/.test(mssv.trim())) {
       setError('MSSV phải là đúng 8 số');
@@ -176,7 +179,7 @@ const Login = ({ onClose }) => {
     <div className="login-overlay" onClick={onClose}>
       <div className="login-modal" onClick={(e) => e.stopPropagation()}>
         <div className="login-header">
-          <h2>🔐 {activeTab === 'login' ? 'Đăng nhập' : 'Đăng ký'}</h2>
+          <h2>{activeTab === 'login' ? 'Đăng nhập' : 'Đăng ký'}</h2>
           <button className="login-close-btn" onClick={onClose}>
             ✕
           </button>
@@ -264,7 +267,7 @@ const Login = ({ onClose }) => {
               className="login-submit-btn"
               disabled={loading}
             >
-              {loading ? '🔄 Đang đăng nhập...' : '🚀 Đăng nhập'}
+              {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
             </button>
           </form>
         )}
@@ -338,7 +341,7 @@ const Login = ({ onClose }) => {
               className="login-submit-btn register-btn"
               disabled={loading}
             >
-              {loading ? '🔄 Đang đăng ký...' : '📝 Đăng ký'}
+              {loading ? 'Đang đăng ký...' : 'Đăng ký'}
             </button>
           </form>
         )}

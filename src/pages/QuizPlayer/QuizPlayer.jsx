@@ -234,18 +234,18 @@ const QuizPlayer = () => {
   return (
     <div className="quiz-player">
       <div className="quiz-player-quiz-player-header">
-        <h1>🎯 Quiz Hàng Tuần</h1>
+        <h1>Quiz Hàng Tuần</h1>
 
         {weekInfo && (
           <div className="quiz-player-week-info">
             <div className="quiz-player-week-number">Week {weekInfo.week}</div>
             <div className="quiz-player-time-info">
               <div className="quiz-player-time-item">
-                <span className="quiz-player-time-label"><b>⏰ Open:</b></span>
+                <span className="quiz-player-time-label"><b>Open:</b></span>
                 <span className="quiz-player-time-value">{quizService.formatDateTime(weekInfo.startTime)}</span>
               </div>
               <div className="quiz-player-time-item">
-                <span className="quiz-player-time-label"><b>⏰ Close:</b></span>
+                <span className="quiz-player-time-label"><b>Close:</b></span>
                 <span className="quiz-player-time-value">{quizService.formatDateTime(weekInfo.endTime)}</span>
               </div>
             </div>
@@ -261,7 +261,7 @@ const QuizPlayer = () => {
           </div>
         ) : quizzes.length === 0 ? (
           <div className="quiz-player-no-quiz">
-            <div className="quiz-player-no-quiz-icon">📋</div>
+            <div className="quiz-player-no-quiz-icon"></div>
             <h3>Chưa có quiz cho tuần này</h3>
             <p>Quiz sẽ được cập nhật sớm nhất có thể.</p>
           </div>
@@ -283,7 +283,7 @@ const QuizPlayer = () => {
                 
                 <div className="quiz-player-quiz-card-content">
                   <div className="quiz-player-quiz-info">
-                    <span className="quiz-player-quiz-points">📊 {quizNumber} điểm</span>
+                    <span className="quiz-player-quiz-points">{quizNumber} điểm</span>
                   </div>
                   
                   {status === 'completed' && (
@@ -294,13 +294,13 @@ const QuizPlayer = () => {
                   
                   {!canTake && timeStatus === 'not_started' && (
                     <div className="quiz-player-quiz-locked">
-                      🔒 Quiz chưa được mở
+                      Quiz chưa được mở
                     </div>
                   )}
                   
                   {!canTake && timeStatus === 'expired' && (
                     <div className="quiz-player-quiz-expired">
-                      ❌ Quiz đã hết hạn
+                      Quiz đã hết hạn
                     </div>
                   )}
                 </div>
