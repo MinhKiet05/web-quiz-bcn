@@ -5,36 +5,9 @@
     <link rel="icon" type="image/svg+xml" href="/src/assets/logo.webp" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Quiz Ban Công Nghệ</title>
-    <style>
-      /* Prevent font size jumping immediately */
-      html, body, * {
-        font-family: system-ui, Avenir, Helvetica, Arial, sans-serif !important;
-        font-size: inherit !important;
-        text-rendering: optimizeLegibility !important;
-      }
-      /* Disable font loading transitions */
-      *, *::before, *::after {
-        -webkit-transition: none !important;
-        -moz-transition: none !important;
-        -o-transition: none !important;
-        transition: none !important;
-      }
-    </style>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
-    <script>
-      // Re-enable transitions after page loads
-      setTimeout(() => {
-        const style = document.createElement('style');
-        style.innerHTML = `
-          * { 
-            transition: opacity 0.3s ease, transform 0.3s ease, background-color 0.3s ease !important; 
-          }
-        `;
-        document.head.appendChild(style);
-      }, 500);
-    </script>
   </body>
 </html>
