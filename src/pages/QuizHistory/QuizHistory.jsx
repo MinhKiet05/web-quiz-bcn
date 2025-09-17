@@ -360,7 +360,7 @@ const QuizHistory = () => {
             )}
           </div>
           <div>
-            <p style={{ fontStyle: 'italic', color: '#888' }}>Lưu ý: quiz chỉ hiện đáp án và giải thích khi quiz đó đã kết thúc</p>
+            <p className='quiz-history-note' style={{ fontStyle: 'italic', color: '#888' }}>Lưu ý: quiz chỉ hiện đáp án và giải thích khi quiz đó đã kết thúc</p>
           </div>
         </div>
 

@@ -22,7 +22,17 @@
   font-size: 2.2em;
   font-weight: 700;
 }
+.user-management-title{
+font-size: 35.2px !important;
+font-weight: 700 !important;
+line-height: 52.8px !important;
 
+}
+.user-management-subtitle{
+font-size: 17.6px !important;
+font-weight: 400 !important;
+
+}
 .user-management-header p {
   margin: 0;
   color: #666;

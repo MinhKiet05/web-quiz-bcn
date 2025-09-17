@@ -94,7 +94,10 @@
   border-width: 3px;
   box-shadow: 0 0 0 2px rgba(108, 117, 125, 0.25);
 }
-
+.quiz-history-note{
+font-size: 17.6px !important;
+font-weight: 400 !important;
+}
 .week-select.week-finished-correct {
   background-color: #d4edda;
   color: #155724;

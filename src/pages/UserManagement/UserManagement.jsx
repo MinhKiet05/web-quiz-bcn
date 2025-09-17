@@ -200,8 +200,8 @@ const UserManagement = () => {
   return (
     <div className="user-management">
       <div className="user-management-header" >
-        <h1>Quản lý người dùng</h1>
-        <p>Quản lý thông tin và quyền hạn của tất cả người dùng trong hệ thống</p>
+        <h1 className='user-management-title'>Quản lý người dùng</h1>
+        <p className='user-management-subtitle'>Quản lý thông tin và quyền hạn của tất cả người dùng trong hệ thống</p>
       </div>
 
       {/* Search bar */}
