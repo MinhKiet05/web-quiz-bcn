@@ -278,7 +278,6 @@ input[type="date"]::-webkit-calendar-picker {
   font-size: 0.75rem;
   text-align: center;
   white-space: normal; /* Cho phép text wrap */
-  overflow: hidden;
   text-overflow: ellipsis;
   line-height: 1.2;
 }

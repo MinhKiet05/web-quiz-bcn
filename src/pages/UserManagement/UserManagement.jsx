@@ -200,8 +200,8 @@ const UserManagement = () => {
   return (
     <div className="user-management">
       <div className="user-management-header">
-        <h1>Quản lý người dùng</h1>
-        <p>Quản lý thông tin và quyền hạn của tất cả người dùng trong hệ thống</p>
+        <h1 style={{ fontFamily: 'system-ui, Avenir, Helvetica, Arial, sans-serif', fontSize: '2.2em' }}>Quản lý người dùng</h1>
+        <p style={{ fontFamily: 'system-ui, Avenir, Helvetica, Arial, sans-serif', fontSize: '1.1em' }}>Quản lý thông tin và quyền hạn của tất cả người dùng trong hệ thống</p>
       </div>
 
       {/* Search bar */}
