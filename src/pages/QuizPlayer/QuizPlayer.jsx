@@ -16,6 +16,17 @@ const QuizPlayer = () => {
   const [weekInfo, setWeekInfo] = useState(null);
   const [savingAnswers, setSavingAnswers] = useState({}); // Track saving state for each quiz
 
+  // Function to scroll to specific quiz
+  const scrollToQuiz = (quizNumber) => {
+    const quizElement = document.getElementById(`quiz-${quizNumber}`);
+    if (quizElement) {
+      quizElement.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center' 
+      });
+    }
+  };
+
   // Initialize current answers with user answers
   useEffect(() => {
     setCurrentAnswers(userAnswers);
@@ -233,6 +244,27 @@ const QuizPlayer = () => {
 
   return (
     <div className="quiz-player">
+      {/* Quiz Navigation Sidebar */}
+      <div className="quiz-navigation-sidebar">
+        <div className="quiz-nav-title">Quiz</div>
+        {quizzes.map((quiz, index) => {
+          const quizNumber = quiz.title?.replace('Quiz', '') || (index + 1).toString();
+          const hasAnswer = userAnswers[`Quiz${quizNumber}`];
+          const status = getQuizStatus(quiz);
+          
+          return (
+            <div 
+              key={quiz.id || index}
+              className={`quiz-nav-item ${hasAnswer ? 'completed' : 'pending'} ${status}`}
+              onClick={() => scrollToQuiz(quizNumber)}
+              title={`Quiz ${quizNumber} - ${hasAnswer ? 'Đã làm' : 'Chưa làm'}`}
+            >
+              {quizNumber}
+            </div>
+          );
+        })}
+      </div>
+
       <div className="quiz-player-quiz-player-header">
         <h1>Quiz Hàng Tuần</h1>
         {weekInfo && (
@@ -272,7 +304,7 @@ const QuizPlayer = () => {
             const canTake = canTakeQuiz(quiz);
             
             return (
-              <div key={quiz.id} className={`quiz-player-quiz-card ${status}`}>
+              <div key={quiz.id} id={`quiz-${quizNumber}`} className={`quiz-player-quiz-card ${status}`}>
                 <div className="quiz-player-quiz-card-header">
                   <h3>{quiz.title || `Quiz ${quizNumber}`}</h3>
                   <span className="quiz-player-quiz-status">

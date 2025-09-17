@@ -297,7 +297,7 @@ const Rules = () => {
         boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
         textAlign: 'left',
         maxWidth: '700px',
-        margin: '20px auto',
+        margin: '0px auto',
         lineHeight: 1.6
       }}>
         <h2 style={{ textAlign: 'center', marginBottom: '16px' }}>
