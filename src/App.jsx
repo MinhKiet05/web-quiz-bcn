@@ -6,9 +6,9 @@ import { AuthProvider, useAuth } from './contexts/AuthContext'
 import RedirectToHome from './components/RedirectToHome/RedirectToHome'
 import Login from './components/Login/Login'
 import ToastContainer from './components/Toast/ToastContainer'
-import LoadingSpinner from './components/ui/LoadingSpinner'
-import { useState, Suspense, lazy } from 'react'
-
+import { useState, lazy } from 'react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 // Lazy load các page components
 const Upload = lazy(() => import('./pages/UploadQuiz/Upload'))
 const QuizzList = lazy(() => import('./pages/QuizList/QuizzList'))
@@ -67,7 +67,7 @@ function AppContent() {
           borderRadius: '8px',
           boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
         }}>
-          <div style={{ fontSize: '24px', marginBottom: '10px' }}>🔄</div>
+          <FontAwesomeIcon icon={faSpinner} spin className="loading-icon" style={{ fontSize: '50px'}} />
           <div>Đang khởi tạo ứng dụng...</div>
           <small style={{ opacity: 0.7 }}>Kiểm tra phiên đăng nhập</small>
         </div>
@@ -79,45 +79,43 @@ function AppContent() {
     <>
       <Header />
       <main>
-        <Suspense fallback={<LoadingSpinner message="Đang tải trang..." />}>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/rules" element={<Rules />} />
-            <Route path="/upload" element={
-              <ProtectedRoute requireEditor={true}>
-                <Upload />
-              </ProtectedRoute>
-            } />
-            <Route path="/quizzes" element={
-              <ProtectedRoute requireEditor={true}>
-                <QuizzList />
-              </ProtectedRoute>
-            } />
-            <Route path="/user-management" element={
-              <ProtectedRoute requireAdmin={true}>
-                <UserManagement />
-              </ProtectedRoute>
-            } />
-            <Route path="/users-quiz-by-week" element={
-              <ProtectedRoute requireAdmin={true}>
-                <UsersQuizByWeek />
-              </ProtectedRoute>
-            } />
-            <Route path="/my-quizzes" element={
-              <ProtectedRoute>
-                <QuizHistory />
-              </ProtectedRoute>
-            } />
-            <Route path="/leaderboard" element={
-              <ProtectedRoute>
-                <Leaderboard />
-              </ProtectedRoute>
-            } />
-            
-            {/* Catch-all route for 404 errors */}
-            
-          </Routes>
-        </Suspense>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/rules" element={<Rules />} />
+          <Route path="/upload" element={
+            <ProtectedRoute requireEditor={true}>
+              <Upload />
+            </ProtectedRoute>
+          } />
+          <Route path="/quizzes" element={
+            <ProtectedRoute requireEditor={true}>
+              <QuizzList />
+            </ProtectedRoute>
+          } />
+          <Route path="/user-management" element={
+            <ProtectedRoute requireAdmin={true}>
+              <UserManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/users-quiz-by-week" element={
+            <ProtectedRoute requireAdmin={true}>
+              <UsersQuizByWeek />
+            </ProtectedRoute>
+          } />
+          <Route path="/my-quizzes" element={
+            <ProtectedRoute>
+              <QuizHistory />
+            </ProtectedRoute>
+          } />
+          <Route path="/leaderboard" element={
+            <ProtectedRoute>
+              <Leaderboard />
+            </ProtectedRoute>
+          } />
+          
+          {/* Catch-all route for 404 errors */}
+          
+        </Routes>
       </main>
       <ToastContainer />
     </>
@@ -139,11 +137,7 @@ const Home = () => {
 
   // If user is logged in, show QuizPlayer
   if (user) {
-    return (
-      <Suspense fallback={<LoadingSpinner message="Đang tải quiz..." />}>
-        <QuizPlayer />
-      </Suspense>
-    );
+    return <QuizPlayer />;
   }
 
   // If not logged in, show welcome page
@@ -280,7 +274,7 @@ const Rules = () => {
   const { user } = useAuth();
 
   return (
-    <div style={{ padding: '40px', textAlign: 'center' }}>
+    <div style={{ padding: '0px', textAlign: 'center' }}>
       {!user && (
         <div style={{
           background: '#fff3e0',
@@ -346,7 +340,7 @@ const Rules = () => {
           <li>Nếu có nhiều bạn bằng điểm → <b>xét theo thời gian nộp</b>: ai nộp sớm hơn sẽ được xếp hạng cao hơn.</li>
         </ul>
         <p style={{ marginTop: '12px' }}>
-          Khi vào Top, các bạn nhắn <b>Minh Kiệt (key bạc)</b> để nhận thưởng nha ✨
+          Khi vào Top, các bạn nhắn <b>Tường Vân (khóa bạc)</b> để nhận thưởng nha ✨
         </p>
 
         {!user && (
