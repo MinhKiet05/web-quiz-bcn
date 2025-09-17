@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../../config/firebase.js';
 import { updateWeekTimes, updateQuizInWeek } from '../../services/weekQuizService.js';
+import { getAllWeeksWithQuizData } from '../../services/weekQuizService.js';
 import { showToast } from '../../utils/toastUtils.js';
 import { uploadImageToCloudinary } from '../../utils/cloudinaryUtils.js';
 import './QuizzList.css';
@@ -60,37 +59,21 @@ const QuizzList = () => {
   // Function to get week status text
 
 
-  // Fetch all weeks data from Firebase
+  // Fetch all weeks data from Firebase (tối ưu)
   useEffect(() => {
     const fetchAllWeeks = async () => {
       try {
         setLoading(true);
-        // Try "Quiz" first (uppercase), then "quiz" (lowercase)
-        let querySnapshot;
-        try {
-          querySnapshot = await getDocs(collection(db, 'Quiz'));
-        } catch (error) {
-          querySnapshot = await getDocs(collection(db, 'quiz'));
-          throw new Error('Không thể tải dữ liệu từ Firestore: ' + error.message);
-        }
+        const weeksData = await getAllWeeksWithQuizData();
 
-        const weeksData = [];
-
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-
-          // Convert Firestore timestamps to Date objects if they exist at document level
-          if (data.startTime && typeof data.startTime.toDate === 'function') {
-            data.startTime = data.startTime.toDate();
+        // Convert Firestore timestamps to Date objects if they exist
+        weeksData.forEach(week => {
+          if (week.startTime && typeof week.startTime.toDate === 'function') {
+            week.startTime = week.startTime.toDate();
           }
-          if (data.endTime && typeof data.endTime.toDate === 'function') {
-            data.endTime = data.endTime.toDate();
+          if (week.endTime && typeof week.endTime.toDate === 'function') {
+            week.endTime = week.endTime.toDate();
           }
-
-          // No need to check nested timestamps since startTime/endTime are at document level
-          // Quiz1, Quiz2, etc. contain: dapAnDung, giaiThich, link, soDapAn
-
-          weeksData.push({ id: doc.id, ...data });
         });
 
         // Sort weeks by id (week1, week2, etc.)

@@ -18,26 +18,56 @@ const cleanQuizData = (quizData) => {
 };
 
 /**
- * Lấy danh sách tất cả các week
- * @returns {Promise<Array>} - Mảng các week
+ * Lấy danh sách tất cả các week (chỉ ID và thời gian) - cho dropdown
+ * @returns {Promise<Array>} - Mảng các week với thông tin cơ bản
  */
 export const getAllWeeks = async () => {
-  try {
-    const querySnapshot = await getDocs(collection(db, COLLECTION_NAME));
-    const weeks = [];
-    
-    querySnapshot.forEach((doc) => {
-      weeks.push({
-        id: doc.id,
-        ...doc.data()
-      });
+  const querySnapshot = await getDocs(collection(db, COLLECTION_NAME));
+  const weeks = [];
+  
+  querySnapshot.forEach((doc) => {
+    const data = doc.data();
+    weeks.push({
+      id: doc.id,
+      startTime: data.startTime,
+      endTime: data.endTime
     });
-    
-    return weeks;
-  } catch (error) {
-    console.error('Error getting weeks: ', error);
-    throw error;
-  }
+  });
+  
+  return weeks;
+};
+
+/**
+ * Lấy toàn bộ dữ liệu tất cả các week (bao gồm quiz data) - cho QuizzList
+ * @returns {Promise<Array>} - Mảng các week với toàn bộ dữ liệu
+ */
+export const getAllWeeksWithQuizData = async () => {
+  const querySnapshot = await getDocs(collection(db, COLLECTION_NAME));
+  const weeks = [];
+  
+  querySnapshot.forEach((doc) => {
+    weeks.push({
+      id: doc.id,
+      ...doc.data()
+    });
+  });
+  
+  return weeks;
+};
+
+/**
+ * Lấy danh sách tên week có sẵn (tối ưu - chỉ lấy ID)
+ * @returns {Promise<Array>} - Mảng tên các week
+ */
+export const getAvailableWeekNames = async () => {
+  const querySnapshot = await getDocs(collection(db, COLLECTION_NAME));
+  const weekNames = [];
+  
+  querySnapshot.forEach((doc) => {
+    weekNames.push(doc.id);
+  });
+  
+  return weekNames.sort(); // Sắp xếp theo tên
 };
 
 /**
@@ -46,18 +76,13 @@ export const getAllWeeks = async () => {
  * @returns {Promise<Object|null>} - Week data hoặc null
  */
 export const getWeekById = async (weekId) => {
-  try {
-    const docRef = doc(db, COLLECTION_NAME, weekId);
-    const docSnap = await getDoc(docRef);
-    
-    if (docSnap.exists()) {
-      return { id: docSnap.id, ...docSnap.data() };
-    } else {
-      return null;
-    }
-  } catch (error) {
-    console.error('Error getting week: ', error);
-    throw error;
+  const docRef = doc(db, COLLECTION_NAME, weekId);
+  const docSnap = await getDoc(docRef);
+  
+  if (docSnap.exists()) {
+    return { id: docSnap.id, ...docSnap.data() };
+  } else {
+    return null;
   }
 };
 

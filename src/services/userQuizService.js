@@ -2,38 +2,39 @@ import { db } from '../config/firebase.js';
 import { doc, getDoc } from 'firebase/firestore';
 
 /**
- * Lấy tất cả dữ liệu quiz đã làm của user
- * Collection: users_quiz
- * Document ID: week1, week2, ... (theo tuần)
- * Structure mỗi document: {
- *   22666271: { Quiz1: "A", Quiz2: "B", Quiz3: "B", Quiz4: "B", Quiz5: "D" },
- *   23682371: { Quiz1: "C", Quiz2: "A", ... },
- *   ...
- * }
+ * Lấy tất cả dữ liệu quiz đã làm của user (tối ưu)
  * @param {string} username - MSSV của student (key trong week document)
+ * @param {Array} specificWeeks - Mảng các week cần lấy (optional)
  * @returns {Promise<Object>} Dữ liệu quiz đã làm theo tuần
  */
-export const getUserQuizData = async (username) => {
-  try {
-    const result = {};
+export const getUserQuizData = async (username, specificWeeks = null) => {
+  const result = {};
+  
+  // Nếu không chỉ định weeks cụ thể, lấy tất cả từ week1-12
+  const weekNumbers = specificWeeks || [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+  
+  // Tạo array promises để load song song
+  const promises = weekNumbers.map(async (weekNum) => {
+    const weekKey = typeof weekNum === 'string' ? weekNum : `week${weekNum}`;
+    const weekData = await getUserQuizByWeek(username, weekKey);
     
-    // Lấy dữ liệu từ tất cả các tuần
-    const weekNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; // Có thể extend thêm
-    
-    for (const weekNum of weekNumbers) {
-      const weekKey = `week${weekNum}`;
-      const weekData = await getUserQuizByWeek(username, weekKey);
-      
-      if (Object.keys(weekData).length > 0) {
-        result[weekKey] = weekData;
-      }
+    if (Object.keys(weekData).length > 0) {
+      return { weekKey, weekData };
     }
-    
-    return result;
-  } catch (error) {
-    console.error('Lỗi khi lấy dữ liệu quiz đã làm:', error);
-    throw error;
-  }
+    return null;
+  });
+  
+  // Chờ tất cả promises hoàn thành
+  const results = await Promise.all(promises);
+  
+  // Gộp kết quả
+  results.forEach(item => {
+    if (item) {
+      result[item.weekKey] = item.weekData;
+    }
+  });
+  
+  return result;
 };
 
 /**
@@ -43,21 +44,15 @@ export const getUserQuizData = async (username) => {
  * @returns {Promise<Object>} Dữ liệu quiz đã làm trong tuần
  */
 export const getUserQuizByWeek = async (username, weekKey) => {
-  try {
-    const weekRef = doc(db, 'users_quiz', weekKey);
-    const weekSnap = await getDoc(weekRef);
-    
-    if (weekSnap.exists()) {
-      const weekData = weekSnap.data();
-      // Trả về dữ liệu của user cụ thể trong tuần này
-      return weekData[username] || {};
-    } else {
-      return {};
-    }
-  } catch (error) {
-    console.error(`Lỗi khi lấy dữ liệu quiz tuần ${weekKey}:`, error);
-    throw error;
+  const weekRef = doc(db, 'users_quiz', weekKey);
+  const weekSnap = await getDoc(weekRef);
+  
+  if (weekSnap.exists()) {
+    const weekData = weekSnap.data();
+    return weekData[username] || {};
   }
+  
+  return {};
 };
 
 /**
@@ -68,74 +63,58 @@ export const getUserQuizByWeek = async (username, weekKey) => {
  * @returns {Promise<string|null>} Đáp án đã chọn hoặc null nếu chưa làm
  */
 export const getUserQuizAnswer = async (username, weekKey, quizKey) => {
-  try {
-    const weekData = await getUserQuizByWeek(username, weekKey);
-    return weekData[quizKey] || null;
-  } catch (error) {
-    console.error(`Lỗi khi lấy đáp án quiz ${quizKey}:`, error);
-    return null;
-  }
+  const weekData = await getUserQuizByWeek(username, weekKey);
+  return weekData[quizKey] || null;
 };
 
 /**
- * Lấy tất cả tuần có dữ liệu quiz
+ * Lấy tất cả tuần có dữ liệu quiz (tối ưu với Promise.all)
  * @param {string} username - MSSV của student (key trong week documents)
  * @returns {Promise<Array>} Danh sách tuần có dữ liệu
  */
 export const getAvailableWeeks = async (username) => {
-  try {
-    const availableWeeks = [];
+  const weekNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+  
+  // Tạo promises để check tất cả weeks song song
+  const promises = weekNumbers.map(async (weekNum) => {
+    const weekKey = `week${weekNum}`;
+    const weekRef = doc(db, 'users_quiz', weekKey);
+    const weekSnap = await getDoc(weekRef);
     
-    // Check từng tuần để xem tuần nào có dữ liệu cho user này
-    const weekNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-    
-    for (const weekNum of weekNumbers) {
-      const weekKey = `week${weekNum}`;
-      const weekRef = doc(db, 'users_quiz', weekKey);
-      const weekSnap = await getDoc(weekRef);
-      
-      if (weekSnap.exists()) {
-        const weekData = weekSnap.data();
-        // Kiểm tra xem có dữ liệu cho user này không
-        if (weekData[username] && Object.keys(weekData[username]).length > 0) {
-          availableWeeks.push(weekKey);
-        }
+    if (weekSnap.exists()) {
+      const weekData = weekSnap.data();
+      // Kiểm tra xem có dữ liệu cho user này không
+      if (weekData[username] && Object.keys(weekData[username]).length > 0) {
+        return weekKey;
       }
     }
-    
-    return availableWeeks.sort();
-  } catch (error) {
-    console.error('Lỗi khi lấy danh sách tuần:', error);
-    return [];
-  }
+    return null;
+  });
+  
+  // Chờ tất cả promises và lọc kết quả
+  const results = await Promise.all(promises);
+  return results.filter(week => week !== null).sort();
 };
 
 /**
- * Lấy tất cả tuần có trong database (không phụ thuộc user cụ thể)
+ * Lấy tất cả tuần có trong database (tối ưu với Promise.all)
  * @returns {Promise<Array>} Danh sách tất cả tuần có trong collection users_quiz
  */
 export const getAllAvailableWeeks = async () => {
-  try {
-    const availableWeeks = [];
+  const weekNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+  
+  // Tạo promises để check tất cả weeks song song
+  const promises = weekNumbers.map(async (weekNum) => {
+    const weekKey = `week${weekNum}`;
+    const weekRef = doc(db, 'users_quiz', weekKey);
+    const weekSnap = await getDoc(weekRef);
     
-    // Check từng tuần để xem tuần nào có tồn tại trong database
-    const weekNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-    
-    for (const weekNum of weekNumbers) {
-      const weekKey = `week${weekNum}`;
-      const weekRef = doc(db, 'users_quiz', weekKey);
-      const weekSnap = await getDoc(weekRef);
-      
-      if (weekSnap.exists()) {
-        availableWeeks.push(weekKey);
-      }
-    }
-    
-    return availableWeeks.sort();
-  } catch (error) {
-    console.error('Lỗi khi lấy danh sách tất cả tuần:', error);
-    return [];
-  }
+    return weekSnap.exists() ? weekKey : null;
+  });
+  
+  // Chờ tất cả promises và lọc kết quả
+  const results = await Promise.all(promises);
+  return results.filter(week => week !== null).sort();
 };
 
 /**
