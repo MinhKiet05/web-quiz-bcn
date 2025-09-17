@@ -338,7 +338,7 @@ const Leaderboard = () => {
         )}
         <div className="leaderboard-header">
           <h1>Bảng Xếp Hạng</h1>
-          <p>Top 3 điểm cao nhất tuần</p>
+          <p style={{marginBottom: '0px'}}>Top 3 điểm cao nhất tuần</p>
         </div>
 
 

@@ -235,7 +235,6 @@ const QuizPlayer = () => {
     <div className="quiz-player">
       <div className="quiz-player-quiz-player-header">
         <h1>Quiz Hàng Tuần</h1>
-
         {weekInfo && (
           <div className="quiz-player-week-info">
             <div className="quiz-player-week-number">Week {weekInfo.week}</div>

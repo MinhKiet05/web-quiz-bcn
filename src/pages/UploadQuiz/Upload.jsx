@@ -476,7 +476,7 @@ const Upload = () => {
                         onClick={() => removeAnswerChoice(index)}
                         className="remove-answer-btn"
                       >
-                        ✕
+                        ✕ 
                       </button>
                     )}
                   </div>
@@ -537,13 +537,14 @@ const Upload = () => {
 
           {/* Submit Buttons */}
           <div className="form-actions">
+            <button type="button" onClick={resetForm} className="reset-btn">
+              Reset form
+            </button>
             <button type="submit" disabled={loading} className="submit-btn">
               {loading ? 'Đang xử lý...' : (isEditMode ? 'Cập nhật' : 'Thêm quiz')}
             </button>
 
-            <button type="button" onClick={resetForm} className="reset-btn">
-              Reset form
-            </button>
+            
           </div>
         </form>
       </div>

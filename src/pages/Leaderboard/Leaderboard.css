@@ -1,7 +1,6 @@
 /* Leaderboard Container */
 .leaderboard-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
   padding: 0;
   margin: 0;
 }
@@ -167,7 +166,6 @@
 }
 
 .leaderboard-nav-btn:hover:not(:disabled) {
-  background: #0984e3;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(116, 185, 255, 0.4);
 }
@@ -248,14 +246,14 @@
 .leaderboard-rankings {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 14px;
   margin-bottom: 40px;
 }
 
 .leaderboard-rank-card {
   background: white;
   border-radius: 16px;
-  padding: 24px;
+  padding: 20px 24px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;

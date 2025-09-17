@@ -148,13 +148,14 @@ const Home = () => {
           minWidth:'250px',
           background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
           color: 'white',
-          padding: '0px 24px 20px 24px',
+          padding: '20px 24px 20px 24px',
           borderRadius: '16px',
           boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
           textAlign: 'center',
           maxWidth: '600px',
           margin: '0px auto 20px auto',
-          lineHeight: 1.6
+          lineHeight: 1.6,
+          marginTop: '0px'
         }}>
           
           <h1 style={{ margin: '-10px 0 16px 0', fontSize: '32px' }}>

@@ -434,7 +434,6 @@
 /* Modal styles removed - now using inline interface */
 
 .quiz-player-quiz-modal {
-  background: white;
   border-radius: 16px;
   width: 100%;
   max-width: 600px;
@@ -962,7 +961,6 @@
     margin: 0 !important;
     max-width: 100% !important;
     width: 100% !important;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%) !important;
     overflow-x: hidden !important;
     box-sizing: border-box !important;
   }
