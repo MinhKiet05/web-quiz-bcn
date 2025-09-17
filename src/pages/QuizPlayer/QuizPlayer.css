@@ -1,9 +1,3 @@
-main{
-    background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
-    min-height: 100vh;
-    padding: 0;
-    margin: 0;
-}
 
 .quiz-player {
   max-width: 1200px;
