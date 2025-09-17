@@ -20,7 +20,7 @@ const navLinks = [
       { name: 'Thêm quiz', path: '/upload' },
       { name: 'Các quiz', path: '/quizzes' },
       { name: 'Users', path: '/user-management' },
-      { name: 'Users Quiz By Week', path: '/users-quiz-by-week' }
+      { name: 'Quiz Records', path: '/users-quiz-by-week' }
     ]
   }
 ];

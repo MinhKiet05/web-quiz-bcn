@@ -69,7 +69,27 @@
   transform: none;
   box-shadow: none;
 }
+.users-quiz-by-week-week-data {
+  overflow: auto;
+  width: 100%;
+  scrollbar-width: thin;
+  scrollbar-color: #ccc #f8f9fa;
+}
 
+/* For Webkit browsers */
+.users-quiz-by-week-week-data::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+.users-quiz-by-week-week-data::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+.users-quiz-by-week-week-data::-webkit-scrollbar-track {
+  background: #f8f9fa;
+}
 .users-quiz-by-week-week-data .users-quiz-by-week-loading {
   padding: 12px;
   color: #666;
@@ -78,6 +98,7 @@
 .users-quiz-by-week-week-table {
   width: 100%;
   border-collapse: collapse;
+  
 }
 
 .users-quiz-by-week-week-table th,

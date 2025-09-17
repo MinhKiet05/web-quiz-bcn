@@ -3,17 +3,20 @@ import './App.css'
 import Header from './components/Header/Header'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
-import Upload from './pages/UploadQuiz/Upload'
-import QuizzList from './pages/QuizList/QuizzList'
-import UserManagement from './pages/UserManagement/UserManagement'
-import QuizPlayer from './pages/QuizPlayer/QuizPlayer'
-import QuizHistory from './pages/QuizHistory/QuizHistory'
-import Leaderboard from './pages/Leaderboard/Leaderboard'
-import UsersQuizByWeek from './pages/UsersQuizByWeek/UsersQuizByWeek'
 import RedirectToHome from './components/RedirectToHome/RedirectToHome'
 import Login from './components/Login/Login'
 import ToastContainer from './components/Toast/ToastContainer'
-import { useState } from 'react'
+import LoadingSpinner from './components/ui/LoadingSpinner'
+import { useState, Suspense, lazy } from 'react'
+
+// Lazy load các page components
+const Upload = lazy(() => import('./pages/UploadQuiz/Upload'))
+const QuizzList = lazy(() => import('./pages/QuizList/QuizzList'))
+const UserManagement = lazy(() => import('./pages/UserManagement/UserManagement'))
+const QuizPlayer = lazy(() => import('./pages/QuizPlayer/QuizPlayer'))
+const QuizHistory = lazy(() => import('./pages/QuizHistory/QuizHistory'))
+const Leaderboard = lazy(() => import('./pages/Leaderboard/Leaderboard'))
+const UsersQuizByWeek = lazy(() => import('./pages/UsersQuizByWeek/UsersQuizByWeek'))
 
 const ProtectedRoute = ({ children, requireAdmin = false, requireEditor = false }) => {
   const { user, isAdmin, hasRole } = useAuth();
@@ -76,63 +79,45 @@ function AppContent() {
     <>
       <Header />
       <main>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/rules" element={<Rules />} />
-          <Route path="/upload" element={
-            <ProtectedRoute requireEditor={true}>
-              <Upload />
-            </ProtectedRoute>
-          } />
-          <Route path="/quizz-list" element={
-            <ProtectedRoute requireEditor={true}>
-              <QuizzList />
-            </ProtectedRoute>
-          } />
-          <Route path="/quizzes" element={
-            <ProtectedRoute requireEditor={true}>
-              <QuizzList />
-            </ProtectedRoute>
-          } />
-          <Route path="/user-management" element={
-            <ProtectedRoute requireAdmin={true}>
-              <UserManagement />
-            </ProtectedRoute>
-          } />
-          <Route path="/users-quiz-by-week" element={
-            <ProtectedRoute requireAdmin={true}>
-              <UsersQuizByWeek />
-            </ProtectedRoute>
-          } />
-          <Route path="/dashboard" element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          } />
-          <Route path="/my-quizzes" element={
-            <ProtectedRoute>
-              <QuizHistory />
-            </ProtectedRoute>
-          } />
-          <Route path="/quiz-history" element={
-            <ProtectedRoute>
-              <QuizHistory />
-            </ProtectedRoute>
-          } />
-          <Route path="/leaderboard" element={
-            <ProtectedRoute>
-              <Leaderboard />
-            </ProtectedRoute>
-          } />
-          <Route path="/news" element={<News />} />
-          {/* Catch-all route for 404 errors */}
-          <Route path="*" element={
-            <RedirectToHome 
-              message="404: Không tìm thấy trang"
-              reason="Trang bạn tìm kiếm không tồn tại hoặc đã bị xóa."
-            />
-          } />
-        </Routes>
+        <Suspense fallback={<LoadingSpinner message="Đang tải trang..." />}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/rules" element={<Rules />} />
+            <Route path="/upload" element={
+              <ProtectedRoute requireEditor={true}>
+                <Upload />
+              </ProtectedRoute>
+            } />
+            <Route path="/quizzes" element={
+              <ProtectedRoute requireEditor={true}>
+                <QuizzList />
+              </ProtectedRoute>
+            } />
+            <Route path="/user-management" element={
+              <ProtectedRoute requireAdmin={true}>
+                <UserManagement />
+              </ProtectedRoute>
+            } />
+            <Route path="/users-quiz-by-week" element={
+              <ProtectedRoute requireAdmin={true}>
+                <UsersQuizByWeek />
+              </ProtectedRoute>
+            } />
+            <Route path="/my-quizzes" element={
+              <ProtectedRoute>
+                <QuizHistory />
+              </ProtectedRoute>
+            } />
+            <Route path="/leaderboard" element={
+              <ProtectedRoute>
+                <Leaderboard />
+              </ProtectedRoute>
+            } />
+            
+            {/* Catch-all route for 404 errors */}
+            
+          </Routes>
+        </Suspense>
       </main>
       <ToastContainer />
     </>
@@ -154,7 +139,11 @@ const Home = () => {
 
   // If user is logged in, show QuizPlayer
   if (user) {
-    return <QuizPlayer />;
+    return (
+      <Suspense fallback={<LoadingSpinner message="Đang tải quiz..." />}>
+        <QuizPlayer />
+      </Suspense>
+    );
   }
 
   // If not logged in, show welcome page
@@ -375,35 +364,11 @@ const Rules = () => {
   );
 };
 
-const Dashboard = () => (
-  <div style={{ padding: '40px', textAlign: 'center' }}>
-    <h1>📊 Bảng điều khiển</h1>
-    <p>Quản lý quiz và xem thống kê</p>
-  </div>
-);
 
 const MyQuizzes = () => {
   // Redirect to QuizHistory component
   return <QuizHistory />;
 };
 
-const News = () => (
-  <div style={{ padding: '40px', textAlign: 'center' }}>
-    <h1>📰 Tin tức</h1>
-    <p>Thông tin mới nhất từ Ban Công Nghệ</p>
-    <div style={{
-      background: 'white',
-      padding: '24px',
-      borderRadius: '12px',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-      textAlign: 'left',
-      maxWidth: '600px',
-      margin: '20px auto'
-    }}>
-      <h3>🚀 Thông báo</h3>
-      <p>Trang tin tức đang được phát triển. Các thông báo quan trọng sẽ được cập nhật tại đây.</p>
-    </div>
-  </div>
-);
 
 export default App
