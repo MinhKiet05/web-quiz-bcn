@@ -229,7 +229,7 @@ input[type="date"]::-webkit-calendar-picker {
   gap: 0.25rem;
 }
 .quiz-history-loading, .quiz-history-loading p{
-  color: #dee2e6!important;
+  color: #7f8c8d!important;
 }
 .time-item .time-label {
   font-size: 0.85rem;
@@ -355,7 +355,7 @@ input[type="date"]::-webkit-calendar-picker {
   align-items: center;
   justify-content: center;
   height: 50vh;
-  color: #666;
+  color: #7f8c8d!important;
 }
 
 .loading-spinner {

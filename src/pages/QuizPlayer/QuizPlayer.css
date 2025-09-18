@@ -39,9 +39,8 @@
 }
 
 .quiz-nav-item.pending {
-  background: #ffc107;
+  background: #bdccda;
   color: #fff;
-  box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
 }
 
 .quiz-nav-item.completed {
@@ -82,7 +81,7 @@
   align-items: center;
   justify-content: center;
   height: 50vh;
-  color: #dee2e6!important;
+  color: #7f8c8d!important;
 }
 
 .quiz-player-loading-spinner {
@@ -181,7 +180,7 @@
 }
 
 .quiz-player-quiz-card.pending {
-  border-left-color: #ffc107; /* Màu vàng cho chưa chọn */
+  border-left-color: #bdccda; /* Màu vàng cho chưa chọn */
   background: linear-gradient(135deg, #ffffff 0%, #fffbf0 100%);
   border-left-width: 8px; /* Border dày hơn để nổi bật */
   box-shadow: 0 8px 32px rgba(255, 193, 7, 0.2); /* Shadow vàng nhẹ */
