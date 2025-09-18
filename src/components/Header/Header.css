@@ -5,7 +5,7 @@
   left: 0;
   right: 0;
   z-index: 1000;
-  background: #4E71FF;
+  background: #80BCBD;
   box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
   padding: 0px 5vw;
   height: 70px;
@@ -51,10 +51,11 @@ body {
   display: none;
   align-items: center;
   gap: 1.85vw;
+  
 }
 
 .header-link {
-  color:  white;
+  color: black;
   text-decoration: none;
   font-weight: 500;
   transition: all 0.3s ease;
@@ -81,7 +82,7 @@ body {
 .header-dropdown-toggle {
   background: none;
   border: none;
-  color: white;
+  color: black;
   font-weight: 500;
   padding: 0.5rem 1rem;
   border-radius: 6px;

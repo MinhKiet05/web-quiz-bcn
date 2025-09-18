@@ -2,7 +2,7 @@
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  background: #8DD8FF;
+  background: #AAD9BB;
   color-scheme: light;
   color: rgba(255, 255, 255, 0.87);
 
@@ -42,6 +42,6 @@ main {
 }
 @media screen and (max-width: 480px) {
   main{
-    background: #8DD8FF;
+    background: #AAD9BB;
   }
 }
