@@ -1,5 +1,6 @@
 import { doc, getDoc, collection, query, where, getDocs, setDoc } from 'firebase/firestore';
 import { db } from '../config/firebase.js';
+import { hashPassword, verifyPassword, isPasswordHashed } from '../utils/passwordUtils.js';
 
 const USERS_COLLECTION = 'users';
 
@@ -18,7 +19,6 @@ const generateToken = () => {
  */
 export const loginUser = async (username, password) => {
   try {
-    
     // Thử đăng nhập bằng document ID (MSSV)
     const userDoc = await getDoc(doc(db, USERS_COLLECTION, username));
     
@@ -28,8 +28,28 @@ export const loginUser = async (username, password) => {
     
     const userData = userDoc.data();
     
-    // Kiểm tra mật khẩu
-    if (userData.matKhau !== password) {
+    // Kiểm tra mật khẩu - support cả hashed và plaintext (cho migration)
+    let passwordMatch = false;
+    
+    if (isPasswordHashed(userData.matKhau)) {
+      // Password đã hash - sử dụng verifyPassword
+      passwordMatch = verifyPassword(password, userData.matKhau);
+    } else {
+      // Password chưa hash - so sánh trực tiếp (legacy)
+      passwordMatch = (userData.matKhau === password);
+      
+      // Cập nhật hash cho user này trong background
+      if (passwordMatch) {
+        const hashedPass = hashPassword(password);
+        // Cập nhật password hash cho lần sau
+        await setDoc(doc(db, USERS_COLLECTION, username), {
+          ...userData,
+          matKhau: hashedPass
+        });
+      }
+    }
+    
+    if (!passwordMatch) {
       return null;
     }
     
@@ -39,6 +59,7 @@ export const loginUser = async (username, password) => {
     // Cập nhật token và lastLogin vào Firestore
     await setDoc(doc(db, USERS_COLLECTION, username), {
       ...userData,
+      matKhau: isPasswordHashed(userData.matKhau) ? userData.matKhau : hashPassword(password), // Ensure hash
       token: newToken,
       lastLogin: new Date().toISOString()
     });
@@ -47,7 +68,7 @@ export const loginUser = async (username, password) => {
       uid: username,
       name: userData.name,
       username: username,
-      roles: userData.roles || [], 
+      roles: userData.roles || [],
       token: newToken
     };
   } catch (error) {
@@ -225,17 +246,19 @@ export const registerUser = async (userData) => {
   try {
     const { username, password, name, role = 'user' } = userData;
     
-    
     // Kiểm tra MSSV đã tồn tại chưa (document ID)
     const userDoc = await getDoc(doc(db, USERS_COLLECTION, username));
     if (userDoc.exists()) {
       throw new Error('MSSV đã được đăng ký');
     }
     
+    // Hash password trước khi lưu
+    const hashedPassword = hashPassword(password);
+    
     // Tạo user data với cấu trúc mới
     const newUserData = {
       name: name,
-      matKhau: password,
+      matKhau: hashedPassword, // Lưu password đã hash
       roles: [role], // Sử dụng array roles
       lastLogin: null, // Chưa đăng nhập lần nào
       token: null, // Chưa có token
@@ -248,11 +271,11 @@ export const registerUser = async (userData) => {
     const newUser = {
       uid: username,
       username: username,
-      ...newUserData
+      name: name,
+      roles: [role]
     };
     
     return newUser;
-    
   } catch (error) {
     console.error('Registration error:', error);
     throw error;

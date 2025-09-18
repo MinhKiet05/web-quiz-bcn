@@ -9,6 +9,7 @@ import ToastContainer from './components/Toast/ToastContainer'
 import { useState, lazy } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+
 // Lazy load các page components
 const Upload = lazy(() => import('./pages/UploadQuiz/Upload'))
 const QuizzList = lazy(() => import('./pages/QuizList/QuizzList'))

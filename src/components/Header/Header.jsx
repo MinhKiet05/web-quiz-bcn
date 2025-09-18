@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleUser, faBars, faTimes, faSignInAlt, faSignOutAlt, faCrown, faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import './Header.css';
@@ -28,10 +28,35 @@ const navLinks = [
 const Header = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [hoverDropdown, setHoverDropdown] = useState(null);
   const location = useLocation();
   const { user, logout } = useAuth();
+
+  // Header scroll visibility control
+  useEffect(() => {
+    const controlHeaderVisibility = () => {
+      const currentScrollY = window.scrollY;
+      
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        // Scrolling down & past threshold - hide header
+        setIsVisible(false);
+      } else {
+        // Scrolling up or at top - show header
+        setIsVisible(true);
+      }
+      
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', controlHeaderVisibility);
+    
+    return () => {
+      window.removeEventListener('scroll', controlHeaderVisibility);
+    };
+  }, [lastScrollY]);
 
   const handleNavLinkClick = () => {
     setSidebarOpen(false);
@@ -224,7 +249,7 @@ const Header = () => {
         user && (user.roles?.includes('admin') || user.roles?.includes('editor') || user.roles?.includes('super admin')) 
           ? 'admin-header' 
           : 'user-header'
-      }`}>
+      } ${isVisible ? 'header-visible' : 'header-hidden'}`}>
         {/* Logo */}
         <div className="header-logo">
           <img src={logo} alt="Logo" />

@@ -7,11 +7,22 @@
   z-index: 1000;
   background: #4E71FF;
   box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
-  padding:0px 5vw;
+  padding: 0px 5vw;
+  height: 70px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   backdrop-filter: blur(10px);
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Header visibility states */
+.header-visible {
+  transform: translateY(0);
+}
+
+.header-hidden {
+  transform: translateY(-100%);
 }
 
 body {

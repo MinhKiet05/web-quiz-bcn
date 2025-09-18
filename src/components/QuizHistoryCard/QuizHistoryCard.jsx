@@ -139,8 +139,8 @@ const QuizHistoryCard = ({ quiz, userAnswer, hasParticipated}) => {
           </>
         )}
 
-        {/* Nút Làm ngay - chỉ hiển thị với quiz chưa làm */}
-        {!hasParticipated && (
+        {/* Nút Làm ngay - chỉ hiển thị với quiz chưa làm và chưa hết hạn */}
+        {!hasParticipated && !expired && (
           <div className="history-card-action-section">
             <button 
               className="history-card-do-quiz-btn"
