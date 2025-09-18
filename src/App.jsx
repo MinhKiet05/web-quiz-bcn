@@ -300,7 +300,7 @@ const Rules = () => {
         margin: '0px auto',
         lineHeight: 1.6
       }}>
-        <h2 style={{ textAlign: 'center', marginBottom: '16px' }}>
+        <h2 style={{ textAlign: 'center', marginBottom: '16px' ,marginTop: '12px'}}>
           {user ? `Xin chào ${user.name}` : '📋 Thể lệ Quiz Hàng Tuần'}
         </h2>
         

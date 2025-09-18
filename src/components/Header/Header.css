@@ -292,7 +292,7 @@ body {
 
 .sidebar-header {
   padding: 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #4E71FF;
   color: white;
   display: flex;
   justify-content: space-between;
@@ -448,7 +448,7 @@ body {
 .sidebar-login-btn {
   width: 100%;
   padding: 0.75rem 1rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #4E71FF;
   border: none;
   color: white;
   border-radius: 6px;

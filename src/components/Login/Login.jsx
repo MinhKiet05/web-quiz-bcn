@@ -112,10 +112,10 @@ const Login = ({ onClose }) => {
       setError('Vui lòng nhập đầy đủ thông tin bắt buộc');
       return;
     }
-    // if(name.length > 20 || name.trim().length < 2) {
-    //   setError('Tên hiển thị phải có ít nhất 2 ký tự');
-    //   return;
-    // }
+    if(name.trim().length > 30 || name.trim().length < 2) {
+      setError('Tên hiển thị phải có ít nhất 2 ký tự và không quá 30 ký tự');
+      return;
+    }
     // Validate MSSV format - phải là đúng 8 số
     if (!/^\d{8}$/.test(mssv.trim())) {
       setError('MSSV phải là đúng 8 số');
