@@ -34,7 +34,6 @@ export const quizService = {
       
       return quizzes;
     } catch (error) {
-      console.error('Error fetching quizzes from week document:', error);
       throw error;
     }
   },
@@ -61,7 +60,6 @@ export const quizService = {
       
       return quizzes;
     } catch (error) {
-      console.error('Error fetching quizzes by week:', error);
       throw error;
     }
   },
@@ -80,7 +78,6 @@ export const quizService = {
       
       return {};
     } catch (error) {
-      console.error('Error fetching user answers:', error);
       throw error;
     }
   },
@@ -119,7 +116,6 @@ export const quizService = {
       
       return updatedUserAnswers;
     } catch (error) {
-      console.error('Error saving user answer:', error);
       throw error;
     }
   },
@@ -151,7 +147,6 @@ export const quizService = {
       
       return updatedUserAnswers;
     } catch (error) {
-      console.error('Error saving user answers:', error);
       throw error;
     }
   },
@@ -168,7 +163,6 @@ export const quizService = {
       
       return {};
     } catch (error) {
-      console.error('Error fetching all user answers:', error);
       throw error;
     }
   },
@@ -251,7 +245,6 @@ export const quizService = {
       
       return availableQuizzes;
     } catch (error) {
-      console.error('Error fetching available quizzes:', error);
       throw error;
     }
   },

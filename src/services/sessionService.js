@@ -45,26 +45,21 @@ const getBrowserName = (userAgent) => {
  * @returns {Promise<string>} - Session ID mới
  */
 export const createNewSession = async (userId, userData) => {
-  try {
-    const newSessionId = generateSessionId();
-    const deviceInfo = getDeviceInfo();
-    
-    // Cập nhật user với session mới
-    const updatedUserData = {
-      ...userData,
-      sessionId: newSessionId,
-      sessionCreatedAt: new Date().toISOString(),
-      deviceInfo: deviceInfo,
-      lastActivity: new Date().toISOString()
-    };
-    
-    await setDoc(doc(db, USERS_COLLECTION, userId), updatedUserData);
-    
-    return newSessionId;
-  } catch (error) {
-    console.error('Error creating new session:', error);
-    throw error;
-  }
+  const newSessionId = generateSessionId();
+  const deviceInfo = getDeviceInfo();
+  
+  // Cập nhật user với session mới
+  const updatedUserData = {
+    ...userData,
+    sessionId: newSessionId,
+    sessionCreatedAt: new Date().toISOString(),
+    deviceInfo: deviceInfo,
+    lastActivity: new Date().toISOString()
+  };
+  
+  await setDoc(doc(db, USERS_COLLECTION, userId), updatedUserData);
+  
+  return newSessionId;
 };
 
 /**
@@ -74,44 +69,39 @@ export const createNewSession = async (userId, userData) => {
  * @returns {Promise<boolean>} - true nếu session hợp lệ
  */
 export const validateSession = async (userId, sessionId) => {
-  try {
-    if (!userId || !sessionId) {
-      return false;
-    }
-    
-    const userDoc = await getDoc(doc(db, USERS_COLLECTION, userId));
-    
-    if (!userDoc.exists()) {
-      return false;
-    }
-    
-    const userData = userDoc.data();
-    
-    // Kiểm tra session ID có khớp không
-    if (userData.sessionId !== sessionId) {
-      return false;
-    }
-    
-    // Kiểm tra session có quá hạn không (7 ngày)
-    const sessionCreatedAt = new Date(userData.sessionCreatedAt);
-    const now = new Date();
-    const sevenDays = 7 * 24 * 60 * 60 * 1000;
-    
-    if (now - sessionCreatedAt > sevenDays) {
-      return false;
-    }
-    
-    // Cập nhật lastActivity
-    await setDoc(doc(db, USERS_COLLECTION, userId), {
-      ...userData,
-      lastActivity: new Date().toISOString()
-    });
-    
-    return true;
-  } catch (error) {
-    console.error('Error validating session:', error);
+  if (!userId || !sessionId) {
     return false;
   }
+  
+  const userDoc = await getDoc(doc(db, USERS_COLLECTION, userId));
+  
+  if (!userDoc.exists()) {
+    return false;
+  }
+  
+  const userData = userDoc.data();
+  
+  // Kiểm tra session ID có khớp không
+  if (userData.sessionId !== sessionId) {
+    return false;
+  }
+  
+  // Kiểm tra session có quá hạn không (7 ngày)
+  const sessionCreatedAt = new Date(userData.sessionCreatedAt);
+  const now = new Date();
+  const sevenDays = 7 * 24 * 60 * 60 * 1000;
+  
+  if (now - sessionCreatedAt > sevenDays) {
+    return false;
+  }
+  
+  // Cập nhật lastActivity
+  await setDoc(doc(db, USERS_COLLECTION, userId), {
+    ...userData,
+    lastActivity: new Date().toISOString()
+  });
+  
+  return true;
 };
 
 /**
@@ -119,27 +109,23 @@ export const validateSession = async (userId, sessionId) => {
  * @param {string} userId - ID người dùng
  */
 export const clearSession = async (userId) => {
-  try {
-    const userDoc = await getDoc(doc(db, USERS_COLLECTION, userId));
+  const userDoc = await getDoc(doc(db, USERS_COLLECTION, userId));
+  
+  if (userDoc.exists()) {
+    const userData = userDoc.data();
     
-    if (userDoc.exists()) {
-      const userData = userDoc.data();
-      
-      await setDoc(doc(db, USERS_COLLECTION, userId), {
-        ...userData,
-        sessionId: null,
-        sessionCreatedAt: null,
-        deviceInfo: null,
-        lastActivity: new Date().toISOString()
-      });
-    }
-  } catch (error) {
-    console.error('Error clearing session:', error);
+    await setDoc(doc(db, USERS_COLLECTION, userId), {
+      ...userData,
+      sessionId: null,
+      sessionCreatedAt: null,
+      deviceInfo: null,
+      lastActivity: new Date().toISOString()
+    });
   }
 };
 
 /**
- * Tạo listener để theo dõi thay đổi session
+ * Tạo listener để theo dõi thay đổi session - chỉ alert khi có user khác đăng nhập
  * @param {string} userId - ID người dùng
  * @param {string} currentSessionId - Session ID hiện tại
  * @param {Function} onSessionInvalidated - Callback khi session bị invalidate
@@ -162,10 +148,11 @@ export const createSessionListener = (userId, currentSessionId, onSessionInvalid
     
     // Kiểm tra session ID có còn khớp không
     if (userData.sessionId !== currentSessionId) {
-      onSessionInvalidated('Session invalidated by new login');
+      // Chỉ invalidate nếu có session mới (tức là đăng nhập từ thiết bị khác)
+      if (userData.sessionId && userData.sessionId !== currentSessionId) {
+        onSessionInvalidated('Session invalidated by new login from different device');
+      }
     }
-  }, (error) => {
-    console.error('Session listener error:', error);
   });
   
   return unsubscribe;
@@ -177,23 +164,18 @@ export const createSessionListener = (userId, currentSessionId, onSessionInvalid
  * @returns {Promise<Object|null>} - Thông tin session
  */
 export const getSessionInfo = async (userId) => {
-  try {
-    const userDoc = await getDoc(doc(db, USERS_COLLECTION, userId));
-    
-    if (!userDoc.exists()) {
-      return null;
-    }
-    
-    const userData = userDoc.data();
-    
-    return {
-      sessionId: userData.sessionId,
-      sessionCreatedAt: userData.sessionCreatedAt,
-      deviceInfo: userData.deviceInfo,
-      lastActivity: userData.lastActivity
-    };
-  } catch (error) {
-    console.error('Error getting session info:', error);
+  const userDoc = await getDoc(doc(db, USERS_COLLECTION, userId));
+  
+  if (!userDoc.exists()) {
     return null;
   }
+  
+  const userData = userDoc.data();
+  
+  return {
+    sessionId: userData.sessionId,
+    sessionCreatedAt: userData.sessionCreatedAt,
+    deviceInfo: userData.deviceInfo,
+    lastActivity: userData.lastActivity
+  };
 };

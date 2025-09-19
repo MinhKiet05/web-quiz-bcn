@@ -31,7 +31,6 @@ export const saveKetQua = async (data, documentId = null) => {
       return docRef.id;
     }
   } catch (error) {
-    console.error('Error saving document: ', error);
     throw error;
   }
 };
@@ -52,7 +51,6 @@ export const getKetQua = async (documentId) => {
       return null;
     }
   } catch (error) {
-    console.error('Error getting document: ', error);
     throw error;
   }
 };
@@ -89,6 +87,6 @@ export const exampleUsage = async () => {
     
     
   } catch (error) {
-    console.error('Example usage error:', error);
+    // Error in example usage
   }
 };

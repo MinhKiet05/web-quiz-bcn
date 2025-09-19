@@ -120,7 +120,6 @@ export const addQuizToWeek = async (weekId, quizId, quizData, startTime = null, 
       });
     }
   } catch (error) {
-    console.error('Error adding quiz to week: ', error);
     throw error;
   }
 };
@@ -148,7 +147,6 @@ export const updateQuizInWeek = async (weekId, quizId, quizData) => {
       });
     }
   } catch (error) {
-    console.error('Error updating quiz in week: ', error);
     throw error;
   }
 };
@@ -168,7 +166,6 @@ export const updateWeekTimes = async (weekId, startTime, endTime) => {
       endTime: endTime
     });
   } catch (error) {
-    console.error('Error updating week times: ', error);
     throw error;
   }
 };
@@ -221,7 +218,6 @@ export const cleanupWeekStructure = async (weekId) => {
     // Ghi đè document với cấu trúc mới
     await setDoc(docRef, cleanedData);
   } catch (error) {
-    console.error('Error cleaning week structure: ', error);
     throw error;
   }
 };
@@ -239,7 +235,6 @@ export const deleteQuizFromWeek = async (weekId, quizId) => {
       [quizId]: null // Xóa field
     });
   } catch (error) {
-    console.error('Error deleting quiz from week: ', error);
     throw error;
   }
 };
@@ -286,7 +281,6 @@ export const getQuizzesByWeek = async (weekId) => {
     
     return quizzes;
   } catch (error) {
-    console.error('Error getting quizzes by week: ', error);
     throw error;
   }
 };

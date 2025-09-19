@@ -2,6 +2,7 @@ import { doc, getDoc, collection, query, where, getDocs, setDoc } from 'firebase
 import { db } from '../config/firebase.js';
 import { hashPassword, verifyPassword, isPasswordHashed } from '../utils/passwordUtils.js';
 import { createNewSession, validateSession, clearSession } from './sessionService.js';
+import { registerTabSession, validateTabSession, initTabSession, clearTabSessionFromServer, clearTabSessionId } from './tabSessionService.js';
 
 const USERS_COLLECTION = 'users';
 
@@ -13,7 +14,7 @@ const generateToken = () => {
 };
 
 /**
- * Đăng nhập người dùng bằng MSSV/password, tạo session mới và invalidate session cũ
+ * Đăng nhập người dùng bằng MSSV/password, tạo session mới và đăng ký tab session
  * @param {string} username - MSSV
  * @param {string} password - Mật khẩu
  * @returns {Promise<Object|null>} - Thông tin người dùng hoặc null
@@ -58,11 +59,23 @@ export const loginUser = async (username, password) => {
     // Tạo token mới
     const newToken = generateToken();
     
+    // Khởi tạo tab session cho tab này
+    const tabSessionId = initTabSession();
+    
     // Tạo session mới (sẽ invalidate session cũ nếu có)
     const sessionId = await createNewSession(username, {
       ...userData,
       matKhau: isPasswordHashed(userData.matKhau) ? userData.matKhau : hashPassword(password), // Ensure hash
       token: newToken,
+      lastLogin: new Date().toISOString()
+    });
+    
+    // Đăng ký tab session (sẽ invalidate tab khác nếu có)
+    await registerTabSession(username, tabSessionId, {
+      ...userData,
+      matKhau: isPasswordHashed(userData.matKhau) ? userData.matKhau : hashPassword(password),
+      token: newToken,
+      sessionId: sessionId,
       lastLogin: new Date().toISOString()
     });
     
@@ -72,21 +85,22 @@ export const loginUser = async (username, password) => {
       username: username,
       roles: userData.roles || [],
       token: newToken,
-      sessionId: sessionId
+      sessionId: sessionId,
+      tabSessionId: tabSessionId
     };
   } catch (error) {
-    console.error('Login error:', error);
     throw error;
   }
 };
 
 /**
- * Xác thực token và session để duy trì phiên đăng nhập
+ * Xác thực token và session để duy trì phiên đăng nhập (không strict về tab session)
  * @param {string} token - Token cần xác thực
  * @param {string} sessionId - Session ID cần xác thực
+ * @param {string} tabSessionId - Tab Session ID cần xác thực (optional)
  * @returns {Promise<Object|null>} - Thông tin người dùng hoặc null
  */
-export const verifyToken = async (token, sessionId = null) => {
+export const verifyToken = async (token, sessionId = null, tabSessionId = null) => {
   try {
     if (!token) {
       return null;
@@ -111,10 +125,12 @@ export const verifyToken = async (token, sessionId = null) => {
     if (sessionId) {
       const isSessionValid = await validateSession(userId, sessionId);
       if (!isSessionValid) {
-        console.warn('Session invalidated for user:', userId);
         return null;
       }
     }
+    
+    // Không bắt buộc tab session validation cho user reload/mở tab mới
+    // Tab session chỉ để monitoring, không block user
     
     // Cập nhật lastActivity
     await setDoc(doc(db, USERS_COLLECTION, userId), {
@@ -128,10 +144,10 @@ export const verifyToken = async (token, sessionId = null) => {
       username: userData.username || userId,
       roles: userData.roles || [],
       token: userData.token,
-      sessionId: userData.sessionId
+      sessionId: userData.sessionId,
+      tabSessionId: userData.tabSessionId
     };
-  } catch (error) {
-    console.error('Token verification error:', error);
+  } catch {
     return null;
   }
 };
@@ -154,7 +170,6 @@ export const getUserById = async (userId) => {
       ...userDoc.data()
     };
   } catch (error) {
-    console.error('Error getting user:', error);
     throw error;
   }
 };
@@ -184,12 +199,8 @@ export const isAdmin = (user) => {
  * @param {Object} user - Thông tin người dùng
  */
 export const saveUserToStorage = (user) => {
-  try {
-    localStorage.setItem('currentUser', JSON.stringify(user));
-    localStorage.setItem('loginTime', new Date().getTime().toString());
-  } catch (error) {
-    console.error('Error saving user to storage:', error);
-  }
+  localStorage.setItem('currentUser', JSON.stringify(user));
+  localStorage.setItem('loginTime', new Date().getTime().toString());
 };
 
 /**
@@ -220,8 +231,7 @@ export const getUserFromStorage = () => {
     localStorage.setItem('loginTime', new Date().getTime().toString());
     
     return user;
-  } catch (error) {
-    console.error('Error getting user from storage:', error);
+  } catch {
     // Không clear storage ngay, có thể chỉ là lỗi parse
     return null;
   }
@@ -231,30 +241,30 @@ export const getUserFromStorage = () => {
  * Xóa thông tin người dùng khỏi localStorage
  */
 export const clearUserStorage = () => {
-  try {
-    localStorage.removeItem('currentUser');
-    localStorage.removeItem('loginTime');
-  } catch (error) {
-    console.error('Error clearing storage:', error);
-  }
+  localStorage.removeItem('currentUser');
+  localStorage.removeItem('loginTime');
 };
 
 /**
- * Đăng xuất người dùng (không redirect tự động) và xóa session
+ * Đăng xuất người dùng (không redirect tự động) và xóa cả session và tab session
  * @param {string} userId - ID người dùng (optional, sẽ clear session nếu có)
  */
 export const logout = async (userId = null) => {
   try {
-    // Clear session từ database nếu có userId
+    // Clear session và tab session từ database nếu có userId
     if (userId) {
       await clearSession(userId);
+      await clearTabSessionFromServer(userId);
     }
+    
+    // Clear tab session từ sessionStorage
+    clearTabSessionId();
     
     // Clear local storage
     clearUserStorage();
-  } catch (error) {
-    console.error('Logout error:', error);
+  } catch {
     // Vẫn clear local storage ngay cả khi có lỗi
+    clearTabSessionId();
     clearUserStorage();
   }
 };
@@ -303,7 +313,6 @@ export const registerUser = async (userData) => {
     
     return newUser;
   } catch (error) {
-    console.error('Registration error:', error);
     throw error;
   }
 };
@@ -314,14 +323,9 @@ export const registerUser = async (userData) => {
  * @returns {Promise<boolean>} - true nếu đã tồn tại, false nếu chưa
  */
 export const checkUsernameExists = async (username) => {
-  try {
-    // Kiểm tra trực tiếp bằng document ID
-    const userDoc = await getDoc(doc(db, USERS_COLLECTION, username));
-    return userDoc.exists();
-  } catch (error) {
-    console.error('Error checking username:', error);
-    return false;
-  }
+  // Kiểm tra trực tiếp bằng document ID
+  const userDoc = await getDoc(doc(db, USERS_COLLECTION, username));
+  return userDoc.exists();
 };
 
 /**
@@ -365,7 +369,6 @@ export const createUserWithId = async (userId, userData) => {
     return result;
     
   } catch (error) {
-    console.error('Error creating user:', error);
     throw error;
   }
 };
