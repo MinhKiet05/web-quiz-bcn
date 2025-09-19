@@ -1,5 +1,6 @@
 import { db } from '../config/firebase';
 import { collection, getDocs, doc, updateDoc, deleteDoc, getDoc, query, orderBy } from 'firebase/firestore';
+import { hashPassword, isPasswordHashed } from '../utils/passwordUtils.js';
 
 // Get all users from Firestore
 export const getAllUsers = async () => {
@@ -32,6 +33,11 @@ export const updateUser = async (mssv, updateData) => {
     const cleanData = Object.fromEntries(
       Object.entries(updateData).filter(([, value]) => value !== undefined && value !== '')
     );
+    
+    // Hash password if it's being updated and not already hashed
+    if (cleanData.matKhau && !isPasswordHashed(cleanData.matKhau)) {
+      cleanData.matKhau = hashPassword(cleanData.matKhau);
+    }
     
     await updateDoc(userDocRef, {
       ...cleanData,
@@ -95,8 +101,10 @@ export const updateUserRole = async (mssv, newRoles) => {
 export const changeUserPassword = async (mssv, newPassword) => {
   try {
     const userDocRef = doc(db, 'users', mssv);
+    // Hash password only if it's not already hashed
+    const hashedPassword = isPasswordHashed(newPassword) ? newPassword : hashPassword(newPassword);
     await updateDoc(userDocRef, {
-      matKhau: newPassword,
+      matKhau: hashedPassword,
       lastUpdated: new Date()
     });
     
