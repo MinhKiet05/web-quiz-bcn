@@ -284,10 +284,6 @@
   border-left: 6px solid #ddd;
 }
 
-.leaderboard-rank-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
-}
 
 /* Rank-specific styling */
 .leaderboard-rank-card.rank-1 {
