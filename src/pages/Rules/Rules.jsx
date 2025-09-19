@@ -31,7 +31,7 @@ const Rules = () => {
         </div>
 
         <div className="rules-section">
-          <h3>📝 Thể lệ</h3>
+          <h3>Thể lệ</h3>
           <ul>
             <li>Mỗi tuần có <b>5 câu quiz</b> (từ dễ → khó).</li>
             <li>Câu 1 → 5 đều là <b>Trắc nghiệm</b>.</li>
@@ -39,7 +39,7 @@ const Rules = () => {
         </div>
 
         <div className="rules-section">
-          <h3>📊 Cách tính điểm</h3>
+          <h3>Cách tính điểm</h3>
           <ul>
             <li>Mỗi câu đúng sẽ được điểm tương ứng
               (VD: Quiz 1 = 1 điểm, Quiz 5 = 5 điểm).</li>
@@ -49,7 +49,7 @@ const Rules = () => {
         </div>
 
         <div className="rewards-section">
-          <h3>🏆 Phần thưởng</h3>
+          <h3>Phần thưởng</h3>
           <p>Ban Công Nghệ sẽ tuyên dương <b>Top 3 bạn cao điểm nhất tuần</b>:</p>
           <ul>
             <li>🥇 Top 1: <b>10 Coins</b></li>
@@ -59,7 +59,7 @@ const Rules = () => {
         </div>
 
         <div className="notes-section">
-          <h3>⚠️ Lưu ý</h3>
+          <h3>Lưu ý</h3>
           <ul>
             <li>Mỗi tuần chỉ có duy nhất <b>1 Top 1, 1 Top 2, 1 Top 3</b>.</li>
             <li>Nếu có nhiều bạn bằng điểm → <b>xét theo thời gian nộp</b>: ai nộp sớm hơn sẽ được xếp hạng cao hơn.</li>
