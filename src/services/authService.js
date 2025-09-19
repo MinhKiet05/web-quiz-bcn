@@ -1,6 +1,7 @@
 import { doc, getDoc, collection, query, where, getDocs, setDoc } from 'firebase/firestore';
 import { db } from '../config/firebase.js';
 import { hashPassword, verifyPassword, isPasswordHashed } from '../utils/passwordUtils.js';
+import { createNewSession, validateSession, clearSession } from './sessionService.js';
 
 const USERS_COLLECTION = 'users';
 
@@ -12,7 +13,7 @@ const generateToken = () => {
 };
 
 /**
- * Đăng nhập người dùng bằng MSSV/password, tạo và lưu token
+ * Đăng nhập người dùng bằng MSSV/password, tạo session mới và invalidate session cũ
  * @param {string} username - MSSV
  * @param {string} password - Mật khẩu
  * @returns {Promise<Object|null>} - Thông tin người dùng hoặc null
@@ -46,6 +47,7 @@ export const loginUser = async (username, password) => {
           ...userData,
           matKhau: hashedPass
         });
+        userData.matKhau = hashedPass; // Update local copy
       }
     }
     
@@ -56,8 +58,8 @@ export const loginUser = async (username, password) => {
     // Tạo token mới
     const newToken = generateToken();
     
-    // Cập nhật token và lastLogin vào Firestore
-    await setDoc(doc(db, USERS_COLLECTION, username), {
+    // Tạo session mới (sẽ invalidate session cũ nếu có)
+    const sessionId = await createNewSession(username, {
       ...userData,
       matKhau: isPasswordHashed(userData.matKhau) ? userData.matKhau : hashPassword(password), // Ensure hash
       token: newToken,
@@ -69,7 +71,8 @@ export const loginUser = async (username, password) => {
       name: userData.name,
       username: username,
       roles: userData.roles || [],
-      token: newToken
+      token: newToken,
+      sessionId: sessionId
     };
   } catch (error) {
     console.error('Login error:', error);
@@ -78,16 +81,16 @@ export const loginUser = async (username, password) => {
 };
 
 /**
- * Xác thực token để duy trì phiên đăng nhập
+ * Xác thực token và session để duy trì phiên đăng nhập
  * @param {string} token - Token cần xác thực
+ * @param {string} sessionId - Session ID cần xác thực
  * @returns {Promise<Object|null>} - Thông tin người dùng hoặc null
  */
-export const verifyToken = async (token) => {
+export const verifyToken = async (token, sessionId = null) => {
   try {
     if (!token) {
       return null;
     }
-    
     
     // Tìm user có token này
     const q = query(
@@ -102,20 +105,30 @@ export const verifyToken = async (token) => {
     
     const userDoc = querySnapshot.docs[0];
     const userData = userDoc.data();
+    const userId = userDoc.id;
     
+    // Kiểm tra session validity nếu có sessionId
+    if (sessionId) {
+      const isSessionValid = await validateSession(userId, sessionId);
+      if (!isSessionValid) {
+        console.warn('Session invalidated for user:', userId);
+        return null;
+      }
+    }
     
     // Cập nhật lastActivity
-    await setDoc(doc(db, USERS_COLLECTION, userDoc.id), {
+    await setDoc(doc(db, USERS_COLLECTION, userId), {
       ...userData,
       lastActivity: new Date().toISOString()
     });
     
     return {
-      uid: userDoc.id,
+      uid: userId,
       name: userData.name,
-      username: userData.username || userDoc.id,
+      username: userData.username || userId,
       roles: userData.roles || [],
-      token: userData.token
+      token: userData.token,
+      sessionId: userData.sessionId
     };
   } catch (error) {
     console.error('Token verification error:', error);
@@ -227,10 +240,23 @@ export const clearUserStorage = () => {
 };
 
 /**
- * Đăng xuất người dùng (không redirect tự động)
+ * Đăng xuất người dùng (không redirect tự động) và xóa session
+ * @param {string} userId - ID người dùng (optional, sẽ clear session nếu có)
  */
-export const logout = () => {
-  clearUserStorage();
+export const logout = async (userId = null) => {
+  try {
+    // Clear session từ database nếu có userId
+    if (userId) {
+      await clearSession(userId);
+    }
+    
+    // Clear local storage
+    clearUserStorage();
+  } catch (error) {
+    console.error('Logout error:', error);
+    // Vẫn clear local storage ngay cả khi có lỗi
+    clearUserStorage();
+  }
 };
 
 /**

@@ -1,11 +1,68 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
-import { getUserFromStorage, saveUserToStorage, clearUserStorage, verifyToken } from '../services/authService';
+import React, { createContext, useState, useEffect, useContext, useRef, useCallback } from 'react';
+import { getUserFromStorage, saveUserToStorage, clearUserStorage, verifyToken, logout } from '../services/authService';
+import { createSessionListener } from '../services/sessionService';
+import { setupBrowserCleanup } from '../utils/browserCleanup';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const sessionListenerRef = useRef(null);
+  const browserCleanupRef = useRef(null);
+
+  // Cleanup session listener và browser cleanup
+  const cleanupSessionListener = () => {
+    if (sessionListenerRef.current) {
+      sessionListenerRef.current();
+      sessionListenerRef.current = null;
+    }
+  };
+
+  const cleanupBrowserListeners = () => {
+    if (browserCleanupRef.current) {
+      browserCleanupRef.current();
+      browserCleanupRef.current = null;
+    }
+  };
+
+  // Handle forced logout when session is invalidated
+  const handleSessionInvalidated = (reason) => {
+    console.warn('Session invalidated:', reason);
+    cleanupSessionListener();
+    cleanupBrowserListeners();
+    setUser(null);
+    clearUserStorage();
+  };
+
+  // Setup session monitoring for logged-in user
+  const setupSessionMonitoring = useCallback((userData) => {
+    if (userData.uid && userData.sessionId) {
+      cleanupSessionListener(); // Clear any existing listener
+      cleanupBrowserListeners(); // Clear any existing browser cleanup
+      
+      // Setup session listener
+      sessionListenerRef.current = createSessionListener(
+        userData.uid,
+        userData.sessionId,
+        handleSessionInvalidated
+      );
+
+      // Setup browser cleanup
+      browserCleanupRef.current = setupBrowserCleanup(
+        userData.uid,
+        userData.sessionId
+      );
+    }
+  }, []);
+
+  useEffect(() => {
+    // Cleanup listeners when component unmounts
+    return () => {
+      cleanupSessionListener();
+      cleanupBrowserListeners();
+    };
+  }, []);
 
   useEffect(() => {
     // Kiểm tra đăng nhập khi app khởi động
@@ -20,39 +77,63 @@ export const AuthProvider = ({ children }) => {
           // Chỉ xác thực token nếu có token, nhưng không logout nếu fail
           if (savedUser.token) {
             try {
-              const verifiedUser = await verifyToken(savedUser.token);
+              const verifiedUser = await verifyToken(savedUser.token, savedUser.sessionId);
               if (verifiedUser) {
                 setUser(verifiedUser);
                 saveUserToStorage(verifiedUser);
+                setupSessionMonitoring(verifiedUser);
               } else {
-                // Không xóa user, chỉ log warning
-                console.warn('Working in offline mode - token verification failed');
+                // Session không hợp lệ - logout user
+                console.warn('Session invalid - logging out user');
+                setUser(null);
+                clearUserStorage();
               }
             } catch (tokenError) {
-              console.warn('Token verification error, keeping user logged in locally:', tokenError);
-              // Giữ user đăng nhập local, có thể server offline
+              console.warn('Token verification error:', tokenError);
+              // Logout user nếu có lỗi xác thực
+              setUser(null);
+              clearUserStorage();
             }
           }
         }
       } catch (error) {
         console.error('Auth initialization error:', error);
-        // Không clear storage trong trường hợp lỗi, có thể là lỗi mạng
+        setUser(null);
+        clearUserStorage();
       } finally {
         setLoading(false);
       }
     };
     
     initAuth();
-  }, []);
+  }, [setupSessionMonitoring]);
 
   const login = (userData) => {
     setUser(userData);
     saveUserToStorage(userData);
+    setupSessionMonitoring(userData);
   };
 
-  const logoutUser = () => {
-    setUser(null);
-    clearUserStorage();
+  const logoutUser = async () => {
+    try {
+      // Clear session từ database nếu user đang đăng nhập
+      if (user && user.uid) {
+        await logout(user.uid);
+      }
+      
+      // Cleanup all listeners
+      cleanupSessionListener();
+      cleanupBrowserListeners();
+      
+      setUser(null);
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Vẫn logout locally ngay cả khi có lỗi
+      cleanupSessionListener();
+      cleanupBrowserListeners();
+      setUser(null);
+      clearUserStorage();
+    }
   };
 
   const hasRole = (role) => {
