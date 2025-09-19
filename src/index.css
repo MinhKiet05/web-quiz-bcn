@@ -2,7 +2,6 @@
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  background: #AAD9BB;
   color-scheme: light;
   color: rgba(255, 255, 255, 0.87);
 
@@ -33,6 +32,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
 html, body {
   margin: 0;
   padding: 0;
+  background: #AAD9BB;
 }
 
 main {
