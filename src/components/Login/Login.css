@@ -30,8 +30,8 @@
 }
 
 .login-header {
-  background: #4E71FF;
-  color: white;
+  background: #80BCBD;
+  color: #2d3436;
   padding: 20px;
   border-radius: 16px 16px 0 0;
   display: flex;
@@ -127,8 +127,8 @@
 
 .login-submit-btn {
   width: 100%;
-  background: #4E71FF;
-  color: white;
+  background: #80BCBD;
+  color: #2d3436;
   border: none;
   padding: 14px;
   border-radius: 8px;
@@ -260,13 +260,13 @@
 
 .tab-btn:hover:not(:disabled) {
   background: rgba(102, 126, 234, 0.1);
-  color: #667eea;
+  color: #80BCBD;
 }
 
 .tab-btn.active {
   background: white;
-  color: #667eea;
-  border-bottom: 3px solid #667eea;
+  color: #80BCBD;
+  border-bottom: 3px solid #80BCBD;
 }
 
 .tab-btn:disabled {
@@ -302,7 +302,8 @@
 }
 
 .register-btn {
-  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+  background: #80BCBD;
+  color: #2d3436;
 }
 
 .register-btn:hover:not(:disabled) {

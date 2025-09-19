@@ -114,7 +114,6 @@ function AppContent() {
             </ProtectedRoute>
           } />
           
-          {/* Catch-all route for 404 errors */}
           
         </Routes>
       </main>
@@ -147,7 +146,7 @@ const Home = () => {
       <div style={{ padding: '40px', textAlign: 'center' }}>
         <div style={{
           minWidth:'250px',
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          background: '#4FAF9C',
           color: 'white',
           padding: '20px 24px 20px 24px',
           borderRadius: '16px',
@@ -159,7 +158,7 @@ const Home = () => {
           marginTop: '0px'
         }}>
           
-          <h1 style={{ margin: '-10px 0 16px 0', fontSize: '32px' }}>
+          <h1 style={{ margin: '10px 0 16px 0', fontSize: '32px' }}>
             Quiz Hàng Tuần
           </h1>
           <p style={{ fontSize: '18px', opacity: 0.9, marginBottom: '30px' }}>
@@ -302,12 +301,12 @@ const Rules = () => {
         lineHeight: 1.6
       }}>
         <h2 style={{ textAlign: 'center', marginBottom: '16px' ,marginTop: '12px'}}>
-          {user ? `Xin chào ${user.name}` : '📋 Thể lệ Quiz Hàng Tuần'}
+          {user ? `Xin chào ${user.name} !` : '📋 Thể lệ Quiz Hàng Tuần'}
         </h2>
         
         <p>
-          Ngoài những buổi <b>hướng dẫn C</b> do <b>Ban Công Nghệ</b> tổ chức,
-          chúng mình sẽ có thêm một hoạt động thú vị giúp các bạn củng cố kiến thức C:
+          Ngoài những buổi <b>hướng dẫn C/C++</b> do <b>Ban Công Nghệ</b> tổ chức,
+          chúng mình sẽ có thêm một hoạt động thú vị giúp các bạn củng cố kiến thức C/C++:
         </p>
         <p style={{ textAlign: 'center', fontSize: '18px', fontWeight: '600', margin: '12px 0' }}>
           Tham gia Quiz Hàng Tuần
@@ -316,8 +315,7 @@ const Rules = () => {
         <h3>Thể lệ</h3>
         <ul>
           <li>Mỗi tuần có <b>5 câu quiz</b> (từ dễ → khó).</li>
-          <li>Câu 1 → 4: <b>Trắc nghiệm</b>.</li>
-          <li>Câu 5: <b>Mức khó nhất</b>, có thể là trắc nghiệm hoặc điền đáp án.</li>
+          <li>Câu 1 → 5 đều là <b>Trắc nghiệm</b>.</li>
         </ul>
 
         <h3>Cách tính điểm</h3>
@@ -325,7 +323,7 @@ const Rules = () => {
           <li>Mỗi câu đúng sẽ được điểm tương ứng
             (VD: Quiz 1 = 1 điểm, Quiz 5 = 5 điểm).</li>
           <li><b>Tổng điểm</b> các câu = điểm tuần của bạn.</li>
-          <li><b>Thứ 2 hàng tuần</b>: Công bố đáp án + Bảng xếp hạng.</li>
+          <li><b>Sau khi quiz kết thúc</b>: Công bố đáp án + Bảng xếp hạng.</li>
         </ul>
 
         <h3>Phần thưởng</h3>
