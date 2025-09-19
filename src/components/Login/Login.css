@@ -30,8 +30,8 @@
 }
 
 .login-header {
-  background: #80BCBD;
-  color: #2d3436;
+  background: #749BC2;
+  color: #ecf0f1;
   padding: 20px;
   border-radius: 16px 16px 0 0;
   display: flex;
@@ -92,7 +92,7 @@
   display: block;
   margin-bottom: 8px;
   font-weight: 600;
-  color: #ffffff!important;
+  color: #2d3436!important;
   font-size: 14px;
 }
 
@@ -110,7 +110,7 @@
 
 .form-group input:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #749BC2;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
   transform: translateY(-1px);
 }
@@ -127,8 +127,8 @@
 
 .login-submit-btn {
   width: 100%;
-  background: #80BCBD;
-  color: #2d3436;
+  background: #749BC2;
+  color: #ecf0f1;
   border: none;
   padding: 14px;
   border-radius: 8px;
@@ -205,12 +205,12 @@
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
   .login-modal {
-    background: #2d3748;
+    background: #91C8E4;
     color: #e2e8f0;
   }
   
   .form-group label {
-    color: #e2e8f0;
+    color: #2d3436;
   }
   
   .form-group input {
@@ -260,13 +260,13 @@
 
 .tab-btn:hover:not(:disabled) {
   background: rgba(102, 126, 234, 0.1);
-  color: #80BCBD;
+  color: #749BC2;
 }
 
 .tab-btn.active {
   background: white;
-  color: #80BCBD;
-  border-bottom: 3px solid #80BCBD;
+  color: #749BC2;
+  border-bottom: 3px solid #749BC2;
 }
 
 .tab-btn:disabled {
@@ -302,8 +302,8 @@
 }
 
 .register-btn {
-  background: #80BCBD;
-  color: #2d3436;
+  background: #749BC2;
+  color: #ecf0f1;
 }
 
 .register-btn:hover:not(:disabled) {

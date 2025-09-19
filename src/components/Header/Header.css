@@ -5,7 +5,7 @@
   left: 0;
   right: 0;
   z-index: 1000;
-  background: #80BCBD;
+  background: #749BC2;
   box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
   padding: 0px 5vw;
   height: 70px;
@@ -13,7 +13,7 @@
   align-items: center;
   justify-content: space-between;
   backdrop-filter: blur(10px);
-  transition: transform 0.3s ease-in-out;
+  transition: transform 0.3s ease-in-out;;
 }
 
 /* Header visibility states */
@@ -55,7 +55,7 @@ body {
 }
 
 .header-link {
-  color: black;
+  color: #ecf0f1;
   text-decoration: none;
   font-weight: 500;
   transition: all 0.3s ease;
@@ -82,7 +82,7 @@ body {
 .header-dropdown-toggle {
   background: none;
   border: none;
-  color: black;
+  color: #ecf0f1;
   font-weight: 500;
   padding: 0.5rem 1rem;
   border-radius: 6px;
@@ -239,7 +239,7 @@ body {
 .login-btn {
   background: rgba(255, 255, 255, 0.1);
   border: none;
-  color: #2d3436;
+  color: #ecf0f1;
   padding: 0.5rem 1rem;
   border-radius: 6px;
   cursor: pointer;
@@ -304,7 +304,7 @@ body {
 
 .sidebar-header {
   padding: 1.5rem;
-  background: #80BCBD;
+  background: #749BC2;
   color: white;
   display: flex;
   justify-content: space-between;

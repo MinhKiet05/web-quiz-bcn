@@ -6,7 +6,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext'
 import RedirectToHome from './components/RedirectToHome/RedirectToHome'
 import Login from './components/Login/Login'
 import ToastContainer from './components/Toast/ToastContainer'
-import { useState, lazy } from 'react'
+import React, { useState, lazy, Suspense } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
@@ -18,6 +18,21 @@ const QuizPlayer = lazy(() => import('./pages/QuizPlayer/QuizPlayer'))
 const QuizHistory = lazy(() => import('./pages/QuizHistory/QuizHistory'))
 const Leaderboard = lazy(() => import('./pages/Leaderboard/Leaderboard'))
 const UsersQuizByWeek = lazy(() => import('./pages/UsersQuizByWeek/UsersQuizByWeek'))
+const Rules = lazy(() => import('./pages/Rules/Rules'))
+
+// Loading spinner component
+const LoadingSpinner = () => (
+  <div style={{
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    minHeight: '200px',
+    flexDirection: 'column'
+  }}>
+    <FontAwesomeIcon icon={faSpinner} spin style={{ fontSize: '32px', color: '#4FAF9C' }} />
+    <p style={{ marginTop: '10px', color: '#666' }}>Đang tải...</p>
+  </div>
+);
 
 const ProtectedRoute = ({ children, requireAdmin = false, requireEditor = false }) => {
   const { user, isAdmin, hasRole } = useAuth();
@@ -80,42 +95,42 @@ function AppContent() {
     <>
       <Header />
       <main>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/rules" element={<Rules />} />
-          <Route path="/upload" element={
-            <ProtectedRoute requireEditor={true}>
-              <Upload />
-            </ProtectedRoute>
-          } />
-          <Route path="/quizzes" element={
-            <ProtectedRoute requireEditor={true}>
-              <QuizzList />
-            </ProtectedRoute>
-          } />
-          <Route path="/user-management" element={
-            <ProtectedRoute requireAdmin={true}>
-              <UserManagement />
-            </ProtectedRoute>
-          } />
-          <Route path="/users-quiz-by-week" element={
-            <ProtectedRoute requireAdmin={true}>
-              <UsersQuizByWeek />
-            </ProtectedRoute>
-          } />
-          <Route path="/my-quizzes" element={
-            <ProtectedRoute>
-              <QuizHistory />
-            </ProtectedRoute>
-          } />
-          <Route path="/leaderboard" element={
-            <ProtectedRoute>
-              <Leaderboard />
-            </ProtectedRoute>
-          } />
-          
-          
-        </Routes>
+        <Suspense fallback={<LoadingSpinner />}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/rules" element={<Rules />} />
+            <Route path="/upload" element={
+              <ProtectedRoute requireEditor={true}>
+                <Upload />
+              </ProtectedRoute>
+            } />
+            <Route path="/quizzes" element={
+              <ProtectedRoute requireEditor={true}>
+                <QuizzList />
+              </ProtectedRoute>
+            } />
+            <Route path="/user-management" element={
+              <ProtectedRoute requireAdmin={true}>
+                <UserManagement />
+              </ProtectedRoute>
+            } />
+            <Route path="/users-quiz-by-week" element={
+              <ProtectedRoute requireAdmin={true}>
+                <UsersQuizByWeek />
+              </ProtectedRoute>
+            } />
+            <Route path="/my-quizzes" element={
+              <ProtectedRoute>
+                <QuizHistory />
+              </ProtectedRoute>
+            } />
+            <Route path="/leaderboard" element={
+              <ProtectedRoute>
+                <Leaderboard />
+              </ProtectedRoute>
+            } />
+          </Routes>
+        </Suspense>
       </main>
       <ToastContainer />
     </>
@@ -146,8 +161,8 @@ const Home = () => {
       <div style={{ padding: '40px', textAlign: 'center' }}>
         <div style={{
           minWidth:'250px',
-          background: '#4FAF9C',
-          color: 'white',
+          background: '#749BC2',
+          color: '#ecf0f1',
           padding: '20px 24px 20px 24px',
           borderRadius: '16px',
           boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
@@ -270,99 +285,5 @@ const Home = () => {
     </>
   );
 };
-
-const Rules = () => {
-  const { user } = useAuth();
-
-  return (
-    <div style={{ padding: '0px', textAlign: 'center' }}>
-      {!user && (
-        <div style={{
-          background: '#fff3e0',
-          padding: '20px',
-          borderRadius: '8px',
-          margin: '0px auto 20px auto',
-          maxWidth: '400px',
-          color: '#ef6c00'
-        }}>
-          <p>Hãy đăng nhập để trải nghiệm đầy đủ tính năng!</p>
-        </div>
-      )}
-      
-      <div style={{
-        background: 'white',
-        color: 'black',
-        padding: '24px',
-        borderRadius: '12px',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-        textAlign: 'left',
-        maxWidth: '700px',
-        margin: '0px auto',
-        lineHeight: 1.6
-      }}>
-        <h2 style={{ textAlign: 'center', marginBottom: '16px' ,marginTop: '12px'}}>
-          {user ? `Xin chào ${user.name} !` : '📋 Thể lệ Quiz Hàng Tuần'}
-        </h2>
-        
-        <p>
-          Ngoài những buổi <b>hướng dẫn C/C++</b> do <b>Ban Công Nghệ</b> tổ chức,
-          chúng mình sẽ có thêm một hoạt động thú vị giúp các bạn củng cố kiến thức C/C++:
-        </p>
-        <p style={{ textAlign: 'center', fontSize: '18px', fontWeight: '600', margin: '12px 0' }}>
-          Tham gia Quiz Hàng Tuần
-        </p>
-
-        <h3>Thể lệ</h3>
-        <ul>
-          <li>Mỗi tuần có <b>5 câu quiz</b> (từ dễ → khó).</li>
-          <li>Câu 1 → 5 đều là <b>Trắc nghiệm</b>.</li>
-        </ul>
-
-        <h3>Cách tính điểm</h3>
-        <ul>
-          <li>Mỗi câu đúng sẽ được điểm tương ứng
-            (VD: Quiz 1 = 1 điểm, Quiz 5 = 5 điểm).</li>
-          <li><b>Tổng điểm</b> các câu = điểm tuần của bạn.</li>
-          <li><b>Sau khi quiz kết thúc</b>: Công bố đáp án + Bảng xếp hạng.</li>
-        </ul>
-
-        <h3>Phần thưởng</h3>
-        <p>Ban Công Nghệ sẽ tuyên dương <b>Top 3 bạn cao điểm nhất tuần</b>:</p>
-        <ul>
-          <li>🥇 Top 1: <b>10 Coins</b></li>
-          <li>🥈 Top 2: <b>6 Coins</b></li>
-          <li>🥉 Top 3: <b>3 Coins</b></li>
-        </ul>
-
-        <h3>Lưu ý</h3>
-        <ul>
-          <li>Mỗi tuần chỉ có duy nhất <b>1 Top 1, 1 Top 2, 1 Top 3</b>.</li>
-          <li>Nếu có nhiều bạn bằng điểm → <b>xét theo thời gian nộp</b>: ai nộp sớm hơn sẽ được xếp hạng cao hơn.</li>
-        </ul>
-        <p style={{ marginTop: '12px' }}>
-          Khi vào Top, các bạn nhắn <b>Tường Vân (khóa bạc)</b> để nhận thưởng nha ✨
-        </p>
-
-        {!user && (
-          <div style={{ textAlign: 'center', padding: '20px', marginTop: '20px', borderTop: '1px solid #444' }}>
-            <p style={{ fontSize: '16px', marginBottom: '8px' }}>
-              Đăng nhập để tham gia các quiz và hoạt động thú vị!
-            </p>
-            <p style={{ fontSize: '14px', opacity: 0.8 }}>
-              Bạn sẽ có thể tham gia quiz hàng tuần và nhận coins thưởng
-            </p>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-
-const MyQuizzes = () => {
-  // Redirect to QuizHistory component
-  return <QuizHistory />;
-};
-
 
 export default App
