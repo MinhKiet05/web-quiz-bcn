@@ -1,9 +1,11 @@
 import React from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import './Rules.css';
 
 const Rules = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <div className="rules-container">
@@ -71,6 +73,20 @@ const Rules = () => {
             Khi vào Top, các bạn nhắn <b>Tường Vân (khóa bạc)</b> để nhận thưởng nha ✨
           </p>
         </div>
+
+        {user && (
+          <div className="start-quiz-section">
+            <button 
+              className="start-quiz-btn" 
+              onClick={() => navigate('/')}
+            >
+              Bắt đầu Quiz
+            </button>
+            <p style={{ fontSize: '14px', opacity: 0.8, marginTop: '10px' }}>
+              Chúc bạn đạt điểm cao!
+            </p>
+          </div>
+        )}
 
         {!user && (
           <div className="login-prompt">

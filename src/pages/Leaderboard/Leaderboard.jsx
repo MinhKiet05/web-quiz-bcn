@@ -376,7 +376,6 @@ const Leaderboard = () => {
                       <div className="leaderboard-user-info">
                         <div className="leaderboard-username">
                           <div className="user-display-name">{user.displayName || user.username}</div>
-                          <div className="user-student-id">MSSV: {user.userId}</div>
                         </div>
                         <div className="leaderboard-stats">
                           <span className="leaderboard-score">{user.totalScore} điểm</span>

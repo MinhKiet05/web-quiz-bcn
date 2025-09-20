@@ -1,12 +1,12 @@
 
 import './App.css'
 import Header from './components/Header/Header'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import RedirectToHome from './components/RedirectToHome/RedirectToHome'
 import Login from './components/Login/Login'
 import ToastContainer from './components/Toast/ToastContainer'
-import React, { useState, lazy, Suspense } from 'react'
+import React, { useState, lazy, Suspense, useEffect } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
@@ -149,8 +149,23 @@ function App() {
 const Home = () => {
   const { user } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
+  const navigate = useNavigate();
 
-  // If user is logged in, show QuizPlayer
+  // Check for first-time login and redirect to rules
+  useEffect(() => {
+    if (user) {
+      const hasSeenRules = localStorage.getItem(`hasSeenRules_${user.uid}`);
+      
+      if (!hasSeenRules) {
+        // First time login - redirect to rules page
+        localStorage.setItem(`hasSeenRules_${user.uid}`, 'true');
+        navigate('/rules');
+        return;
+      }
+    }
+  }, [user, navigate]);
+
+  // If user is logged in and has seen rules, show QuizPlayer
   if (user) {
     return <QuizPlayer />;
   }

@@ -355,15 +355,7 @@
   color: #2d3436;
 }
 
-.user-student-id {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #636e72;
-  background: #f8f9fa;
-  padding: 2px 8px;
-  border-radius: 12px;
-  width: fit-content;
-}
+
 
 .leaderboard-stats {
   display: flex;
