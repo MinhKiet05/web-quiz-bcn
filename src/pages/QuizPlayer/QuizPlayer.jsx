@@ -15,6 +15,10 @@ const QuizPlayer = () => {
   const [currentAnswers, setCurrentAnswers] = useState({});
   const [weekInfo, setWeekInfo] = useState(null);
   const [savingAnswers, setSavingAnswers] = useState({}); // Track saving state for each quiz
+  const [activeQuizNumber, setActiveQuizNumber] = useState('1'); // Track currently active quiz
+  const [navCollapsed, setNavCollapsed] = useState(false); // For mobile/tablet responsive
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth); // Track window width for responsive
+  const [timeRemaining, setTimeRemaining] = useState(''); // Countdown timer for week end
 
   // Function to scroll to specific quiz
   const scrollToQuiz = (quizNumber) => {
@@ -81,6 +85,75 @@ const QuizPlayer = () => {
     }
   }, []);
 
+  // Function to calculate time remaining until week ends
+  const calculateTimeRemaining = useCallback(() => {
+    if (!weekInfo || !weekInfo.endTime) return '';
+    
+    try {
+      const now = new Date();
+      let endTime;
+      
+      // Try different date parsing methods
+      if (weekInfo.endTime instanceof Date) {
+        endTime = weekInfo.endTime;
+      } else if (typeof weekInfo.endTime === 'string') {
+        endTime = new Date(weekInfo.endTime);
+      } else if (weekInfo.endTime.seconds) {
+        // Firestore Timestamp format
+        endTime = new Date(weekInfo.endTime.seconds * 1000);
+      } else {
+        endTime = new Date(weekInfo.endTime);
+      }
+      
+      // Check if endTime is valid
+      if (isNaN(endTime.getTime())) {
+        console.log('Invalid endTime:', weekInfo.endTime);
+        return '';
+      }
+      
+      const timeDiff = endTime.getTime() - now.getTime();
+      
+      if (timeDiff <= 0) {
+        return 'Đã hết thời gian';
+      }
+      
+      const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+      
+      if (days > 0) {
+        return `Còn lại: ${days} ngày ${hours} giờ`;
+      } else if (hours > 0) {
+        return `Còn lại: ${hours} giờ ${minutes} phút`;
+      } else if (minutes > 0) {
+        return `Còn lại: ${minutes} phút ${seconds} giây`;
+      } else {
+        return `Còn lại: ${seconds} giây`;
+      }
+    } catch (error) {
+      console.log('Error calculating time remaining:', error, weekInfo.endTime);
+      return '';
+    }
+  }, [weekInfo]);
+
+  // Update countdown timer every second
+  useEffect(() => {
+    if (!weekInfo) return;
+    
+    const updateTimer = () => {
+      setTimeRemaining(calculateTimeRemaining());
+    };
+    
+    // Update immediately
+    updateTimer();
+    
+    // Set up interval to update every second
+    const interval = setInterval(updateTimer, 1000);
+    
+    return () => clearInterval(interval);
+  }, [weekInfo, calculateTimeRemaining]);
+
   // Lấy quiz và thông tin thời gian từ tuần hiện tại
   const fetchQuizzes = useCallback(async () => {
     try {
@@ -136,6 +209,90 @@ const QuizPlayer = () => {
       loadData();
     }
   }, [user, fetchQuizzes, fetchUserAnswers]);
+
+  // Intersection Observer to track active quiz
+  useEffect(() => {
+    const observerOptions = {
+      root: null,
+      rootMargin: '-20% 0px -20% 0px', // More sensitive detection
+      threshold: 0.3 // Quiz needs to be 30% visible to be considered active
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      // Find the quiz that's most visible in viewport
+      let mostVisibleQuiz = null;
+      let maxIntersectionRatio = 0;
+
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && entry.intersectionRatio > maxIntersectionRatio) {
+          maxIntersectionRatio = entry.intersectionRatio;
+          mostVisibleQuiz = entry.target;
+        }
+      });
+
+      if (mostVisibleQuiz) {
+        const quizId = mostVisibleQuiz.id;
+        const quizNumber = quizId.replace('quiz-', '');
+        setActiveQuizNumber(quizNumber);
+      }
+    }, observerOptions);
+
+    // Observe all quiz cards
+    const quizElements = document.querySelectorAll('[id^="quiz-"]');
+    quizElements.forEach((element) => observer.observe(element));
+
+    return () => {
+      quizElements.forEach((element) => observer.unobserve(element));
+    };
+  }, [quizzes]); // Re-run when quizzes change
+
+  // Auto-collapse navigation on mobile/tablet
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+      if (window.innerWidth <= 1024) {
+        setNavCollapsed(true);
+      } else {
+        setNavCollapsed(false);
+      }
+    };
+
+    // Set initial state
+    handleResize();
+
+    // Listen for resize events
+    window.addEventListener('resize', handleResize);
+    
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Click outside to close navigation on mobile
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (windowWidth <= 1024 && !navCollapsed) {
+        const sidebar = document.querySelector('.quiz-navigation-sidebar');
+        const target = event.target;
+        
+        // Check if click is outside sidebar and not on a quiz card or other interactive elements
+        if (sidebar && !sidebar.contains(target)) {
+          // Only close if clicking on background/white areas
+          const isWhiteArea = target.classList.contains('quiz-player') || 
+                             target.classList.contains('quiz-player-quiz-card') ||
+                             target.tagName === 'BODY' ||
+                             target.tagName === 'HTML' ||
+                             getComputedStyle(target).backgroundColor === 'rgb(255, 255, 255)' ||
+                             getComputedStyle(target).backgroundColor === 'rgba(0, 0, 0, 0)';
+          
+          if (isWhiteArea) {
+            setNavCollapsed(true);
+          }
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [navCollapsed, windowWidth]);
 
   const handleAnswerChange = async (quizKey, answer) => {
     // Update current answers immediately
@@ -245,24 +402,72 @@ const QuizPlayer = () => {
   return (
     <div className="quiz-player">
       {/* Quiz Navigation Sidebar */}
-      <div className="quiz-navigation-sidebar">
-        <div className="quiz-nav-title">Quiz</div>
-        {quizzes.map((quiz, index) => {
-          const quizNumber = quiz.title?.replace('Quiz', '') || (index + 1).toString();
-          const hasAnswer = userAnswers[`Quiz${quizNumber}`];
-          const status = getQuizStatus(quiz);
-          
-          return (
-            <div 
-              key={quiz.id || index}
-              className={`quiz-nav-item ${hasAnswer ? 'completed' : 'pending'} ${status}`}
-              onClick={() => scrollToQuiz(quizNumber)}
-              title={`Quiz ${quizNumber} - ${hasAnswer ? 'Đã làm' : 'Chưa làm'}`}
-            >
-              {quizNumber}
-            </div>
-          );
-        })}
+      <div 
+        className={`quiz-navigation-sidebar ${navCollapsed ? 'collapsed' : ''}`}
+        style={{ 
+          position: 'fixed',
+          bottom: '20px',
+          right: '20px',
+          zIndex: 9999,
+          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          borderRadius: '25px',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
+          padding: '8px'
+        }}
+      >
+        {/* Mobile/Tablet collapsed view */}
+        <div 
+          className="quiz-nav-mobile-toggle" 
+          onClick={() => setNavCollapsed(!navCollapsed)}
+          style={{ 
+            cursor: 'pointer',
+            backgroundColor: navCollapsed ? '#007bff' : '#28a745',
+            color: 'white',
+            padding: '0',
+            borderRadius: '50%',
+            fontSize: windowWidth <= 768 ? '8px' : '9px',
+            fontWeight: '600',
+            marginBottom: navCollapsed ? '0' : '10px',
+            textAlign: 'center',
+            width: windowWidth <= 768 ? '30px' : '35px',
+            height: windowWidth <= 768 ? '30px' : '35px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            border: 'none',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+            overflow: 'hidden'
+          }}
+        >
+          <div className="quiz-nav-progress">
+            {Math.min(Object.keys(userAnswers).length, quizzes.length)}/{quizzes.length}
+          </div>
+        </div>
+        
+        {/* Full navigation */}
+        <div className="quiz-nav-content">
+          <div className="quiz-nav-title">Quiz</div>
+          {quizzes.map((quiz, index) => {
+            const quizNumber = quiz.title?.replace(/Quiz\s*/g, '') || (index + 1).toString();
+            const hasAnswer = userAnswers[`Quiz${quizNumber}`];
+            const status = getQuizStatus(quiz);
+            const isActive = activeQuizNumber === quizNumber;
+            
+            return (
+              <div 
+                key={quiz.id || index}
+                className={`quiz-nav-item ${hasAnswer ? 'completed' : 'pending'} ${status} ${isActive ? 'active' : ''}`}
+                onClick={() => {
+                  scrollToQuiz(quizNumber);
+                  setNavCollapsed(false); // Close mobile nav after selection
+                }}
+                title={`Quiz ${quizNumber} - ${hasAnswer ? 'Đã làm' : 'Chưa làm'}`}
+              >
+                {quizNumber}
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       <div className="quiz-player-quiz-player-header">
@@ -282,6 +487,13 @@ const QuizPlayer = () => {
             </div>
           </div>
         )}
+        
+        {/* Countdown Timer */}
+        {weekInfo && timeRemaining && (
+          <div className="quiz-player-countdown-timer">
+            {timeRemaining}
+          </div>
+        )}
       </div>
 
       <div className="quiz-player-quiz-grid grid">
@@ -299,14 +511,14 @@ const QuizPlayer = () => {
         ) : (
           quizzes.map((quiz) => {
             const status = getQuizStatus(quiz);
-            const quizNumber = quiz.title?.replace('Quiz', '') || '1';
+            const quizNumber = quiz.title?.replace(/Quiz\s*/g, '') || '1';
             const timeStatus = quizService.getQuizTimeStatus(quiz);
             const canTake = canTakeQuiz(quiz);
             
             return (
               <div key={quiz.id} id={`quiz-${quizNumber}`} className={`quiz-player-quiz-card ${status}`}>
                 <div className="quiz-player-quiz-card-header">
-                  <h3>{quiz.title || `Quiz ${quizNumber}`}</h3>
+                  <h3>Quiz {quizNumber}</h3>
                   <span className="quiz-player-quiz-status">
                     {getStatusIcon(status)} {getStatusText(status)}
                   </span>
