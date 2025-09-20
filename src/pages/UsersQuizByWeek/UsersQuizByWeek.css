@@ -5,6 +5,7 @@
   background: #f8f9fa;
   min-height: 100vh;
   color: black!important;
+  border-radius: 12px!important;
 }
 
 .users-quiz-by-week {

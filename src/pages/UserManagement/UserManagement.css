@@ -5,6 +5,7 @@
   margin: 0 auto;
   background: #f8f9fa;
   min-height: 100vh;
+  border-radius: 12px!important;
 }
 
 .user-management-header {
@@ -158,7 +159,7 @@ font-weight: 400 !important;
 }
 
 .users-table thead {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #222f3e;
   color: white;
 }
 
@@ -281,23 +282,23 @@ font-weight: 400 !important;
 }
 
 .btn-edit {
-  background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+  background: #2980b9;
   color: white;
 }
 
 .btn-edit:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(78, 205, 196, 0.4);
+  box-shadow: 0 4px 12px #236c9d;
 }
 
 .btn-delete {
-  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+  background: #d63031;
   color: white;
 }
 
 .btn-delete:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+  box-shadow: 0 4px 12px rgba(206, 86, 86, 0.4)
 }
 
 /* ====== No Users State ====== */

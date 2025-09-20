@@ -3,7 +3,7 @@ import { getAllUsers, updateUser, deleteUser } from '../../services/userService.
 import { useAuth } from '../../contexts/AuthContext.jsx';
 import { showToast } from '../../utils/toastUtils.js';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { faSpinner, faMagnifyingGlass, faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
 import './UserManagement.css';
 
 const UserManagement = () => {
@@ -214,7 +214,7 @@ const UserManagement = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
           />
-          <span className="search-icon">🔍</span>
+          <span className="search-icon"><FontAwesomeIcon icon={faMagnifyingGlass} /></span>
         </div>
         <div className="search-results">
           Tìm thấy {filteredUsers.length} người dùng
@@ -254,14 +254,14 @@ const UserManagement = () => {
                         className="btn btn-edit"
                         disabled={loading}
                       >
-                        Sửa
+                        Sửa <FontAwesomeIcon icon={faPenToSquare} />
                       </button>
                       <button
                         onClick={() => handleDeleteUser(userData.mssv)}
                         className="btn btn-delete"
                         disabled={loading}
                       >
-                        Xóa
+                        Xóa <FontAwesomeIcon icon={faTrash} />
                       </button>
                     </>
                   )}

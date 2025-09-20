@@ -86,7 +86,7 @@
 }
 
 .quiz-nav-progress {
-  font-size: 9px;
+  font-size: 12px;
   line-height: 1;
 }
 
@@ -130,6 +130,7 @@
   padding: 20px;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   min-height: 100vh;
+  border-radius: 12px;
 }
 
 .quiz-player-quiz-player-loading {
@@ -1216,24 +1217,24 @@
 /* Tablet responsive - màn hình từ 769px đến 1024px */
 @media (min-width: 769px) and (max-width: 1024px) {
   .quiz-navigation-sidebar {
-    right: 10px;
+    right: 20px;
     width: 45px;
     border-radius: 25px;
   }
   
   .quiz-navigation-sidebar.collapsed {
-    width: 35px !important;
-    height: 35px !important;
+    width: 45px !important;
+    height: 45px !important;
     border-radius: 50% !important;
     padding: 0 !important;
   }
   
   .quiz-navigation-sidebar.collapsed .quiz-nav-mobile-toggle {
-    width: 35px !important;
-    height: 35px !important;
+    width: 45px !important;
+    height: 45px !important;
     border-radius: 50% !important;
     padding: 0 !important;
-    font-size: 9px !important;
+    font-size: 12px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;

@@ -70,7 +70,7 @@ const Rules = () => {
 
         <div className="contact-note">
           <p>
-            Khi vào Top, các bạn nhắn <b>Tường Vân (khóa bạc)</b> để nhận thưởng nha ✨
+            Khi vào Top, các bạn nhắn <b>Tường Vân (khóa bạc)</b> để nhận thưởng nha
           </p>
         </div>
 
