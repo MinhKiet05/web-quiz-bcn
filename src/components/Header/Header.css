@@ -5,7 +5,7 @@
   left: 0;
   right: 0;
   z-index: 1000;
-  background: #749BC2;
+  background: #BDBDBD;
   box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
   padding: 0px 5vw;
   height: 70px;
@@ -67,7 +67,7 @@ body {
 }
 
 .header-link {
-  color: #ecf0f1;
+  color: #1e272e;
   text-decoration: none;
   font-weight: 500;
   transition: all 0.3s ease;
@@ -94,7 +94,7 @@ body {
 .header-dropdown-toggle {
   background: none;
   border: none;
-  color: #ecf0f1;
+  color: #1e272e;
   font-weight: 500;
   padding: 0.5rem 1rem;
   border-radius: 6px;
@@ -167,11 +167,11 @@ body {
 
 .header-dropdown-link:hover {
   background-color: #f8f9fa;
-  color: #667eea;
+  color: #1e272e;
 }
 
 .header-dropdown-link.active {
-  background-color: #667eea;
+  background-color: #1e272e;
   color: white;
 }
 

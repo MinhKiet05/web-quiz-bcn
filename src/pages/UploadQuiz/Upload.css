@@ -172,7 +172,7 @@
 }
 
 .add-answer-btn {
-  background: #28a745;
+  background: #3EA92D;
   color: white;
   border: none;
   padding: 10px 20px;
@@ -212,13 +212,14 @@
 }
 
 .submit-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #3EA92D;
   color: white;
 }
 
 .submit-btn:hover:not(:disabled) {
+  background: #218838;
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 8px 20px #218838;
 }
 
 .submit-btn:disabled {

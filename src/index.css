@@ -31,7 +31,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
 html, body {
   margin: 0;
   padding: 0;
-  background: #91C8E4;
+  background: #F5F4F9;
 }
 
 main {
@@ -41,6 +41,6 @@ main {
 }
 @media screen and (max-width: 480px) {
   main{
-    background: #91C8E4;
+    background: #F5F4F9;
   }
 }
