@@ -9,7 +9,9 @@ import ToastContainer from './components/Toast/ToastContainer'
 import React, { useState, lazy, Suspense, useEffect } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
-
+import quizImg from './assets/quiz.webp';
+import rankingImg from './assets/ranking.webp';
+import checkImg from './assets/check.webp';
 // Lazy load các page components
 const Upload = lazy(() => import('./pages/UploadQuiz/Upload'))
 const QuizzList = lazy(() => import('./pages/QuizList/QuizzList'))
@@ -256,7 +258,7 @@ const Home = () => {
           boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
           textAlign: 'center'
         }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>📝</div>
+          <div> <img src={quizImg} alt="" height={'160px'}/></div>
           <h3 style={{ color: '#2c3e50', marginBottom: '8px' }}>Quiz Hàng Tuần</h3>
           <p style={{ color: '#7f8c8d', fontSize: '14px' }}>
             5 câu hỏi từ dễ đến khó, cập nhật mỗi tuần
@@ -270,7 +272,7 @@ const Home = () => {
           boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
           textAlign: 'center'
         }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏆</div>
+          <div> <img src={rankingImg} alt="" height={'160px'}/></div>
           <h3 style={{ color: '#2c3e50', marginBottom: '8px' }}>Xếp Hạng</h3>
           <p style={{ color: '#7f8c8d', fontSize: '14px' }}>
             Top 3 cao điểm nhận coins thưởng
@@ -284,7 +286,7 @@ const Home = () => {
           boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
           textAlign: 'center'
         }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>📊</div>
+          <div><img src={checkImg} alt="" height={'160px'}/></div>
           <h3 style={{ color: '#2c3e50', marginBottom: '8px' }}>Theo Dõi</h3>
           <p style={{ color: '#7f8c8d', fontSize: '14px' }}>
             Xem lại quiz đã làm và tiến độ

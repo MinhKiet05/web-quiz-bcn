@@ -440,7 +440,10 @@ const QuizPlayer = () => {
           }}
         >
           <div className="quiz-nav-progress">
-            {Math.min(Object.keys(userAnswers).length, quizzes.length)}/{quizzes.length}
+            {quizzes.filter((quiz, index) => {
+              const quizNumber = quiz.title?.replace(/Quiz\s*/g, '') || (index + 1).toString();
+              return userAnswers[`Quiz${quizNumber}`];
+            }).length}/{quizzes.length}
           </div>
         </div>
         

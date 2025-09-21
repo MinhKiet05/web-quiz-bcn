@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import Login from '../../components/Login/Login';
 import './Rules.css';
 
 const Rules = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [showLogin, setShowLogin] = useState(false);
 
   return (
     <div className="rules-container">
@@ -90,15 +92,26 @@ const Rules = () => {
 
         {!user && (
           <div className="login-prompt">
-            <p style={{ fontSize: '16px', marginBottom: '8px' }}>
+            <button 
+              className="login-btn-rules"
+              onClick={() => setShowLogin(true)}
+            >
+              Đăng nhập ngay
+            </button>
+            <p style={{ fontSize: '17px', marginBottom: '8px' }}>
               Đăng nhập để tham gia các quiz và hoạt động thú vị!
             </p>
-            <p style={{ fontSize: '14px', opacity: 0.8 }}>
+            <p style={{ fontSize: '15px', opacity: 0.8 }}>
               Bạn sẽ có thể tham gia quiz hàng tuần và nhận coins thưởng
             </p>
           </div>
         )}
       </div>
+      
+      {/* Login Modal */}
+      {showLogin && (
+        <Login onClose={() => setShowLogin(false)} />
+      )}
     </div>
   );
 };
