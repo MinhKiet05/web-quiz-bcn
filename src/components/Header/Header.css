@@ -647,8 +647,8 @@ body {
 
 .sidebar-dropdown-link:hover {
   background-color: #e3f2fd;
-  color: #667eea;
-  border-left-color: #667eea;
+  color: #424242;
+  border-left-color: #424242;
 }
 
 .sidebar-dropdown-link.active {
