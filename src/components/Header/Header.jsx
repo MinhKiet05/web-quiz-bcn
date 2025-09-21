@@ -578,7 +578,7 @@ const Header = () => {
         </div>
         
         {/* Mobile Action Group - chỉ hiện trên mobile/tablet */}
-        <div className="mobile-action-group">
+        <div className={`mobile-action-group ${(!user || user.roles?.includes('editor') || user.roles?.includes('admin') || user.roles?.includes('super_admin')) ? 'hamburger-only' : ''}`}>
           {user && !user.roles?.includes('editor') && !user.roles?.includes('admin') && !user.roles?.includes('super_admin') && (
             <div className="notification-container">
               <button 

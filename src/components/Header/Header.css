@@ -488,6 +488,14 @@ body {
   justify-content: space-between;
 }
 
+/* Khi chỉ có hamburger button (admin không có chuông) */
+.mobile-action-group.hamburger-only {
+  justify-content: flex-end; /* Canh phải */
+  width: auto; /* Tự động điều chỉnh width */
+  background: transparent; /* Bỏ background khi chỉ có 1 nút */
+  padding: 0; /* Bỏ padding */
+}
+
 .header-menu-btn:hover {
   background: rgba(255, 255, 255, 0.2);
   transform: translateY(-1px);
