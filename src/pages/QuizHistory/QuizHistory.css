@@ -82,9 +82,7 @@
 }
 
 .week-select.week-in-progress-not-done {
-  background-color: #fff3cd;
   color: #856404;
-  border-color: #ffeaa7;
   box-shadow: 0 0 0 2px rgba(255, 193, 7, 0.25);
 }
 
