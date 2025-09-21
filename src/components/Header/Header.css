@@ -547,7 +547,7 @@ body {
 
 .sidebar-header {
   padding: 1.5rem;
-  background: #749BC2;
+  background: #424242;
   color: white;
   display: flex;
   justify-content: space-between;
@@ -590,14 +590,14 @@ body {
 
 .sidebar-link:hover {
   background-color: #f8f9fa;
-  color: #667eea;
-  border-left-color: #667eea;
+  color: #424242;
+  border-left-color: #424242;
 }
 
 .sidebar-link.active {
   background-color: #e3f2fd;
-  color: #667eea;
-  border-left-color: #667eea;
+  color: #424242;
+  border-left-color: #424242;
   font-weight: 600;
 }
 
@@ -627,8 +627,8 @@ body {
 
 .sidebar-dropdown-toggle:hover {
   background-color: #f8f9fa;
-  color: #667eea;
-  border-left-color: #667eea;
+  color: #424242;
+  border-left-color: #424242;
 }
 
 .sidebar-dropdown-menu {
@@ -652,9 +652,9 @@ body {
 }
 
 .sidebar-dropdown-link.active {
-  background-color: #667eea;
+  background-color: #424242;
   color: white;
-  border-left-color: #667eea;
+  border-left-color: #424242;
   font-weight: 500;
 }
 
