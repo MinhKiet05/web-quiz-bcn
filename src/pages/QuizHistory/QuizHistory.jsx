@@ -6,8 +6,10 @@ import QuizHistoryCard from '../../components/QuizHistoryCard/QuizHistoryCard';
 import './QuizHistory.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { useSearchParams } from 'react-router-dom';
 const QuizHistory = () => {
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
   const [currentWeek, setCurrentWeek] = useState('');
   const [availableWeeks, setAvailableWeeks] = useState([]);
   const [userQuizData, setUserQuizData] = useState({});
@@ -38,11 +40,15 @@ const QuizHistory = () => {
         setAvailableWeeks(weeks);
         setWeeksLoaded(true);
         
-        // Hiển thị tuần lớn nhất có sẵn khi load trang
+        // Check if there's a week parameter in URL
+        const weekParam = searchParams.get('week');
         let initialWeek = 'week1'; // Default fallback
         
-        if (weeks.length > 0) {
-          // Luôn hiển thị tuần lớn nhất (tuần cuối cùng trong danh sách)
+        if (weekParam && weeks.includes(weekParam)) {
+          // Use week from URL if it exists and is valid
+          initialWeek = weekParam;
+        } else if (weeks.length > 0) {
+          // Otherwise, show the latest week (last in the list)
           initialWeek = weeks[weeks.length - 1];
         }
         
@@ -56,7 +62,7 @@ const QuizHistory = () => {
     };
 
     loadInitialData();
-  }, [user, weeksLoaded]);
+  }, [user, weeksLoaded, searchParams]);
 
   // Load dữ liệu quiz của tuần được chọn
   useEffect(() => {

@@ -263,14 +263,14 @@ const QuizzList = () => {
     <div className="quizz-container">
       <div className="quizz-content">
         <header className="quizz-header">
-          <h1> {currentWeekData.id || 'Loading...'} - Quiz List</h1>
+          <h1>{currentWeekData.id ? `Tuần ${currentWeekData.id.replace('week', '')}` : 'Loading...'} - Quiz List</h1>
 
           {/* Week Navigation */}
           {allWeeksData.length > 1 && (
             <div className="week-navigation">
 
               <span className="week-indicator">
-                Week {currentWeekIndex + 1} of {allWeeksData.length}
+                Tuần {currentWeekIndex + 1} of {allWeeksData.length}
               </span>
               <div className='nav-buttons'>
                 <button
@@ -304,7 +304,7 @@ const QuizzList = () => {
           )}
 
           <div className="document-info">
-            <p><strong>Tuần:</strong> {currentWeekData.id || 'N/A'}</p>
+            <p><strong>Tuần:</strong> {currentWeekData.id ? `tuần ${currentWeekData.id.replace('week', '')}` : 'N/A'}</p>
             <p><strong>Tổng quiz:</strong> {quizKeys.length}</p>
             <p><strong>Open:</strong> {currentWeekData.startTime ? formatDateTime(currentWeekData.startTime) : 'N/A'}</p>
             <p><strong>Close:</strong> {currentWeekData.endTime ? formatDateTime(currentWeekData.endTime) : 'N/A'}</p>
@@ -323,7 +323,7 @@ const QuizzList = () => {
             return (
               <div key={quizKey} className={`quiz-card ${editingQuiz ? 'disabled' : ''}`}>
                 <div className="quiz-header">
-                  <h3>{quizKey}</h3>
+                  <h3>{quizKey.replace('Quiz', 'Quiz ')}</h3>
                   <span className="answer-count">{quiz.soDapAn.length} đáp án</span>
                 </div>
 
@@ -551,7 +551,7 @@ const QuizEditForm = ({ quiz, quizKey, onSave, onDelete, onCancel }) => {
     <div className="edit-form-overlay" onClick={handleOverlayClick}>
       <div className="edit-form">
         <div className="modal-header">
-          <h4>✏️ Chỉnh sửa {quizKey}</h4>
+          <h4>Chỉnh sửa {quizKey.replace('Quiz', 'Quiz ')}</h4>
           <button
             type="button"
             className="modal-close-btn"

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleUser, faBars, faTimes, faSignInAlt, faSignOutAlt, faCrown, faChevronDown } from '@fortawesome/free-solid-svg-icons';
+import { faCircleUser, faBars, faTimes, faSignInAlt, faSignOutAlt, faCrown, faChevronDown, faBell } from '@fortawesome/free-solid-svg-icons';
 import './Header.css';
 import logo from '../../assets/logo.webp';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import Login from '../Login/Login';
+import { getAllWeeks } from '../../services/weekQuizService';
 
 const navLinks = [
   { name: 'Quiz tuần', path: '/' },
@@ -32,7 +33,12 @@ const Header = () => {
   const [lastScrollY, setLastScrollY] = useState(0);
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [hoverDropdown, setHoverDropdown] = useState(null);
+  const [hasNewResults, setHasNewResults] = useState(false);
+  const [availableWeek, setAvailableWeek] = useState(null);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState([]);
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, logout } = useAuth();
 
   // Header scroll visibility control
@@ -57,6 +63,172 @@ const Header = () => {
       window.removeEventListener('scroll', controlHeaderVisibility);
     };
   }, [lastScrollY]);
+
+  // Check for available quiz results and create notifications for regular users
+  useEffect(() => {
+    const checkForNotifications = async () => {
+      // Only check for regular users (not editors/admins)
+      if (!user || user.roles?.includes('editor') || user.roles?.includes('admin') || user.roles?.includes('super_admin')) {
+        return;
+      }
+
+      try {
+        const weeks = await getAllWeeks();
+        const now = new Date();
+        const allNotifications = [];
+        
+        weeks.forEach(week => {
+          if (!week.startTime || !week.endTime) return;
+          
+          const startTime = week.startTime.toDate ? week.startTime.toDate() : new Date(week.startTime);
+          const endTime = week.endTime.toDate ? week.endTime.toDate() : new Date(week.endTime);
+          
+          // Check for recently started quizzes (within last 30 days for history)
+          const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+          if (startTime > thirtyDaysAgo && startTime <= now) {
+            const seenKey = `quizStarted_${user.uid}_${week.id}`;
+            const isRead = !!localStorage.getItem(seenKey);
+            
+            allNotifications.push({
+              id: `start_${week.id}`,
+              type: 'started',
+              weekId: week.id,
+              title: `Tuần ${week.id.replace('week', '')} đã bắt đầu`,
+              message: 'Mau tham gia ngay!',
+              time: startTime,
+              isRead: isRead,
+              seenKey: seenKey
+            });
+          }
+          
+          // Check for recently ended quizzes (within last 30 days for history)
+          if (endTime > thirtyDaysAgo && endTime <= now) {
+            const seenKey = `quizEnded_${user.uid}_${week.id}`;
+            const isRead = !!localStorage.getItem(seenKey);
+            
+            allNotifications.push({
+              id: `end_${week.id}`,
+              type: 'ended',
+              weekId: week.id,
+              title: `Tuần ${week.id.replace('week', '')} đã kết thúc`,
+              message: 'Kiểm tra ngay!',
+              time: endTime,
+              isRead: isRead,
+              seenKey: seenKey
+            });
+          }
+        });
+
+        // Sort by time first (newest first), then by type priority for same time
+        allNotifications.sort((a, b) => {
+          // First priority: time (newest first)
+          const timeDiff = b.time - a.time;
+          
+          // If times are very close (within same day), prioritize started over ended
+          const dayDiff = Math.abs(timeDiff) / (1000 * 60 * 60 * 24);
+          if (dayDiff < 1) {
+            if (a.type === 'started' && b.type === 'ended') return -1;
+            if (a.type === 'ended' && b.type === 'started') return 1;
+          }
+          
+          return timeDiff;
+        });
+        setNotifications(allNotifications);
+        
+        // Count unread notifications
+        const unreadCount = allNotifications.filter(n => !n.isRead).length;
+        setHasNewResults(unreadCount > 0);
+        
+        // Set the most recent ended week for backward compatibility
+        const latestEndedNotification = allNotifications.find(n => n.type === 'ended');
+        if (latestEndedNotification) {
+          setAvailableWeek({ id: latestEndedNotification.weekId });
+        }
+        
+      } catch (error) {
+        console.error('Error checking for notifications:', error);
+      }
+    };
+
+    if (user) {
+      checkForNotifications();
+    }
+  }, [user]);
+
+  // Close notification dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      const notificationContainer = document.querySelector('.notification-container');
+      if (notificationContainer && !notificationContainer.contains(event.target)) {
+        setShowNotifications(false);
+      }
+    };
+
+    if (showNotifications) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [showNotifications]);
+
+  const handleNotificationClick = (notification) => {
+    if (!notification || !user) return;
+    
+    // Mark notification as read
+    localStorage.setItem(notification.seenKey, 'true');
+    
+    // Update notifications state to mark as read instead of removing
+    setNotifications(prev => prev.map(n => 
+      n.id === notification.id ? { ...n, isRead: true } : n
+    ));
+    
+    // Update unread count
+    const unreadCount = notifications.filter(n => !n.isRead && n.id !== notification.id).length;
+    setHasNewResults(unreadCount > 0);
+    
+    // Navigate based on notification type
+    if (notification.type === 'started') {
+      // Navigate to quiz player for started quiz
+      navigate('/');
+    } else if (notification.type === 'ended') {
+      // Navigate to quiz history for ended quiz and select the specific week
+      navigate(`/my-quizzes?week=${notification.weekId}`);
+    }
+    
+    // Close dropdown
+    setShowNotifications(false);
+  };
+
+  const handleBellClick = () => {
+    setShowNotifications(!showNotifications);
+  };
+
+  const markAllAsRead = () => {
+    // Mark all notifications as read in localStorage
+    notifications.forEach(notification => {
+      localStorage.setItem(notification.seenKey, 'true');
+    });
+    
+    // Update all notifications to read status
+    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+    setHasNewResults(false);
+  };
+
+  const formatNotificationTime = (time) => {
+    const now = new Date();
+    const diff = now - time;
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const days = Math.floor(hours / 24);
+    
+    if (days > 0) {
+      return `${days} ngày trước`;
+    } else if (hours > 0) {
+      return `${hours} giờ trước`;
+    } else {
+      return 'Vừa xong';
+    }
+  };
 
   const handleNavLinkClick = () => {
     setSidebarOpen(false);
@@ -323,24 +495,149 @@ const Header = () => {
         {/* Actions */}
         <div className="header-actions">
           {user ? (
-            <div className="user-menu">
-              <div className="user-info">
-                <FontAwesomeIcon icon={faCircleUser} className="user-icon" />
-                <span className="user-name">{user.name}</span>
-                {user.roles?.includes('super admin') && <FontAwesomeIcon icon={faCrown} className="super-admin-badge" />}
-                {user.roles?.includes('admin') && !user.roles?.includes('super admin') && <FontAwesomeIcon icon={faCrown} className="admin-badge" />}
-                {user.roles?.includes('editor') && !user.roles?.includes('admin') && !user.roles?.includes('super admin') && <span className="editor-badge">✏️</span>}
+            <>
+              {/* Notification Bell - Always visible for regular users */}
+              {!user.roles?.includes('editor') && !user.roles?.includes('admin') && !user.roles?.includes('super_admin') && (
+                <div className="notification-container">
+                  <button 
+                    className="notification-bell" 
+                    onClick={handleBellClick}
+                    title="Thông báo"
+                  >
+                    <FontAwesomeIcon icon={faBell} />
+                    {notifications.filter(n => !n.isRead).length > 0 && (
+                      <span className="notification-count">{notifications.filter(n => !n.isRead).length}</span>
+                    )}
+                  </button>
+                  
+                  {/* Notification Dropdown */}
+                  {showNotifications && (
+                    <div className="notification-dropdown">
+                      <div className="notification-header">
+                        <h3>Thông báo</h3>
+                        {notifications.filter(n => !n.isRead).length > 0 && (
+                          <button className="mark-all-read" onClick={markAllAsRead}>
+                            Đánh dấu tất cả đã đọc
+                          </button>
+                        )}
+                      </div>
+                      
+                      <div className="notification-list">
+                        {notifications.length === 0 ? (
+                          <div className="no-notifications">
+                            <p>Không có thông báo mới</p>
+                          </div>
+                        ) : (
+                          notifications.map(notification => (
+                            <div 
+                              key={notification.id}
+                              className={`notification-item ${!notification.isRead ? 'unread' : 'read'}`}
+                              onClick={() => handleNotificationClick(notification)}
+                            >
+                              <div className="notification-content">
+                                <div className="notification-title">
+                                  {notification.title}
+                                  {!notification.isRead && <span className="unread-dot"></span>}
+                                </div>
+                                <div className="notification-message">{notification.message}</div>
+                                <div className="notification-time">
+                                  {formatNotificationTime(notification.time)}
+                                </div>
+                              </div>
+                              <div className="notification-icon">
+                                {notification.type === 'started' ? '🚀' : '✅'}
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+              
+              <div className="user-menu">
+                <div className="user-info">
+                  <FontAwesomeIcon icon={faCircleUser} className="user-icon" />
+                  <span className="user-name">{user.name}</span>
+                  {user.roles?.includes('super admin') && <FontAwesomeIcon icon={faCrown} className="super-admin-badge" />}
+                  {user.roles?.includes('admin') && !user.roles?.includes('super admin') && <FontAwesomeIcon icon={faCrown} className="admin-badge" />}
+                  {user.roles?.includes('editor') && !user.roles?.includes('admin') && !user.roles?.includes('super admin') && <span className="editor-badge">✏️</span>}
+                </div>
+                <button className="logout-btn" onClick={handleLogout}>
+                  <FontAwesomeIcon icon={faSignOutAlt} />
+                </button>
               </div>
-              <button className="logout-btn" onClick={handleLogout}>
-                <FontAwesomeIcon icon={faSignOutAlt} />
-              </button>
-            </div>
+            </>
           ) : (
             <button className="login-btn" onClick={() => setShowLogin(true)}>
               <FontAwesomeIcon icon={faSignInAlt} />
               <span className="login-text">Đăng nhập</span>
             </button>
           )}
+        </div>
+        
+        {/* Mobile Action Group - chỉ hiện trên mobile/tablet */}
+        <div className="mobile-action-group">
+          {user && !user.roles?.includes('editor') && !user.roles?.includes('admin') && !user.roles?.includes('super_admin') && (
+            <div className="notification-container">
+              <button 
+                className="notification-bell" 
+                onClick={handleBellClick}
+                title="Thông báo"
+              >
+                <FontAwesomeIcon icon={faBell} />
+                {notifications.filter(n => !n.isRead).length > 0 && (
+                  <span className="notification-count">{notifications.filter(n => !n.isRead).length}</span>
+                )}
+              </button>
+              
+              {/* Notification Dropdown */}
+              {showNotifications && (
+                <div className="notification-dropdown">
+                  <div className="notification-header">
+                    <h3>Thông báo</h3>
+                    {notifications.filter(n => !n.isRead).length > 0 && (
+                      <button className="mark-all-read" onClick={markAllAsRead}>
+                        Đánh dấu tất cả đã đọc
+                      </button>
+                    )}
+                  </div>
+                  
+                  <div className="notification-list">
+                    {notifications.length === 0 ? (
+                      <div className="no-notifications">
+                        <p>Không có thông báo mới</p>
+                      </div>
+                    ) : (
+                      notifications.map(notification => (
+                        <div 
+                          key={notification.id}
+                          className={`notification-item ${!notification.isRead ? 'unread' : 'read'}`}
+                          onClick={() => handleNotificationClick(notification)}
+                        >
+                          <div className="notification-content">
+                            <div className="notification-title">
+                              {notification.title}
+                              {!notification.isRead && <span className="unread-dot"></span>}
+                            </div>
+                            <div className="notification-message">{notification.message}</div>
+                            <div className="notification-time">
+                              {formatNotificationTime(notification.time)}
+                            </div>
+                          </div>
+                          <div className="notification-icon">
+                            {notification.type === 'started' ? '🚀' : '✅'}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+          
           <button
             className="header-menu-btn"
             onClick={() => setSidebarOpen(true)}

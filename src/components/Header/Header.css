@@ -11,9 +11,21 @@
   height: 70px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: space-around; /* Dùng space-around cho mobile layout */
   backdrop-filter: blur(10px);
   transition: transform 0.3s ease-in-out;;
+}
+
+/* Desktop layout */
+@media (min-width: 1031px) {
+  .header-container {
+    justify-content: space-between; /* Desktop dùng space-between như cũ */
+  }
+  
+  /* Hide mobile action group on desktop */
+  .mobile-action-group {
+    display: none;
+  }
 }
 
 /* Header visibility states */
@@ -167,10 +179,205 @@ body {
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1rem; /* Desktop gap trở lại bình thường */
   flex: 1;
   max-width: 200px;
   justify-content: flex-end;
+}
+
+/* Notification Container */
+.notification-container {
+  position: relative;
+  margin-right: 0; /* Remove margin since we have proper flex spacing now */
+}
+
+/* Notification Bell */
+.notification-bell {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #ecf0f1;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  position: relative;
+  font-size: 1.2rem;
+}
+
+.notification-bell:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+}
+
+.notification-bell:active {
+  transform: translateY(0);
+}
+
+.notification-count {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  min-width: 18px;
+  height: 18px;
+  background: #ff4757;
+  color: white;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #749BC2;
+  animation: pulse 2s infinite;
+}
+
+/* Notification Dropdown */
+.notification-dropdown {
+  position: absolute;
+  top: 55px;
+  right: 0;
+  width: 350px;
+  max-height: 400px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  border: 1px solid #e0e0e0;
+  overflow: hidden;
+  z-index: 1001;
+}
+
+.notification-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8f9fa;
+}
+
+.notification-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.mark-all-read {
+  background: none;
+  border: none;
+  color: #749BC2;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.mark-all-read:hover {
+  background: rgba(116, 155, 194, 0.1);
+}
+
+.notification-list {
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.notification-item {
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+
+.notification-item:hover {
+  background: #f8f9fa;
+}
+
+.notification-item:last-child {
+  border-bottom: none;
+}
+
+.notification-item.unread {
+  background: #f8f9ff;
+  border-left: 3px solid #749BC2;
+}
+
+.notification-item.read {
+  opacity: 0.7;
+}
+
+.notification-content {
+  flex: 1;
+}
+
+.notification-title {
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.unread-dot {
+  width: 8px;
+  height: 8px;
+  background: #ff4757;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.notification-message {
+  color: #666;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.notification-time {
+  color: #999;
+  font-size: 12px;
+}
+
+.notification-icon {
+  font-size: 20px;
+  margin-left: 12px;
+}
+
+.no-notifications {
+  padding: 40px 20px;
+  text-align: center;
+  color: #666;
+}
+
+.no-notifications p {
+  margin: 0;
+  font-size: 14px;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .user-menu {
@@ -266,6 +473,19 @@ body {
   cursor: pointer;
   font-size: 1.2rem;
   transition: all 0.3s ease;
+  margin-left: 10px; /* Desktop margin bình thường */
+  flex-shrink: 0; /* Prevent shrinking */
+}
+
+/* Mobile Action Group - container cho chuông + hamburger */
+.mobile-action-group {
+  display: none; /* Ẩn trên desktop */
+  align-items: center;
+  gap: 5px; /* Khoảng cách nhỏ giữa chuông và hamburger */
+  padding: 5px;
+  border-radius: 8px;
+  width: 100px;
+  justify-content: space-between;
 }
 
 .header-menu-btn:hover {
@@ -499,9 +719,39 @@ body {
   }
 }
 
+/* iPad specific responsive adjustments */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .header-container {
+    padding: 0px 2vw; /* Tighter padding for iPad */
+  }
+  
+  .header-actions {
+    max-width: 120px; /* More restricted width on iPad */
+    gap: 0; /* Sát nhau trên iPad */
+  }
+  
+  .notification-container {
+    margin-right: 0; /* No extra margin needed */
+  }
+  
+  .notification-dropdown {
+    right: -15px; /* Better positioning for dropdown */
+    width: 300px; /* Slightly smaller for iPad */
+  }
+  
+  .header-logo {
+    max-width: 120px;
+  }
+  
+  /* Hamburger button sát chuông trên iPad */
+  .header-menu-btn {
+    margin-left: -15px; /* Negative margin lớn để sát nhau */
+  }
+}
+
 @media (max-width: 1030px) {
   .header-container {
-    padding: 0px 8vw;
+    padding: 0px 3vw; /* Reduced padding for better space utilization */
   }
   
   .login-text {
@@ -516,6 +766,8 @@ body {
   /* Show hamburger menu on tablet and mobile */
   .header-menu-btn {
     display: block;
+    margin-left: 0; /* Reset margin trong group */
+    background: rgba(255, 255, 255, 0.1); /* Thêm background giống desktop */
   }
   
   /* Hide user menu on tablet and mobile - it's now in sidebar only */
@@ -523,15 +775,114 @@ body {
     display: none;
   }
   
+  /* Hide individual header-actions, show mobile-action-group instead */
+  .header-actions {
+    display: none;
+  }
+  
+  /* Show mobile action group */
+  .mobile-action-group {
+    display: flex;
+  }
+  
+  /* Notification bell trong group */
+  .mobile-action-group .notification-bell {
+    width: 40px;
+    height: 40px;
+    font-size: 1.1rem;
+    background: rgba(255, 255, 255, 0.1); /* Thêm background giống desktop */
+    margin-right: 0;
+  }
+  
+  /* Hover effects cho mobile action group */
+  .mobile-action-group .notification-bell:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+  }
+  
+  .mobile-action-group .header-menu-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+  }
+  
+  .notification-count {
+    top: 3px;
+    right: 3px;
+    min-width: 30px; /* Tăng từ 16px lên 20px */
+    height: 30px; /* Tăng từ 16px lên 20px */
+    font-size: 10px;
+  }
+  
+  .notification-dropdown {
+    width: 320px;
+    right: -10px;
+  }
+  
   /* Adjust header actions for tablet/mobile without user menu */
   .header-actions {
     flex: 1;
-    max-width: 200px;
+    max-width: 500px; /* Reduced max-width to prevent overflow */
     justify-content: flex-end;
+    gap: 0; /* Không có khoảng cách */
+  }
+  
+  /* Make hamburger button stick to notification bell on tablet/mobile */
+  .header-menu-btn {
+    margin-left: -15px; /* Negative margin lớn hơn để thực sự sát */
   }
   
   .header-logo {
-    max-width: 200px;
+    max-width: 150px; /* Adjusted for better balance */
+  }
+}
+
+/* Mobile specific adjustments */
+@media (max-width: 767px) {
+  .header-container {
+    padding: 0px 1vw; /* Very tight padding for mobile */
+  }
+  
+  .header-actions {
+    max-width: 100px; /* More restricted for mobile */
+    gap: 0; /* Sát nhau hoàn toàn */
+  }
+  
+  .notification-container {
+    margin-right: 0; /* No extra margin needed */
+  }
+  
+  .notification-bell {
+    width: 35px; /* Smaller bell for mobile */
+    height: 35px;
+    font-size: 1rem;
+    padding: 0; /* Loại bỏ padding để sát hơn */
+  }
+  
+  .notification-count {
+    min-width: 16px; /* Tăng từ 14px lên 16px */
+    height: 16px; /* Tăng từ 14px lên 16px */
+    font-size: 9px;
+  }
+  
+  .notification-dropdown {
+    right: -20px; /* Adjust for mobile */
+    width: 280px; /* Smaller width for mobile */
+  }
+  
+  .header-logo {
+    max-width: 100px;
+  }
+  
+  .header-logo img {
+    height: 60px; /* Smaller logo for mobile */
+    width: 60px;
+  }
+  
+  /* Hamburger button sát chuông trên mobile */
+  .header-menu-btn {
+    
+    margin-left: -15px; /* Negative margin lớn để sát nhau */
+    padding: 0.4rem; /* Giảm padding để gọn hơn */
   }
 }
 
