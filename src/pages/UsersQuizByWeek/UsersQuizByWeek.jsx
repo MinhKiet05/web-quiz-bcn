@@ -1,11 +1,13 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { getAllAvailableWeeks, getWeekData } from '../../services/userQuizService.js';
+import { getAllUsers } from '../../services/userService.js';
 import './UsersQuizByWeek.css';
 
 const UsersQuizByWeek = () => {
   const [weeks, setWeeks] = useState([]);
   const [selectedWeek, setSelectedWeek] = useState('');
   const [weekData, setWeekData] = useState({});
+  const [users, setUsers] = useState([]);
   const [loadingWeeks, setLoadingWeeks] = useState(true);
   const [loadingWeekData, setLoadingWeekData] = useState(false);
   const [searchMssv, setSearchMssv] = useState('');
@@ -19,7 +21,18 @@ const UsersQuizByWeek = () => {
       if (allWeeks.length > 0) setSelectedWeek(allWeeks[0]);
     };
 
+    const loadUsers = async () => {
+      try {
+        const allUsers = await getAllUsers();
+        setUsers(allUsers);
+      } catch (error) {
+        console.error('Lỗi khi tải danh sách users:', error);
+        setUsers([]);
+      }
+    };
+
     loadWeeks();
+    loadUsers();
   }, []);
 
   useEffect(() => {
@@ -50,7 +63,7 @@ const UsersQuizByWeek = () => {
     };
 
     // Create CSV content
-    const headers = ['MSSV', 'Quiz1', 'Quiz2', 'Quiz3', 'Quiz4', 'Quiz5', 'Thời gian'];
+    const headers = ['MSSV', 'Tên', 'Quiz1', 'Quiz2', 'Quiz3', 'Quiz4', 'Quiz5', 'Thời gian'];
     const csvRows = [headers.map(escapeCSV).join(',')];
     
     rows.forEach(r => {
@@ -67,6 +80,7 @@ const UsersQuizByWeek = () => {
       
       const row = [
         r.mssv,
+        r.userName,
         a.Quiz1 || '',
         a.Quiz2 || '',
         a.Quiz3 || '',
@@ -91,10 +105,19 @@ const UsersQuizByWeek = () => {
   };
 
   const rows = useMemo(() => {
-    const list = Object.entries(weekData || {}).map(([mssv, answers]) => ({ mssv, answers }));
+    const getUserName = (mssv) => {
+      const user = users.find(u => u.mssv === mssv);
+      return user ? user.name : '';
+    };
+    
+    const list = Object.entries(weekData || {}).map(([mssv, answers]) => ({ 
+      mssv, 
+      answers,
+      userName: getUserName(mssv)
+    }));
     if (!searchMssv.trim()) return list;
     return list.filter(r => r.mssv.includes(searchMssv.trim()));
-  }, [weekData, searchMssv]);
+  }, [weekData, searchMssv, users]);
 
     return (
     <div className="users-quiz-by-week-container">
@@ -139,6 +162,7 @@ const UsersQuizByWeek = () => {
             <thead>
               <tr>
                 <th>MSSV</th>
+                <th>Tên</th>
                 <th>Quiz1</th>
                 <th>Quiz2</th>
                 <th>Quiz3</th>
@@ -149,7 +173,7 @@ const UsersQuizByWeek = () => {
             </thead>
             <tbody>
               {rows.length === 0 ? (
-                <tr><td colSpan="7" style={{ textAlign: 'center' }}>Không tìm thấy dữ liệu</td></tr>
+                <tr><td colSpan="8" style={{ textAlign: 'center' }}>Không tìm thấy dữ liệu</td></tr>
               ) : rows.map(r => {
                 const a = r.answers || {};
                 // Answers may store timestamps under a._time or a.thoiGian - try common keys
@@ -167,6 +191,7 @@ const UsersQuizByWeek = () => {
                 return (
                   <tr key={r.mssv}>
                     <td>{r.mssv}</td>
+                    <td>{r.userName}</td>
                     <td>{a.Quiz1 || '-'}</td>
                     <td>{a.Quiz2 || '-'}</td>
                     <td>{a.Quiz3 || '-'}</td>

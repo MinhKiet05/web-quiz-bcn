@@ -39,10 +39,21 @@ const Login = ({ onClose }) => {
 
   const handleLoginInputChange = (e) => {
     const { name, value } = e.target;
-    setLoginData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    
+    if (name === 'username') {
+      // Chỉ cho phép nhập số và giới hạn 8 ký tự cho MSSV
+      const numericValue = value.replace(/\D/g, '').slice(0, 8);
+      setLoginData(prev => ({
+        ...prev,
+        [name]: numericValue
+      }));
+    } else {
+      setLoginData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
+    
     setError('');
     setSuccess('');
   };
@@ -57,6 +68,14 @@ const Login = ({ onClose }) => {
       setRegisterData(prev => ({
         ...prev,
         [name]: numericValue
+      }));
+    } else if (name === 'name') {
+      // Chỉ cho phép chữ cái tiếng Việt (có dấu) và khoảng trắng
+      // Loại bỏ số và các ký tự đặc biệt
+      const vietnameseValue = value.replace(/[^\p{L}\s]/gu, '');
+      setRegisterData(prev => ({
+        ...prev,
+        [name]: vietnameseValue
       }));
     } else {
       setRegisterData(prev => ({
@@ -74,6 +93,12 @@ const Login = ({ onClose }) => {
     
     if (!loginData.username.trim() || !loginData.password.trim()) {
       setError('Vui lòng nhập đầy đủ thông tin');
+      return;
+    }
+
+    // Validate MSSV format - phải là đúng 8 số
+    if (!/^\d{8}$/.test(loginData.username.trim())) {
+      setError('MSSV phải là đúng 8 số');
       return;
     }
 
@@ -176,7 +201,7 @@ const Login = ({ onClose }) => {
   };
 
   return (
-    <div className="login-overlay" onClick={onClose}>
+    <div className="login-overlay">
       <div className="login-modal" onClick={(e) => e.stopPropagation()}>
         <div className="login-header">
           <h2>{activeTab === 'login' ? 'Đăng nhập' : 'Đăng ký'}</h2>
@@ -244,6 +269,9 @@ const Login = ({ onClose }) => {
                 placeholder="Nhập mã số sinh viên (8 số)"
                 required
                 disabled={loading}
+                pattern="[0-9]{8}"
+                title="MSSV phải là đúng 8 số"
+                maxLength="8"
                 inputMode="numeric"
               />
             </div>
