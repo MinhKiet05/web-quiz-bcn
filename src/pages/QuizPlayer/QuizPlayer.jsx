@@ -477,7 +477,7 @@ const QuizPlayer = () => {
         <h1>Quiz Hàng Tuần</h1>
         {weekInfo && (
           <div className="quiz-player-week-info">
-            <div className="quiz-player-week-number">Week {weekInfo.week}</div>
+            <div className="quiz-player-week-number">Tuần {weekInfo.week}</div>
             <div className="quiz-player-time-info">
               <div className="quiz-player-time-item">
                 <span className="quiz-player-time-label"><b>Open:</b></span>
