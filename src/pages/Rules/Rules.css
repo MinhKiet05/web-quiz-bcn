@@ -33,7 +33,14 @@
   vertical-align: baseline; /* Không bị lên trên */
   font-weight: bold; /* Đảm bảo hiển thị đậm */
 }
-
+.debug {
+  color: #000000; /* Chữ màu đen */
+  position: relative;
+  display: inline;
+  overflow: hidden;
+  vertical-align: baseline; /* Không bị lên trên */
+  font-weight: bold;
+}
 .shiny-text::before {
   content: '';
   position: absolute;

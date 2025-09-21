@@ -20,7 +20,6 @@ export const getAllQuizzes = async () => {
     });
     return quizzes;
   } catch (error) {
-    console.error('Error getting quizzes: ', error);
     throw error;
   }
 };
@@ -41,7 +40,6 @@ export const getQuizById = async (quizId) => {
       return null;
     }
   } catch (error) {
-    console.error('Error getting quiz: ', error);
     throw error;
   }
 };

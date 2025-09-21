@@ -158,8 +158,7 @@ export const getWeekData = async (weekKey) => {
     }
 
     return {};
-  } catch (error) {
-    console.error(`Lỗi khi lấy dữ liệu tuần ${weekKey}:`, error);
+  } catch {
     return {};
   }
 };

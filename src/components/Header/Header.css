@@ -189,6 +189,7 @@ body {
 .notification-container {
   position: relative;
   margin-right: 0; /* Remove margin since we have proper flex spacing now */
+  overflow: visible;
 }
 
 /* Notification Bell */
@@ -234,6 +235,7 @@ body {
   justify-content: center;
   border: 2px solid #749BC2;
   animation: pulse 2s infinite;
+  z-index: 10; /* Thêm z-index để không bị che */
 }
 
 /* Notification Dropdown */
@@ -248,7 +250,8 @@ body {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   border: 1px solid #e0e0e0;
   overflow: hidden;
-  z-index: 1001;
+  z-index: 9999;
+  pointer-events: auto;
 }
 
 .notification-header {
@@ -264,7 +267,7 @@ body {
   margin: 0;
   font-size: 16px;
   font-weight: 600;
-  color: #333;
+  color: #202020;
 }
 
 .mark-all-read {
@@ -285,6 +288,9 @@ body {
 .notification-list {
   max-height: 320px;
   overflow-y: auto;
+  pointer-events: none; /* Disable pointer events for container */
+  position: relative;
+  z-index: 1;
 }
 
 .notification-item {
@@ -292,10 +298,17 @@ body {
   border-bottom: 1px solid #f0f0f0;
   cursor: pointer;
   transition: all 0.2s ease;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  display: block;
   position: relative;
+  pointer-events: auto !important; /* Force enable pointer events */
+  z-index: 1002;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+  background: none;
+  border: none;
+  border-bottom: 1px solid #f0f0f0;
+  width: 88%;
+  text-align: left;
 }
 
 .notification-item:hover {
@@ -316,7 +329,7 @@ body {
 }
 
 .notification-content {
-  flex: 1;
+  width: 100%;
 }
 
 .notification-title {
@@ -486,6 +499,8 @@ body {
   border-radius: 8px;
   width: 100px;
   justify-content: space-between;
+  overflow: visible;
+  position: relative;
 }
 
 /* Khi chỉ có hamburger button (admin không có chuông) */
@@ -814,16 +829,18 @@ body {
   }
   
   .notification-count {
-    top: 3px;
-    right: 3px;
-    min-width: 30px; /* Tăng từ 16px lên 20px */
-    height: 30px; /* Tăng từ 16px lên 20px */
+    top: 2px; /* Điều chỉnh vị trí */
+    right: 2px;
+    min-width: 18px; /* Giảm về kích thước hợp lý */
+    height: 18px;
     font-size: 10px;
+    z-index: 15; /* Đảm bảo luôn hiện trên cùng */
   }
   
   .notification-dropdown {
     width: 320px;
     right: -10px;
+    z-index: 1002; /* Tăng z-index cho dropdown */
   }
   
   /* Adjust header actions for tablet/mobile without user menu */
@@ -857,6 +874,8 @@ body {
   
   .notification-container {
     margin-right: 0; /* No extra margin needed */
+    position: relative; /* Ensure relative positioning for dropdown */
+    overflow: visible; /* Allow dropdown to overflow */
   }
   
   .notification-bell {
@@ -867,14 +886,26 @@ body {
   }
   
   .notification-count {
-    min-width: 16px; /* Tăng từ 14px lên 16px */
-    height: 16px; /* Tăng từ 14px lên 16px */
+    top: 1px; /* Điều chỉnh vị trí để không bị che */
+    right: 1px;
+    min-width: 16px;
+    height: 16px;
     font-size: 9px;
+    z-index: 15; /* Đảm bảo hiện trên cùng */
   }
   
   .notification-dropdown {
-    right: -20px; /* Adjust for mobile */
+    position: absolute; /* Back to absolute positioning */
+    top: 55px; /* Position below notification bell */
+    right: 0; /* Align to right edge of container */
     width: 280px; /* Smaller width for mobile */
+    z-index: 99999; /* High z-index */
+    pointer-events: auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    border: 1px solid #e0e0e0;
+    overflow: hidden;
   }
   
   .header-logo {

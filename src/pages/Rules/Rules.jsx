@@ -30,7 +30,7 @@ const Rules = () => {
             chúng mình sẽ có thêm một hoạt động thú vị giúp các bạn củng cố kiến thức C/C++:
           </p>
           <p className="rules-slogan">
-            <span className='shiny-text'>Tham gia Quiz Hàng Tuần</span>
+            <span className='debug'>Tham<span className='shiny-text'> gia Quiz Hàng </span>Tuần</span>
           </p>
         </div>
 

@@ -158,8 +158,14 @@ const Header = () => {
   // Close notification dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      const notificationContainer = document.querySelector('.notification-container');
-      if (notificationContainer && !notificationContainer.contains(event.target)) {
+      // Check if click is inside any notification container (desktop or mobile)
+      const desktopContainer = document.querySelector('.header-actions .notification-container');
+      const mobileContainer = document.querySelector('.mobile-action-group .notification-container');
+      
+      const isInsideDesktop = desktopContainer && desktopContainer.contains(event.target);
+      const isInsideMobile = mobileContainer && mobileContainer.contains(event.target);
+      
+      if (!isInsideDesktop && !isInsideMobile) {
         setShowNotifications(false);
       }
     };
@@ -173,7 +179,9 @@ const Header = () => {
   }, [showNotifications]);
 
   const handleNotificationClick = (notification) => {
-    if (!notification || !user) return;
+    if (!notification || !user) {
+      return;
+    }
     
     // Mark notification as read
     localStorage.setItem(notification.seenKey, 'true');
@@ -187,17 +195,18 @@ const Header = () => {
     const unreadCount = notifications.filter(n => !n.isRead && n.id !== notification.id).length;
     setHasNewResults(unreadCount > 0);
     
-    // Navigate based on notification type
+    // Close dropdown first
+    setShowNotifications(false);
+    
+    // Navigate immediately
     if (notification.type === 'started') {
       // Navigate to quiz player for started quiz
-      navigate('/');
+      navigate('/', { replace: true });
     } else if (notification.type === 'ended') {
       // Navigate to quiz history for ended quiz and select the specific week
-      navigate(`/my-quizzes?week=${notification.weekId}`);
+      const url = `/my-quizzes?week=${notification.weekId}`;
+      navigate(url, { replace: true });
     }
-    
-    // Close dropdown
-    setShowNotifications(false);
   };
 
   const handleBellClick = () => {
@@ -532,9 +541,19 @@ const Header = () => {
                             <div 
                               key={notification.id}
                               className={`notification-item ${!notification.isRead ? 'unread' : 'read'}`}
-                              onClick={() => handleNotificationClick(notification)}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleNotificationClick(notification);
+                              }}
                             >
-                              <div className="notification-content">
+                              <div 
+                                className="notification-content"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleNotificationClick(notification);
+                                }}
+                              >
                                 <div className="notification-title">
                                   {notification.title}
                                   {!notification.isRead && <span className="unread-dot"></span>}
@@ -543,9 +562,6 @@ const Header = () => {
                                 <div className="notification-time">
                                   {formatNotificationTime(notification.time)}
                                 </div>
-                              </div>
-                              <div className="notification-icon">
-                                {notification.type === 'started' ? '🚀' : '✅'}
                               </div>
                             </div>
                           ))
@@ -611,10 +627,13 @@ const Header = () => {
                       </div>
                     ) : (
                       notifications.map(notification => (
-                        <div 
+                        <button 
                           key={notification.id}
                           className={`notification-item ${!notification.isRead ? 'unread' : 'read'}`}
-                          onClick={() => handleNotificationClick(notification)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleNotificationClick(notification);
+                          }}
                         >
                           <div className="notification-content">
                             <div className="notification-title">
@@ -626,10 +645,7 @@ const Header = () => {
                               {formatNotificationTime(notification.time)}
                             </div>
                           </div>
-                          <div className="notification-icon">
-                            {notification.type === 'started' ? '🚀' : '✅'}
-                          </div>
-                        </div>
+                        </button>
                       ))
                     )}
                   </div>
