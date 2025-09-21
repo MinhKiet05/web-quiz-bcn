@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faXmark, faFloppyDisk } from '@fortawesome/free-solid-svg-icons';
 import { updateWeekTimes, updateQuizInWeek } from '../../services/weekQuizService.js';
 import { getAllWeeksWithQuizData } from '../../services/weekQuizService.js';
 import { showToast } from '../../utils/toastUtils.js';
@@ -694,8 +696,8 @@ const QuizEditForm = ({ quiz, quizKey, onSave, onDelete, onCancel }) => {
                 </button>
               </div>
               <div className="primary-actions">
-                <button type="button" onClick={onCancel} className="cancel-btn">❌ Hủy</button>
-                <button type="submit" className="save-btn">💾 Lưu</button>
+                <button type="button" onClick={onCancel} className="cancel-btn"><FontAwesomeIcon icon={faXmark} color='red'/> Hủy</button>
+                <button type="submit" className="save-btn"><FontAwesomeIcon icon={faFloppyDisk} /> Lưu</button>
               </div>
             </div>
           </form>

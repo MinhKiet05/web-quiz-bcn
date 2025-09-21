@@ -13,7 +13,7 @@
 }
 
 .login-modal {
-  background: white;
+  background: #CFCFCF;
   border-radius: 16px;
   padding: 0;
   max-width: 400px;
@@ -30,8 +30,8 @@
 }
 
 .login-header {
-  background: #749BC2;
-  color: #ecf0f1;
+  background: #232323;
+  color: #ECF0F1;
   padding: 20px;
   border-radius: 16px 16px 0 0;
   display: flex;
@@ -46,9 +46,9 @@
 }
 
 .login-close-btn {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.4);
   border: none;
-  color: white;
+  color: #1e272e;
   width: 32px;
   height: 32px;
   border-radius: 50%;
@@ -61,7 +61,7 @@
 }
 
 .login-close-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.7);
   transform: rotate(90deg);
 }
 
@@ -82,6 +82,7 @@
 
 .login-form {
   padding: 20px 20px 20px;
+  background-color: #CFCFCF;
 }
 
 .form-group {
@@ -111,7 +112,7 @@
 
 .form-group input:focus {
   outline: none;
-  border-color: #749BC2;
+  border-color: #1e272e;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
   transform: translateY(-1px);
 }
@@ -128,8 +129,8 @@
 
 .login-submit-btn {
   width: 100%;
-  background: #749BC2;
-  color: #ecf0f1;
+  background: #424242;
+  color: #ECF0F1;
   border: none;
   padding: 14px;
   border-radius: 8px;
@@ -143,7 +144,7 @@
 
 .login-submit-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 8px 25px #424242;
 }
 
 .login-submit-btn:active:not(:disabled) {
@@ -215,9 +216,9 @@
   }
   
   .form-group input {
-    background: #4a5568;
-    border-color: #718096;
-    color: #e2e8f0;
+    background: #ECF0F1;
+    border-color: #1a202c;
+    color: #1a202c;
   }
   
   .form-group input::placeholder {
@@ -253,7 +254,7 @@
   background: transparent;
   font-size: 16px;
   font-weight: 600;
-  color: #666;
+  color: #95a5a6;
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
@@ -261,13 +262,13 @@
 
 .tab-btn:hover:not(:disabled) {
   background: rgba(102, 126, 234, 0.1);
-  color: #749BC2;
+  color: #1a202c;
 }
 
 .tab-btn.active {
   background: white;
-  color: #749BC2;
-  border-bottom: 3px solid #749BC2;
+  color: #1e272e;
+  border-bottom: 3px solid #1e272e;
 }
 
 .tab-btn:disabled {
@@ -303,12 +304,12 @@
 }
 
 .register-btn {
-  background: #749BC2;
+  background: #424242;
   color: #ecf0f1;
 }
 
 .register-btn:hover:not(:disabled) {
-  box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+  box-shadow: 0 8px 25px #424242;
 }
 
 /* ====== Register Form Spacing ====== */

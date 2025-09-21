@@ -953,7 +953,7 @@
   padding: 1.5rem 2rem;
   border-radius: 12px;
   margin-bottom: 2rem;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 2px 1px #1e272e;
 }
 
 .quiz-player-week-number {

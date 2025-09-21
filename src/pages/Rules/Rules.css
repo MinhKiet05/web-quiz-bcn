@@ -210,7 +210,7 @@ ul li{
 }
 
 .start-quiz-btn {
-  background: #0984e3;
+  background: #424242;
   color: white;
   border: none;
   padding: 15px 30px;
@@ -218,15 +218,15 @@ ul li{
   font-weight: bold;
   border-radius: 25px;
   cursor: pointer;
-  box-shadow: 0 4px 15px #0984e3;
+  box-shadow: 0 2px 4px #424242;
   transition: all 0.3s ease;
   margin-bottom: 10px;
 }
 
 .start-quiz-btn:hover {
-  background: #0984e3;
+  background: #232323;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px #0984e3;
+  box-shadow: 0 6px 20px #232323;
 }
 
 .start-quiz-btn:active {
@@ -236,7 +236,7 @@ ul li{
 
 /* Login button trong Rules */
 .login-btn-rules {
-  background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+  background: #424242;
   color: white;
   border: none;
   padding: 15px 30px;
@@ -253,9 +253,9 @@ ul li{
 }
 
 .login-btn-rules:hover {
-  background: linear-gradient(135deg, #1976D2 0%, #2196F3 100%);
+  background: #232323;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
+  box-shadow: 0 6px 20px rgba(7, 28, 46, 0.4);
 }
 
 .login-btn-rules:active {

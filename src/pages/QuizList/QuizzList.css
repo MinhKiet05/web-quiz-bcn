@@ -98,15 +98,15 @@
 }
 
 .document-info p {
-  color: #636e72;
+  color: #3e4446;
   margin: 0;
-  font-size: 1rem;
+  font-size: 1.1rem;
 }
 
 .edit-document-btn {
-  background: #6c5ce7;
-  color: white;
-  border: none;
+  background: white;
+  color: #424242;
+  border: solid 1px #424242;
   padding: 10px 20px;
   border-radius: 8px;
   cursor: pointer;
@@ -116,7 +116,8 @@
 }
 
 .edit-document-btn:hover {
-  background: #5f3dc4;
+  background: #424242;
+  color: white;
   transform: translateY(-2px);
 }
 
@@ -633,8 +634,8 @@
 
 /* Answer count styling */
 .answer-count {
-  font-size: 0.85rem;
-  color: #6c757d;
+  font-size: 0.95rem;
+  color: #232323;
   font-weight: normal;
 }
 
@@ -958,7 +959,7 @@ body.modal-open {
 
 /* Modal Header giống UserManagement - specific cho edit-form với higher specificity */
 .edit-form-overlay .edit-form .modal-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important; /* Gradient giống UserManagement */
+  background: #424242 !important; /* Gradient giống UserManagement */
   color: white !important;
   padding: 20px !important;
   border-radius: 16px 0px 0 0 !important;

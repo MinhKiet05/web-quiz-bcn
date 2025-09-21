@@ -5,7 +5,7 @@
   left: 0;
   right: 0;
   z-index: 1000;
-  background: #BDBDBD;
+  background: #424242;
   box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
   padding: 0px 5vw;
   height: 70px;
@@ -67,7 +67,7 @@ body {
 }
 
 .header-link {
-  color: #1e272e;
+  color: #ECF0F1;
   text-decoration: none;
   font-weight: 500;
   transition: all 0.3s ease;
@@ -94,7 +94,7 @@ body {
 .header-dropdown-toggle {
   background: none;
   border: none;
-  color: #1e272e;
+  color: #ECF0F1;
   font-weight: 500;
   padding: 0.5rem 1rem;
   border-radius: 6px;
@@ -196,7 +196,7 @@ body {
 .notification-bell {
   background: rgba(255, 255, 255, 0.1);
   border: none;
-  color: #ecf0f1;
+  color: #ECF0F1 ;
   width: 45px;
   height: 45px;
   border-radius: 50%;
@@ -459,7 +459,7 @@ body {
 .login-btn {
   background: rgba(255, 255, 255, 0.1);
   border: none;
-  color: #ecf0f1;
+  color: #ECF0F1;
   padding: 0.5rem 1rem;
   border-radius: 6px;
   cursor: pointer;

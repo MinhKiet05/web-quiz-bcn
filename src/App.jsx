@@ -178,8 +178,8 @@ const Home = () => {
       <div style={{ padding: '40px', textAlign: 'center' }}>
         <div style={{
           minWidth:'250px',
-          background: '#749BC2',
-          color: '#ecf0f1',
+          background: '#CFCFCF',
+          color: '#1e272e !important',
           padding: '20px 24px 20px 24px',
           borderRadius: '16px',
           boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
@@ -190,34 +190,26 @@ const Home = () => {
           marginTop: '0px'
         }}>
           
-          <h1 style={{ margin: '10px 0 16px 0', fontSize: '32px' }}>
+          <h1 style={{ margin: '10px 0 16px 0', fontSize: '32px' , color: '#1e272e'}}>
             Quiz Hàng Tuần
           </h1>
-          <p style={{ fontSize: '18px', opacity: 0.9, marginBottom: '30px' }}>
+          <p style={{ fontSize: '18px', opacity: 0.9, marginBottom: '30px' , color: '#1e272e'}}>
             Hệ thống quiz trực tuyến dành cho Ban Công Nghệ
           </p>
           
           <div>
-            <p style={{ fontSize: '16px', opacity: 0.9, marginBottom: '20px' }}>
+            <p style={{ fontSize: '16px', opacity: 0.9, marginBottom: '20px' , color: '#1e272e'}}>
               Đăng nhập để tham gia các quiz và hoạt động thú vị!
             </p>
-            <div style={{
-              background: 'rgba(255,255,255,0.1)',
-              padding: '16px',
-              borderRadius: '8px',
-              fontSize: '14px',
-              marginBottom: '24px'
-            }}>
-              Bạn sẽ có thể tham gia quiz hàng tuần và nhận coins thưởng
-            </div>
+            
             
             {/* Login Button */}
             <button 
               onClick={() => setShowLogin(true)}
               style={{
-                background: 'rgba(255,255,255,0.2)',
+                background: '#424242',
                 color: 'white',
-                border: '2px solid rgba(255,255,255,0.3)',
+                border: '2px solid #1e272e',
                 padding: '12px 32px',
                 borderRadius: '25px',
                 fontSize: '16px',
@@ -228,12 +220,12 @@ const Home = () => {
                 boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
               }}
               onMouseOver={(e) => {
-                e.target.style.background = 'rgba(255,255,255,0.3)';
+                e.target.style.background = '#232323';
                 e.target.style.transform = 'translateY(-2px)';
-                e.target.style.boxShadow = '0 6px 20px rgba(0,0,0,0.15)';
+                e.target.style.boxShadow = '0 6px 20px rgba(0,0,0,0.4)';
               }}
               onMouseOut={(e) => {
-                e.target.style.background = 'rgba(255,255,255,0.2)';
+                e.target.style.background = '#424242';
                 e.target.style.transform = 'translateY(0)';
                 e.target.style.boxShadow = '0 4px 15px rgba(0,0,0,0.1)';
               }}
@@ -241,8 +233,18 @@ const Home = () => {
               Đăng nhập ngay
             </button>
           </div>
+          <div style={{
+              background: 'rgba(255,255,255,0.1)',
+              padding: '16px',
+              borderRadius: '8px',
+              fontSize: '14px',
+              marginTop: '24px',
+              color: '#1e272e'
+            }}>
+              Bạn sẽ có thể tham gia quiz hàng tuần và nhận coins thưởng
+            </div>
         </div>
-
+              
         {/* Features Preview */}
         <div style={{
         display: 'grid',
@@ -260,7 +262,7 @@ const Home = () => {
         }}>
           <div> <img src={quizImg} alt="" height={'160px'}/></div>
           <h3 style={{ color: '#2c3e50', marginBottom: '8px' }}>Quiz Hàng Tuần</h3>
-          <p style={{ color: '#7f8c8d', fontSize: '14px' }}>
+          <p style={{ color: '#424242', fontSize: '16px' }}>
             5 câu hỏi từ dễ đến khó, cập nhật mỗi tuần
           </p>
         </div>
@@ -274,7 +276,7 @@ const Home = () => {
         }}>
           <div> <img src={rankingImg} alt="" height={'160px'}/></div>
           <h3 style={{ color: '#2c3e50', marginBottom: '8px' }}>Xếp Hạng</h3>
-          <p style={{ color: '#7f8c8d', fontSize: '14px' }}>
+          <p style={{ color: '#424242', fontSize: '16px' }}>
             Top 3 cao điểm nhận coins thưởng
           </p>
         </div>
@@ -288,8 +290,8 @@ const Home = () => {
         }}>
           <div><img src={checkImg} alt="" height={'160px'}/></div>
           <h3 style={{ color: '#2c3e50', marginBottom: '8px' }}>Theo Dõi</h3>
-          <p style={{ color: '#7f8c8d', fontSize: '14px' }}>
-            Xem lại quiz đã làm và tiến độ
+          <p style={{ color: '#424242', fontSize: '16px' }}>
+            Xem lại quiz đã làm và kiểm tra đáp án
           </p>
         </div>
       </div>
