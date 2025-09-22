@@ -288,9 +288,32 @@ body {
 .notification-list {
   max-height: 320px;
   overflow-y: auto;
+  overflow-x: hidden; /* Ẩn scrollbar ngang */
   pointer-events: none; /* Disable pointer events for container */
   position: relative;
   z-index: 1;
+  /* Buộc hiển thị scrollbar dọc trên tất cả thiết bị */
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: #ccc #f1f1f1; /* Firefox */
+}
+
+/* Tùy chỉnh scrollbar cho webkit browsers */
+.notification-list::-webkit-scrollbar {
+  width: 8px; /* Độ rộng scrollbar */
+}
+
+.notification-list::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Màu nền track */
+  border-radius: 4px;
+}
+
+.notification-list::-webkit-scrollbar-thumb {
+  background: #ccc; /* Màu thumb */
+  border-radius: 4px;
+}
+
+.notification-list::-webkit-scrollbar-thumb:hover {
+  background: #999; /* Màu khi hover */
 }
 
 .notification-item {
@@ -307,7 +330,7 @@ body {
   background: none;
   border: none;
   border-bottom: 1px solid #f0f0f0;
-  width: 88%;
+  width: 100%;
   text-align: left;
 }
 
