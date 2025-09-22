@@ -11,7 +11,7 @@ import { getAllWeeks } from '../../services/weekQuizService';
 const navLinks = [
   { name: 'Quiz tuần', path: '/' },
   { name: 'Lịch sử Quiz', path: '/my-quizzes' },
-  { name: 'Bảng xếp hạng', path: '/leaderboard' },
+  { name: 'Xếp hạng', path: '/leaderboard' },
   { name: 'Thể lệ', path: '/rules' },
   { 
     name: 'Quản lý', 

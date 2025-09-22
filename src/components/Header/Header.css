@@ -421,8 +421,7 @@ body {
   white-space: nowrap;   /* ngăn xuống dòng */
   overflow: hidden;      /* ẩn phần thừa */
   text-overflow: ellipsis;
-  max-width: 120px;
-
+  max-width: 100px;
   direction: rtl;        /* đảo chiều hiển thị */
   text-align: left;  
 }
