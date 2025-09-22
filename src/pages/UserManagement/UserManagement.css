@@ -351,7 +351,7 @@ font-weight: 400 !important;
 }
 
 .modal-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #424242!important;
   color: white;
   padding: 20px;
   border-radius: 16px 16px 0 0;
@@ -426,14 +426,15 @@ font-weight: 400 !important;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #424242 !important;
   color: white;
   padding: 12px 20px;
 }
 
 .btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+  background: #323232 !important;
+  box-shadow: 0 8px 25px rgba(66, 66, 66, 0.4);
 }
 
 .btn-secondary {

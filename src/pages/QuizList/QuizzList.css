@@ -406,7 +406,9 @@
   max-height: 90vh;
   overflow-y: auto;
 }
-
+.modal-header{
+  background-color: #424242!important;
+}
 .modal-content .modal-header {
   display: flex;
   justify-content: space-between;
@@ -417,7 +419,7 @@
 .modal-content .modal-header h2,
 .modal-content .modal-header h3 {
   margin: 0;
-  color: #2d3436;
+  color: #ECF0F1;
 }
 
 .modal-content .close-btn {
@@ -823,8 +825,8 @@ strong{
 }
 
 .save-btn {
-  background: #00b894;
-  color: white;
+  background: #424242 !important;
+  color: #ECF0F1;
   border: none;
   padding: 10px 20px;
   border-radius: 6px;
@@ -834,7 +836,7 @@ strong{
 }
 
 .save-btn:hover {
-  background: #00a085;
+  background: #323232 !important;
 }
 
 .cancel-btn {
@@ -1075,12 +1077,12 @@ body.modal-open {
 }
 
 .save-btn {
-  background: #00b894;
+  background: #424242 !important;
   color: white;
 }
 
 .save-btn:hover {
-  background: #00a085;
+  background: #323232 !important;
   transform: translateY(-2px);
 }
 
