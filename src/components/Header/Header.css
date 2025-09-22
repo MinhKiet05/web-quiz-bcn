@@ -611,16 +611,15 @@ body {
 }
 
 .sidebar-link:hover {
-  background-color: #f8f9fa;
+  background-color: #e3f2fd;
   color: #424242;
   border-left-color: #424242;
 }
 
 .sidebar-link.active {
-  background-color: #e3f2fd;
-  color: #424242;
+  background-color: #424242;
+  color: #e3f2fd;
   border-left-color: #424242;
-  font-weight: 600;
 }
 
 /* Sidebar Dropdown Styles */
@@ -648,7 +647,7 @@ body {
 }
 
 .sidebar-dropdown-toggle:hover {
-  background-color: #f8f9fa;
+  background-color: #e3f2fd;
   color: #424242;
   border-left-color: #424242;
 }
