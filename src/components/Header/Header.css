@@ -167,11 +167,11 @@ body {
 
 .header-dropdown-link:hover {
   background-color: #f8f9fa;
-  color: #1e272e;
+  color: #424242;
 }
 
 .header-dropdown-link.active {
-  background-color: #1e272e;
+  background-color: #424242;
   color: white;
 }
 
