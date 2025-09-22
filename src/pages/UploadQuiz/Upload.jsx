@@ -531,6 +531,8 @@ const Upload = () => {
                 onChange={(e) => setGiaiThich(e.target.value)}
                 placeholder="Nhập giải thích chi tiết cho câu hỏi..."
                 rows={4}
+                required
+                style={{ boxSizing: 'border-box' }}
               />
             </div>
           </div>

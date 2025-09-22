@@ -212,14 +212,14 @@
 }
 
 .submit-btn {
-  background: #3EA92D;
-  color: white;
+  background: #424242;
+  color: #ECF0F1;
 }
 
 .submit-btn:hover:not(:disabled) {
-  background: #218838;
+  background: #232323;
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px #218838;
+  box-shadow: 0 8px 20px #232323;
 }
 
 .submit-btn:disabled {
@@ -228,13 +228,15 @@
 }
 
 .reset-btn {
-  background: #6c757d;
-  color: white;
+  background: #ECF0F1;
+  color: #424242;
+  border: #424242 solid 1px;
 }
 
 .reset-btn:hover {
-  background: #545b62;
+  background: #ddd;
   transform: translateY(-2px);
+  box-shadow: 0 8px 20px #bbb;
 }
 
 /* Responsive */

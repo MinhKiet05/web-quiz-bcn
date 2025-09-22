@@ -374,8 +374,8 @@ line-height: 25.5px!important;
 }
 
 .history-card-do-quiz-btn {
-  background: #4E71FF;
-  color: white;
+  background: #424242;
+  color: #ECF0F1;
   border: none;
   border-radius: 25px;
   padding: 0.75rem 1.5rem;
@@ -383,15 +383,15 @@ line-height: 25.5px!important;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+  box-shadow: 0 2px 8px rgba(4, 4, 4, 0.3);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .history-card-do-quiz-btn:hover {
-  background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+  background: #232323;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 .history-card-do-quiz-btn:active {
