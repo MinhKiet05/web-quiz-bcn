@@ -1,4 +1,14 @@
 
+/* Smooth scrolling for better UX */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px; /* Account for fixed header */
+}
+
+* {
+  scroll-behavior: smooth;
+}
+
 /* Quiz Navigation Sidebar */
 .quiz-navigation-sidebar {
   position: fixed;

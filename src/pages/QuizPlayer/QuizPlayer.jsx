@@ -26,9 +26,39 @@ const QuizPlayer = () => {
     if (quizElement) {
       quizElement.scrollIntoView({ 
         behavior: 'smooth', 
-        block: 'center' 
+        block: 'center',
+        inline: 'nearest'
       });
     }
+  };
+
+  // Function to find next unanswered quiz (prioritize earlier questions)
+  const findNextUnansweredQuiz = (currentQuizNumber, answersToCheck = userAnswers) => {
+    // First, check for unanswered questions from question 1 to current-1 (going up)
+    for (let i = 1; i < parseInt(currentQuizNumber); i++) {
+      const quizKey = `Quiz${i}`;
+      const hasAnswer = answersToCheck[quizKey];
+      
+      // Find the quiz object to check if it's available
+      const quiz = quizzes.find(q => (q.title?.replace('Quiz', '') || '1') === i.toString());
+      if (quiz && canTakeQuiz(quiz) && !hasAnswer) {
+        return i.toString();
+      }
+    }
+    
+    // If no unanswered questions above, check from current+1 to 5 (going down)
+    for (let i = parseInt(currentQuizNumber) + 1; i <= 5; i++) {
+      const quizKey = `Quiz${i}`;
+      const hasAnswer = answersToCheck[quizKey];
+      
+      // Find the quiz object to check if it's available
+      const quiz = quizzes.find(q => (q.title?.replace('Quiz', '') || '1') === i.toString());
+      if (quiz && canTakeQuiz(quiz) && !hasAnswer) {
+        return i.toString();
+      }
+    }
+    
+    return null;
   };
 
   // Initialize current answers with user answers
@@ -329,6 +359,16 @@ const QuizPlayer = () => {
       });
       
       showToast(`Đáp án đã được lưu tự động! Thời gian: ${timeString}`, 'success');
+
+      // Auto-scroll to next unanswered quiz
+      setTimeout(() => {
+        const nextQuizNumber = findNextUnansweredQuiz(quizNumber, updatedAnswers);
+        if (nextQuizNumber) {
+          setActiveQuizNumber(nextQuizNumber);
+          scrollToQuiz(nextQuizNumber);
+        }
+      }, 300);
+      
     } catch (error) {
       console.error('Error auto-saving answer:', error);
       showToast('Có lỗi xảy ra khi lưu đáp án!', 'error');
