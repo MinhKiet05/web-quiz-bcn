@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Contact, Lock, EyeOff, Eye, LogIn } from 'lucide-react';
 import styles from './Login.module.css';
-
+import { toast } from 'sonner';
 export default function Login({ onLogin, loading = false, error = '' }) {
   const [showPassword, setShowPassword] = useState(false);
   const [mssv, setMssv] = useState('');
@@ -14,7 +14,10 @@ export default function Login({ onLogin, loading = false, error = '' }) {
     }
 
     try {
-      await onLogin({ mssv, password });
+        await onLogin({ mssv, password });
+        toast.success('Đăng nhập thành công!', {
+        description: 'Chào mừng Trần Huỳnh Minh Kiệt quay trở lại hệ thống.',
+  });
     } catch {
       // The parent component already stores and renders the error message.
     }

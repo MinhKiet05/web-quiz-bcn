@@ -12,7 +12,7 @@ import QuestionManager from './pages/questionManager/QuestionManager';
 import DashBoardAdmin from './pages/dashBoardAdmin/DashBoardAdmin';
 import UserManager from './pages/userManager/UserManager';
 import DashBoardUser from './pages/dashBoardUser/DashBoardUser';
-
+import { Toaster } from 'sonner';
 const AUTH_STORAGE_KEY = 'web-quiz-bcn-auth-user';
 
 function readStoredUser() {
@@ -118,6 +118,23 @@ function App() {
   };
 
   return (
+    <>
+    {/* Cấu hình Toaster gốc nằm ở top-right và bật dark mode */}
+      <Toaster 
+        position="top-right" 
+        theme="dark"
+        toastOptions={{
+          // Tùy biến CSS inline hoặc gán class trực tiếp cho quả toast
+          style: {
+            backgroundColor: '#2E3856', // Màu Surface trùng màu Confirm Modal của bạn
+            border: '1px solid #1E2541',  // Border tối
+            color: '#ffffff',             // Màu chữ trắng chính
+            borderRadius: '12px',         // Bo góc đồng bộ
+          },
+        }}
+      />
+    
+    
     <Routes>
       {/* Route cha bọc tất cả các trang, giữ AppLayout (Sidebar) cố định */}
       <Route element={<RootLayout user={user} onLogout={handleLogout} />}>
@@ -205,7 +222,8 @@ function App() {
         <Route path="*" element={<Navigate to={defaultRoute} replace />} />
         
       </Route>
-    </Routes>
+      </Routes>
+      </>
   );
 }
 

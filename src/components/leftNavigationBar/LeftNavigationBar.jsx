@@ -16,6 +16,7 @@ import {
 import styles from './LeftNavigationBar.module.css';
 import bcn from '/bcn.webp';
 import ConfirmationModal from '../confirmationModal/ConfirmationLogoutModal';
+import { toast } from 'sonner';
 const NAV_SETS = {
   student: [
     { icon: <List size={20} />, label: 'Danh sách Quiz', to: '/quiz-list', end: true },
@@ -49,12 +50,16 @@ export default function LeftNavigationBar({ user, onLogout }) {
   const menuItems = isAuthenticated ? commonItems : guestItems;
 
   const handleConfirmLogout = () => {
-    console.log("Đã đăng xuất thành công!");
+    
     setIsLogoutOpen(false);
     // Chuyển hướng người dùng về trang login ở đây...
     if (onLogout) {
       onLogout();
+      
     }
+    toast.info('Đã đăng xuất khỏi hệ thống.', {
+    description: 'Hẹn gặp lại bạn lần sau!',
+  });
   };
   return (
     <aside className={styles.sidebar}>
