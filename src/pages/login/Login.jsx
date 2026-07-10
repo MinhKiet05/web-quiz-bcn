@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Contact, Lock, EyeOff, Eye, LogIn } from 'lucide-react';
 import styles from './Login.module.css';
 import { toast } from 'sonner';
+
 export default function Login({ onLogin, loading = false, error = '' }) {
   const [showPassword, setShowPassword] = useState(false);
   const [mssv, setMssv] = useState('');
@@ -14,10 +15,17 @@ export default function Login({ onLogin, loading = false, error = '' }) {
     }
 
     try {
-        await onLogin({ mssv, password });
-        toast.success('Đăng nhập thành công!', {
-        description: 'Chào mừng Trần Huỳnh Minh Kiệt quay trở lại hệ thống.',
-  });
+      // Nhận dữ liệu user trả về từ hàm onLogin của component cha
+      const userData = await onLogin({ mssv, password });
+      
+      // Trích xuất tên (giả sử dữ liệu trả về có trường full_name hoặc name)
+      // Nếu không có, fallback về chữ "bạn"
+      const userName = userData?.full_name || userData?.name || 'bạn';
+
+      toast.success('Đăng nhập thành công!', {
+        // Sử dụng backtick để chèn biến userName vào chuỗi
+        description: `Chào mừng ${userName} quay trở lại hệ thống.`,
+      });
     } catch {
       // The parent component already stores and renders the error message.
     }
@@ -25,7 +33,7 @@ export default function Login({ onLogin, loading = false, error = '' }) {
 
   return (
     <div className={styles.container}>
-      <div className={styles.glowEffect}></div> {/* Hiệu ứng sáng mờ phía sau giống trong hình */}
+      <div className={styles.glowEffect}></div>
       
       <div className={styles.loginCard}>
         {/* Header */}
@@ -76,7 +84,7 @@ export default function Login({ onLogin, loading = false, error = '' }) {
                 type="button" 
                 className={styles.eyeButton}
                 onClick={() => setShowPassword(!showPassword)}
-                tabIndex="-1" // Tránh focus vào nút này khi đang tab form
+                tabIndex="-1"
               >
                 {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
               </button>
