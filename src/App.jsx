@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import './App.css';
 import AppLayout from './AppLayout';
 import Login from './pages/login/Login';
@@ -42,10 +42,11 @@ function AuthGate({ user, allowedRoles, children }) {
   return children;
 }
 
-function WithLayout({ user, onLogout, children }) {
+// Thay thế WithLayout bằng RootLayout sử dụng Outlet để giữ nguyên Sidebar
+function RootLayout({ user, onLogout }) {
   return (
     <AppLayout user={user} onLogout={onLogout}>
-      {children}
+      <Outlet />
     </AppLayout>
   );
 }
@@ -118,109 +119,92 @@ function App() {
 
   return (
     <Routes>
-      <Route
-        path="/login"
-        element={
-          user ? (
-            <Navigate to={defaultRoute} replace />
-          ) : (
-            <AppLayout user={user} onLogout={handleLogout}>
+      {/* Route cha bọc tất cả các trang, giữ AppLayout (Sidebar) cố định */}
+      <Route element={<RootLayout user={user} onLogout={handleLogout} />}>
+        
+        <Route
+          path="/login"
+          element={
+            user ? (
+              <Navigate to={defaultRoute} replace />
+            ) : (
               <Login onLogin={handleLogin} loading={loading} error={error} />
-            </AppLayout>
-          )
-        }
-      />
+            )
+          }
+        />
 
-      <Route
-        path="/"
-        element={<Navigate to={defaultRoute} replace />}
-      />
+        <Route
+          path="/"
+          element={<Navigate to={defaultRoute} replace />}
+        />
 
-      <Route
-        path="/quiz-list"
-        element={
-          <WithLayout user={user} onLogout={handleLogout}>
-            <QuizList />
-          </WithLayout>
-        }
-      />
+        <Route
+          path="/quiz-list"
+          element={<QuizList />}
+        />
 
-      <Route
-        path="/leaderboard"
-        element={
-          <WithLayout user={user} onLogout={handleLogout}>
-            <LeaderBoard />
-          </WithLayout>
-        }
-      />
+        <Route
+          path="/leaderboard"
+          element={<LeaderBoard />}
+        />
 
-      <Route
-        path="/history"
-        element={
-          <AuthGate user={user}>
-            <AppLayout user={user} onLogout={handleLogout}>
+        <Route
+          path="/history"
+          element={
+            <AuthGate user={user}>
               <History />
-            </AppLayout>
-          </AuthGate>
-        }
-      />
+            </AuthGate>
+          }
+        />
 
-      <Route
-        path="/quiz-manager"
-        element={
-          <AuthGate user={user} allowedRoles={[ 'editor', 'admin' ]}>
-            <AppLayout user={user} onLogout={handleLogout}>
+        <Route
+          path="/quiz-manager"
+          element={
+            <AuthGate user={user} allowedRoles={['editor', 'admin']}>
               <QuizManager />
-            </AppLayout>
-          </AuthGate>
-        }
-      />
+            </AuthGate>
+          }
+        />
 
-      <Route
-        path="/question-manager"
-        element={
-          <AuthGate user={user} allowedRoles={[ 'editor', 'admin' ]}>
-            <AppLayout user={user} onLogout={handleLogout}>
+        <Route
+          path="/question-manager"
+          element={
+            <AuthGate user={user} allowedRoles={['editor', 'admin']}>
               <QuestionManager />
-            </AppLayout>
-          </AuthGate>
-        }
-      />
+            </AuthGate>
+          }
+        />
 
-      <Route
-        path="/admin/dashboard"
-        element={
-          <AuthGate user={user} allowedRoles={[ 'admin' ]}>
-            <AppLayout user={user} onLogout={handleLogout}>
+        <Route
+          path="/admin/dashboard"
+          element={
+            <AuthGate user={user} allowedRoles={['admin']}>
               <DashBoardAdmin />
-            </AppLayout>
-          </AuthGate>
-        }
-      />
+            </AuthGate>
+          }
+        />
 
-      <Route
-        path="/user-manager"
-        element={
-          <AuthGate user={user} allowedRoles={[ 'admin' ]}>
-            <AppLayout user={user} onLogout={handleLogout}>
+        <Route
+          path="/user-manager"
+          element={
+            <AuthGate user={user} allowedRoles={['admin']}>
               <UserManager />
-            </AppLayout>
-          </AuthGate>
-        }
-      />
+            </AuthGate>
+          }
+        />
 
-      <Route
-        path="/user/dashboard"
-        element={
-          <AuthGate user={user}>
-            <AppLayout user={user} onLogout={handleLogout}>
+        <Route
+          path="/user/dashboard"
+          element={
+            <AuthGate user={user}>
               <DashBoardUser />
-            </AppLayout>
-          </AuthGate>
-        }
-      />
+            </AuthGate>
+          }
+        />
 
-      <Route path="*" element={<Navigate to={defaultRoute} replace />} />
+        <Route path="*" element={<Navigate to={defaultRoute} replace />} />
+        
+      </Route>
     </Routes>
   );
 }

@@ -102,6 +102,7 @@
   text-decoration: none;
   transition: all 0.2s ease;
   cursor: pointer;
+  border: 1px solid transparent; /* Thêm dòng này để ngăn lỗi giật UI khi có viền ở active */
 }
 
 .navItem:visited {
@@ -126,6 +127,7 @@
   background-color: #2E3856;
   color: #ffffff;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  /* Lúc này thẻ đổi từ border trong suốt sang có màu, kích thước block hoàn toàn không bị lệch */
 }
 
 .sidebar:not(:hover):not(:focus-within) .navItemActive {
@@ -336,33 +338,19 @@
   opacity: 1;
 }
 
-.loginButton {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 0.75rem;
-  padding: 0.625rem 0.75rem;
-  width: 100%;
-  background: none;
-  border: none;
-  color: #939BB4;
-  border-radius: 8px;
-  cursor: pointer;
-  text-decoration: none;
-  transition: color 0.2s, background-color 0.2s;
-}
-
-.loginButton:hover,
-.loginButtonActive {
-  color: #ffffff;
-  background-color: #1E2541;
-}
-
-.loginIcon {
-  transition: color 0.2s;
-}
 
 .loginText {
   font-size: 0.875rem;
   font-weight: 500;
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: max-width 0.25s ease, opacity 0.2s ease;
+}
+
+.sidebar:hover .loginText,
+.sidebar:focus-within .loginText {
+  max-width: 120px;
+  opacity: 1;
 }

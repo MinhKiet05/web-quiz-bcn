@@ -26,9 +26,9 @@ export default function Login({ onLogin, loading = false, error = '' }) {
       
       <div className={styles.loginCard}>
         {/* Header */}
-        <h2 className={styles.title}>Đăng nhập hệ thống</h2>
+        <h2 className={styles.title}>Đăng nhập</h2>
         <p className={styles.subtitle}>
-          Vui lòng sử dụng tài khoản được nhà trường cấp phát.
+          Vui lòng sử dụng tài khoản được Ban Công Nghệ cấp phát.
         </p>
 
         {error ? <p className={styles.errorMessage}>{error}</p> : null}
@@ -91,7 +91,7 @@ export default function Login({ onLogin, loading = false, error = '' }) {
         {/* Footer Note */}
         <div className={styles.divider}></div>
         <p className={styles.footerNote}>
-          Lưu ý: Hệ thống không mở đăng ký tự do. Nếu quên hoặc chưa được cấp tài khoản, vui lòng liên hệ Admin/Giảng viên để được hỗ trợ.
+          Lưu ý: Hệ thống không mở đăng ký tự do. Nếu quên hoặc chưa được cấp tài khoản, vui lòng liên hệ Ban Công Nghệ để được hỗ trợ.
         </p>
       </div>
     </div>

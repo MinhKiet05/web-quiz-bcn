@@ -6,7 +6,6 @@
   justify-content: center;
   position: relative;
   min-height: 100%;
-  padding: 2rem;
   /* Nếu bạn muốn background của phần bên phải có màu tối nhẹ */
   background-color: #07051A; 
 }

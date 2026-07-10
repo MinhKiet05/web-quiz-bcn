@@ -1,5 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import { useState } from 'react';
 import {
   LayoutDashboard,
   Users,
@@ -14,7 +15,7 @@ import {
 } from 'lucide-react';
 import styles from './LeftNavigationBar.module.css';
 import bcn from '/bcn.webp';
-
+import ConfirmationModal from '../confirmationModal/ConfirmationLogoutModal';
 const NAV_SETS = {
   student: [
     { icon: <List size={20} />, label: 'Danh sách Quiz', to: '/quiz-list', end: true },
@@ -32,6 +33,7 @@ const NAV_SETS = {
 };
 
 export default function LeftNavigationBar({ user, onLogout }) {
+  const [isLogoutOpen, setIsLogoutOpen] = useState(false);
   const role = user?.role ?? 'guest';
   const isAuthenticated = role !== 'guest';
   const commonItems = NAV_SETS.student;
@@ -46,6 +48,14 @@ export default function LeftNavigationBar({ user, onLogout }) {
   ];
   const menuItems = isAuthenticated ? commonItems : guestItems;
 
+  const handleConfirmLogout = () => {
+    console.log("Đã đăng xuất thành công!");
+    setIsLogoutOpen(false);
+    // Chuyển hướng người dùng về trang login ở đây...
+    if (onLogout) {
+      onLogout();
+    }
+  };
   return (
     <aside className={styles.sidebar}>
       <div className={styles.logoSection}>
@@ -98,22 +108,31 @@ export default function LeftNavigationBar({ user, onLogout }) {
             </div>
           </NavLink>
 
-          <button className={styles.logoutButton} onClick={onLogout} type="button">
-            <LogOut size={20} className={styles.logoutIcon} />
-            <span className={styles.logoutText}>Đăng xuất</span>
-          </button>
+          <button 
+        className={styles.logoutButton} 
+        onClick={() => setIsLogoutOpen(true)}
+      >
+        <LogOut size={20} className={styles.logoutIcon} />
+        <span className={styles.logoutText}>Đăng xuất</span>
+      </button>
         </div>
+        
       ) : (
         <div className={styles.footerSection}>
-          <NavLink
-            to="/login"
-            className={({ isActive }) => `${styles.loginButton} ${isActive ? styles.loginButtonActive : ''}`}
-          >
-            <LogIn size={20} className={styles.loginIcon} />
-            <span className={styles.loginText}>Đăng nhập</span>
-          </NavLink>
+          {/* Tái sử dụng trực tiếp component NavItem cho nút Đăng nhập */}
+          <NavItem 
+            icon={<LogIn size={20} />} 
+            label="Đăng nhập" 
+            to="/login" 
+          />
         </div>
       )}
+      {/* Nhúng Modal ở đây */}
+      <ConfirmationModal 
+        isOpen={isLogoutOpen} 
+        onClose={() => setIsLogoutOpen(false)} 
+        onConfirm={handleConfirmLogout}
+      />
     </aside>
   );
 }
