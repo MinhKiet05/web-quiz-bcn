@@ -43,8 +43,6 @@ export default function LeftNavigationBar({ user, onLogout }) {
   const guestItems = [
     { icon: <List size={20} />, label: 'Danh sách Quiz', to: '/quiz-list', end: true },
     { icon: <Trophy size={20} />, label: 'Bảng xếp hạng', to: '/leaderboard', end: true },
-    { icon: <History size={20} />, label: 'Lịch sử làm bài', to: '/history', end: true },
-    { icon: <LogIn size={20} />, label: 'Đăng nhập', to: '/login', end: true },
   ];
   const menuItems = isAuthenticated ? commonItems : guestItems;
 
@@ -105,7 +103,17 @@ export default function LeftNavigationBar({ user, onLogout }) {
             <span className={styles.logoutText}>Đăng xuất</span>
           </button>
         </div>
-      ) : null}
+      ) : (
+        <div className={styles.footerSection}>
+          <NavLink
+            to="/login"
+            className={({ isActive }) => `${styles.loginButton} ${isActive ? styles.loginButtonActive : ''}`}
+          >
+            <LogIn size={20} className={styles.loginIcon} />
+            <span className={styles.loginText}>Đăng nhập</span>
+          </NavLink>
+        </div>
+      )}
     </aside>
   );
 }

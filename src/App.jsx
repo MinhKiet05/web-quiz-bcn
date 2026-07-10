@@ -42,6 +42,14 @@ function AuthGate({ user, allowedRoles, children }) {
   return children;
 }
 
+function WithLayout({ user, onLogout, children }) {
+  return (
+    <AppLayout user={user} onLogout={onLogout}>
+      {children}
+    </AppLayout>
+  );
+}
+
 function App() {
   const [user, setUser] = useState(() => readStoredUser());
   const [loading, setLoading] = useState(false);
@@ -116,35 +124,33 @@ function App() {
           user ? (
             <Navigate to={defaultRoute} replace />
           ) : (
-            <Login onLogin={handleLogin} loading={loading} error={error} />
+            <AppLayout user={user} onLogout={handleLogout}>
+              <Login onLogin={handleLogin} loading={loading} error={error} />
+            </AppLayout>
           )
         }
       />
 
       <Route
         path="/"
-        element={<Navigate to={user ? defaultRoute : '/login'} replace />}
+        element={<Navigate to={defaultRoute} replace />}
       />
 
       <Route
         path="/quiz-list"
         element={
-          <AuthGate user={user}>
-            <AppLayout user={user} onLogout={handleLogout}>
-              <QuizList />
-            </AppLayout>
-          </AuthGate>
+          <WithLayout user={user} onLogout={handleLogout}>
+            <QuizList />
+          </WithLayout>
         }
       />
 
       <Route
         path="/leaderboard"
         element={
-          <AuthGate user={user}>
-            <AppLayout user={user} onLogout={handleLogout}>
-              <LeaderBoard />
-            </AppLayout>
-          </AuthGate>
+          <WithLayout user={user} onLogout={handleLogout}>
+            <LeaderBoard />
+          </WithLayout>
         }
       />
 
@@ -214,7 +220,7 @@ function App() {
         }
       />
 
-      <Route path="*" element={<Navigate to={user ? defaultRoute : '/login'} replace />} />
+      <Route path="*" element={<Navigate to={defaultRoute} replace />} />
     </Routes>
   );
 }
