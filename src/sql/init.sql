@@ -6,6 +6,8 @@ CREATE TYPE quiz_status AS ENUM ('draft', 'active', 'inactive');
 CREATE TYPE question_type_enum AS ENUM ('mcq', 'fill_text');
 CREATE TYPE attempt_status AS ENUM ('in_progress', 'submitted', 'timeout');
 
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 -- 1. Bảng users
 CREATE TABLE users (
     mssv VARCHAR(20) PRIMARY KEY,
@@ -152,3 +154,38 @@ USING (
   -- (Phần logic cho phép sinh viên xem đáp án sau khi nộp bài thường sẽ được gọi qua một RPC (Database function) 
   -- có quyền SECURITY DEFINER để bypass RLS một cách có kiểm soát, thay vì mở thẳng bảng ở đây).
 );
+
+-- --------------------------------------------------------
+-- AUTH RPC
+-- Xác thực MSSV + mật khẩu và trả về hồ sơ người dùng để frontend hiển thị sidebar.
+CREATE OR REPLACE FUNCTION public.login_user(p_mssv VARCHAR, p_password TEXT)
+RETURNS TABLE (
+    mssv VARCHAR,
+    full_name VARCHAR,
+    email VARCHAR,
+    role user_role,
+    last_login TIMESTAMP
+) AS $$
+BEGIN
+    RETURN QUERY
+    WITH matched_user AS (
+        SELECT u.mssv, u.full_name, u.email, u.role, u.last_login
+        FROM users u
+        WHERE u.mssv = p_mssv
+            AND u.is_active = TRUE
+            AND u.password_hash = p_password
+        LIMIT 1
+    ), updated_user AS (
+        UPDATE users u
+        SET last_login = NOW()::timestamp,
+            updated_at = NOW()::timestamp
+        WHERE u.mssv IN (SELECT mu.mssv FROM matched_user mu)
+        RETURNING u.mssv, u.full_name, u.email, u.role, u.last_login
+    )
+        SELECT mu.mssv, mu.full_name, mu.email, mu.role, COALESCE(uu.last_login, NOW()::timestamp)
+    FROM matched_user mu
+    LEFT JOIN updated_user uu ON uu.mssv = mu.mssv;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+GRANT EXECUTE ON FUNCTION public.login_user(VARCHAR, TEXT) TO anon, authenticated;

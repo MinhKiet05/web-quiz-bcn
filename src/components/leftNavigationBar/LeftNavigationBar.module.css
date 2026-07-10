@@ -1,0 +1,318 @@
+.sidebar {
+  width: 260px;
+  min-width: 260px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: #07051A;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+/* 1. Logo Section */
+.logoSection {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.75rem;
+  padding: 1.5rem 0.75rem 1rem;
+  padding-bottom: 1rem;
+}
+
+.logoIconContainer {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.logoIcon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #ffffff;
+}
+
+.logoTextContainer {
+  display: flex;
+  flex-direction: column;
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: max-width 0.25s ease, opacity 0.2s ease;
+}
+
+.sidebar:hover .logoTextContainer,
+.sidebar:focus-within .logoTextContainer {
+  max-width: 160px;
+  opacity: 1;
+}
+
+.logoTitle {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1.125rem;
+  line-height: 1;
+  letter-spacing: 0.025em;
+}
+
+.logoSubtitle {
+  color: #939BB4;
+  font-size: 10px;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  margin-top: 0.25rem;
+  line-height: 1.25;
+}
+
+/* 2. Navigation Section */
+.navigation {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.75rem 1rem;
+}
+
+/* Ẩn thanh cuộn scrollbar của nav nhưng vẫn cuộn được */
+.navigation::-webkit-scrollbar {
+  display: none;
+}
+.navigation {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.menuGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 0.75rem;
+  border-radius: 8px;
+  color: #939BB4;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.sidebar:not(:hover):not(:focus-within) .navItem {
+  justify-content: center;
+  gap: 0;
+  width: 3.25rem;
+  margin-left: 0.25rem;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.navItem:hover {
+  background-color: #1E2541;
+  color: #ffffff;
+}
+
+.navItemActive {
+  background-color: #2E3856;
+  color: #ffffff;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.sidebar:not(:hover):not(:focus-within) .navItemActive {
+  background-color: #2E3856;
+  border: 1px solid #3B4668;
+}
+
+.itemIconActive {
+  color: #818cf8;
+}
+
+.navItem > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  flex-shrink: 0;
+}
+
+.itemLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: max-width 0.25s ease, opacity 0.2s ease;
+}
+
+.sidebar:hover .itemLabel,
+.sidebar:focus-within .itemLabel {
+  max-width: 180px;
+  opacity: 1;
+}
+
+/* Divider block */
+.dividerContainer {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: opacity 0.2s ease, max-height 0.25s ease;
+}
+
+.sidebar:hover .dividerContainer,
+.sidebar:focus-within .dividerContainer {
+  opacity: 1;
+  max-height: 4rem;
+}
+
+.dividerLine {
+  height: 1px;
+  background-color: #1E2541;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.dividerText {
+  color: #939BB4;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding-left: 0.75rem;
+}
+
+/* 3. Footer Profile Section */
+.footerSection {
+  padding: 1rem;
+}
+
+.userCard {
+  background-color: #151932;
+  border: 1px solid #2E3856;
+  border-radius: 12px;
+  padding: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.sidebar:not(:hover):not(:focus-within) .userCard {
+  width: 3.75rem;
+  padding: 0.75rem;
+  justify-content: center;
+  gap: 0;
+  background-color: #1B2040;
+}
+
+
+.userAvatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #1E2541;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-width: 0;
+  opacity: 0;
+  transition: max-width 0.25s ease, opacity 0.2s ease;
+}
+
+.sidebar:hover .userInfo,
+.sidebar:focus-within .userInfo {
+  max-width: 180px;
+  opacity: 1;
+}
+
+.userName {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #ffffff;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.userMSSV {
+  font-size: 0.75rem;
+  color: #939BB4;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.userRoleBadge {
+  margin-top: 0.25rem;
+  background-color: #3A2A38;
+  color: #E5A8A0;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 0.125rem 0.5rem;
+  border-radius: 4px;
+  width: max-content;
+}
+
+.logoutButton {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  width: 100%;
+  background: none;
+  border: none;
+  color: #939BB4;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: color 0.2s, background-color 0.2s;
+}
+
+.sidebar:not(:hover):not(:focus-within) .logoutButton {
+  width: 3.25rem;
+  justify-content: center;
+  gap: 0;
+  padding-left: 0;
+  padding-right: 0;
+  margin-left: 0.25rem;
+}
+
+.logoutButton:hover {
+  color: #ffffff;
+  background-color: #1E2541;
+}
+
+.logoutIcon {
+  transition: color 0.2s;
+}
+
+.logoutButton:hover .logoutIcon {
+  color: #f87171; /* Đổi màu icon logout sang màu đỏ nhẹ khi hover */
+}
+
+.logoutText {
+  font-size: 0.875rem;
+  font-weight: 500;
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: max-width 0.25s ease, opacity 0.2s ease;
+}
+
+.sidebar:hover .logoutText,
+.sidebar:focus-within .logoutText {
+  max-width: 120px;
+  opacity: 1;
+}

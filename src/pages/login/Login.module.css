@@ -1,0 +1,178 @@
+/* Container chiếm toàn bộ không gian của thẻ <main> bên phải */
+.container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-height: 100%;
+  padding: 2rem;
+  /* Nếu bạn muốn background của phần bên phải có màu tối nhẹ */
+  background-color: #07051A; 
+}
+
+/* Hiệu ứng sáng mờ hình tròn phía sau form (Radial Glow) */
+.glowEffect {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, rgba(7,5,26,0) 70%);
+  pointer-events: none; /* Không cản trở click chuột */
+  z-index: 0;
+}
+
+/* Thẻ form chính */
+.loginCard {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 440px;
+  background-color: #262D4B; /* Màu nền xanh navy nhạt hơn nền trang */
+  border-radius: 12px;
+  padding: 2.5rem 2.5rem 2rem 2.5rem;
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.4);
+}
+
+.title {
+  color: #ffffff;
+  font-size: 1.75rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  color: #939BB4;
+  font-size: 0.95rem;
+  text-align: center;
+  margin-bottom: 2rem;
+  line-height: 1.5;
+}
+
+.errorMessage {
+  background-color: rgba(248, 113, 113, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.25);
+  color: #fecaca;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.formGroup {
+  margin-bottom: 1.25rem;
+}
+
+.label {
+  display: block;
+  color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.inputIcon {
+  position: absolute;
+  left: 1rem;
+  color: #939BB4;
+  pointer-events: none;
+}
+
+.input {
+  width: 100%;
+  background-color: #161932; /* Màu nền input tối hơn form */
+  border: 1px solid transparent;
+  color: #ffffff;
+  padding: 0.875rem 3rem 0.875rem 3rem; /* Padding trái phải chừa chỗ cho icon */
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  outline: none;
+}
+
+.input::placeholder {
+  color: #5D6682;
+}
+
+.input:focus {
+  border-color: #4255FF;
+  box-shadow: 0 0 0 3px rgba(66, 85, 255, 0.15);
+}
+
+.eyeButton {
+  position: absolute;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: #939BB4;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  transition: color 0.2s;
+}
+
+.eyeButton:hover {
+  color: #ffffff;
+}
+
+.submitButton {
+  width: 100%;
+  background-color: #4255FF;
+  color: #ffffff;
+  border: none;
+  padding: 0.875rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.submitButton:hover {
+  background-color: #3646E8;
+}
+
+.submitButton:active {
+  transform: scale(0.98);
+}
+
+.submitButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Đường kẻ chia cách Footer */
+.divider {
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.08);
+  margin: 1.75rem 0 1.25rem 0;
+}
+
+.footerNote {
+  color: #727C9E;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  text-align: left;
+}
