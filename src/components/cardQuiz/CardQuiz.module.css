@@ -1,0 +1,121 @@
+.card {
+  background-color: #2E344E; /* Màu nền thẻ tối tương đồng ảnh */
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  width: 20vw;  
+  max-width: 300px; 
+  min-width: 220px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-family: 'Inter', sans-serif;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.title {
+  color: #ffffff;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.4;
+  height: 56px;
+}
+
+.iconContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 0.25rem;
+}
+
+.topIcon {
+  color: #939BB4; /* Màu icon xám nhạt */
+}
+
+/* Tags */
+.tagsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.tag {
+  padding: 0.35rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* Style cho các loại tag khác nhau */
+.tagCategory {
+  background-color: #161932; /* Nền tối cho môn học */
+  color: #939BB4;
+}
+
+.tagWeekly {
+  background-color: #4255FF; /* Nổi bật cho tag Quiz Tuần */
+  color: #ffffff;
+}
+
+.diffEasy {
+  background-color: rgba(46, 125, 50, 0.2);
+  color: #4CAF50; /* Xanh lá */
+}
+
+.diffMedium {
+  background-color: rgba(169, 78, 59, 0.25);
+  color: #E28C76; /* Nâu cam */
+}
+
+.diffHard {
+  background-color: rgba(198, 40, 40, 0.2);
+  color: #E53935; /* Đỏ */
+}
+
+/* Khu vực thời gian (dùng wrapper để giữ height cố định nếu tag thời gian bị ẩn đi, tránh card bị co lại) */
+.timeWrapper {
+  min-height: 24px; 
+}
+
+.timeContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #939BB4;
+  font-size: 0.9rem;
+}
+
+/* Divider */
+.divider {
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.08);
+  margin: 0.5rem 0 0.75rem 0;
+}
+
+/* Nút Xem chi tiết */
+.actionButton {
+  width: 100%;
+  background-color: #161932;
+  color: #E2E4EB;
+  border: none;
+  padding: 0.875rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.actionButton:hover {
+  background-color: #1E2342;
+  color: #ffffff;
+}

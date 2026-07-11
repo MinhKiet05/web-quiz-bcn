@@ -154,38 +154,25 @@ USING (
   -- (Phần logic cho phép sinh viên xem đáp án sau khi nộp bài thường sẽ được gọi qua một RPC (Database function) 
   -- có quyền SECURITY DEFINER để bypass RLS một cách có kiểm soát, thay vì mở thẳng bảng ở đây).
 );
+CREATE TABLE weekly_leaderboard_snapshots (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    quiz_id UUID REFERENCES quizzes(id) ON DELETE CASCADE,
+    rank INTEGER NOT NULL,
+    user_id VARCHAR(20) REFERENCES users(mssv) ON DELETE CASCADE,
+    full_name VARCHAR(100) NOT NULL,
+    score INTEGER NOT NULL,
+    completion_time INTEGER NOT NULL,
+    captured_at TIMESTAMP DEFAULT NOW()
+);
 
--- --------------------------------------------------------
--- AUTH RPC
--- Xác thực MSSV + mật khẩu và trả về hồ sơ người dùng để frontend hiển thị sidebar.
-CREATE OR REPLACE FUNCTION public.login_user(p_mssv VARCHAR, p_password TEXT)
-RETURNS TABLE (
-    mssv VARCHAR,
-    full_name VARCHAR,
-    email VARCHAR,
-    role user_role,
-    last_login TIMESTAMP
-) AS $$
-BEGIN
-    RETURN QUERY
-    WITH matched_user AS (
-        SELECT u.mssv, u.full_name, u.email, u.role, u.last_login
-        FROM users u
-        WHERE u.mssv = p_mssv
-            AND u.is_active = TRUE
-            AND u.password_hash = p_password
-        LIMIT 1
-    ), updated_user AS (
-        UPDATE users u
-        SET last_login = NOW()::timestamp,
-            updated_at = NOW()::timestamp
-        WHERE u.mssv IN (SELECT mu.mssv FROM matched_user mu)
-        RETURNING u.mssv, u.full_name, u.email, u.role, u.last_login
-    )
-        SELECT mu.mssv, mu.full_name, mu.email, mu.role, COALESCE(uu.last_login, NOW()::timestamp)
-    FROM matched_user mu
-    LEFT JOIN updated_user uu ON uu.mssv = mu.mssv;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+-- Tạo Index trên bảng snapshot để khi SELECT theo quiz_id chạy ngay lập tức
+CREATE INDEX idx_snapshot_quiz ON weekly_leaderboard_snapshots(quiz_id);
 
-GRANT EXECUTE ON FUNCTION public.login_user(VARCHAR, TEXT) TO anon, authenticated;
+-- Bật Row Level Security (RLS) đồng bộ với hệ thống của bạn
+ALTER TABLE weekly_leaderboard_snapshots ENABLE ROW LEVEL SECURITY;
+
+-- Cho phép mọi user đã đăng nhập đều có thể xem bảng xếp hạng cũ
+CREATE POLICY "Allow authenticated users to read snapshots" 
+ON weekly_leaderboard_snapshots FOR SELECT 
+TO authenticated
+USING (true);
