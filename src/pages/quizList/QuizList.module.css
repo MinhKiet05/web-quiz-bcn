@@ -1,6 +1,6 @@
 /* Container chính - Chiếm không gian bên phải (Main Content) */
 .container {
-  width: 100%; /* Thêm dòng này */
+  width: 100%;
   box-sizing: border-box;
   padding: 2rem;
   max-width: 1072px;

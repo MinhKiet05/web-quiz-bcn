@@ -11,7 +11,6 @@ export default function AppLayout({ children, user, onLogout }) {
         {children}
       </main>
 
-      <div className={styles.rightSpace}></div>
     </div>
   );
 }

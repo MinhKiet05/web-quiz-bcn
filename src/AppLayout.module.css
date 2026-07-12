@@ -1,6 +1,6 @@
 .layoutContainer {
   display: flex;
-  width: 99vw;
+  width: 100%;
   min-height: 100vh;
   background-color: #07051A;
   color: #ffffff;

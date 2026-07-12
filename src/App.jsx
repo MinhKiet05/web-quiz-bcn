@@ -12,6 +12,8 @@ import QuestionManager from './pages/questionManager/QuestionManager';
 import DashBoardAdmin from './pages/dashBoardAdmin/DashBoardAdmin';
 import UserManager from './pages/userManager/UserManager';
 import DashBoardUser from './pages/dashBoardUser/DashBoardUser';
+import StartQuiz from './pages/startQuiz/StartQuiz';
+import NotFound from './pages/notFound/NotFound';
 import { Toaster } from 'sonner';
 const AUTH_STORAGE_KEY = 'web-quiz-bcn-auth-user';
 
@@ -25,7 +27,7 @@ function readStoredUser() {
 }
 
 const routeByRole = {
-  admin: '/admin/dashboard',
+  admin: '/quiz-list',
   editor: '/quiz-list',
   student: '/quiz-list',
 };
@@ -218,8 +220,15 @@ function App() {
             </AuthGate>
           }
         />
-
-        <Route path="*" element={<Navigate to={defaultRoute} replace />} />
+        <Route
+          path="/quiz/:id"
+          element={
+            <AuthGate user={user}>
+              <StartQuiz />
+            </AuthGate>
+          }
+        />
+        <Route path="*" element={<NotFound />} />
         
       </Route>
       </Routes>
