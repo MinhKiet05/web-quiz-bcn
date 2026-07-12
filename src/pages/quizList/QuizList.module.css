@@ -1,5 +1,7 @@
 /* Container chính - Chiếm không gian bên phải (Main Content) */
 .container {
+  width: 100%; /* Thêm dòng này */
+  box-sizing: border-box;
   padding: 2rem;
   max-width: 1072px;
   margin: 0 auto;
@@ -34,23 +36,20 @@
 
 /* --- Filter Bar --- */
 .filterBar {
-  background-color: #171B31; /* Nền tối navy */
+  background-color: #171B31;
   border-radius: 12px;
   padding: 0.5rem 1.25rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 1.5rem;
-  flex-wrap: wrap;
-  max-width: calc(1072px -  2rem); /* Giữ khoảng cách với padding của container */
-  width: 100%;
+  flex-wrap: wrap; /* Cho phép các thành phần rớt dòng */
 }
 
 .searchContainer {
   position: relative;
-  flex: 1;
-  min-width: 250px;
-  max-width: 500px;
+  flex: 1 1 300px; /* Cho phép co giãn tự do với min-size 300px */
+  /* ĐÃ XÓA max-width: 500px; để nó có thể dài ra hết cỡ nếu bị rớt xuống dòng */
 }
 
 .searchIcon {
@@ -62,8 +61,8 @@
 }
 
 .searchInput {
-  width:28vw;
-  background-color: #0B0E1E; /* Nền input tối hơn */
+  width: 100%; /* QUAN TRỌNG: Sửa 28vw thành 100% */
+  background-color: #0B0E1E;
   border: 1px solid rgba(255, 255, 255, 0.05);
   color: #ffffff;
   padding: 0.75rem 1rem 0.75rem 2.75rem;
@@ -71,6 +70,7 @@
   font-size: 0.95rem;
   outline: none;
   transition: border-color 0.2s;
+  box-sizing: border-box;
 }
 
 .searchInput:focus {
@@ -80,6 +80,7 @@
 .dropdownsContainer {
   display: flex;
   gap: 1rem;
+  flex-wrap: wrap; /* Cho phép 2 ô select rớt dòng nếu màn hình ép quá nhỏ */
 }
 
 .selectWrapper {
@@ -114,9 +115,8 @@
 
 /* --- Quiz Grid --- */
 .quizGrid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
+  display: grid; /* Chuyển từ flex sang grid */
+  grid-template-columns: repeat(3, 1fr); /* Mặc định 3 cột */
   gap: 1.5rem;
   margin-top: 0.5rem;
 }
@@ -167,4 +167,32 @@
   color: #939BB4;
   font-size: 0.95rem;
   font-weight: 500;
+}
+/* --- Thêm Media Queries ở cuối file --- */
+/* Màn hình từ 767px đến 1102px: 2 cột */
+@media (max-width: 1102px) {
+  .quizGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Màn hình dưới 767px: 1 cột và dàn lại thanh filter */
+@media (max-width: 766px) {
+  .quizGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .dropdownsContainer {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .selectWrapper {
+    flex: 1; /* Cho 2 nút select chia đều không gian */
+  }
+  
+  .selectBox {
+    width: 100%;
+    min-width: unset; /* Bỏ min-width để tránh bị tràn ngang */
+  }
 }
