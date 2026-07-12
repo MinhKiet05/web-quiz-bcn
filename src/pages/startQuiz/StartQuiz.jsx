@@ -1,37 +1,52 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
-  ArrowLeft, 
-  Folder, 
-  BarChart2, 
-  ListOrdered, 
-  Clock, 
-  Component, 
-  AlertTriangle,
-  Play
+  ArrowLeft, Folder, BarChart2, ListOrdered, Clock, Component, AlertTriangle, Play, CheckCircle
 } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
 import styles from './StartQuiz.module.css';
 
 export default function StartQuiz() {
-  const { id } = useParams(); // Lấy ID bài quiz từ URL
+  const { id } = useParams();
   const navigate = useNavigate();
   const [quizDetails, setQuizDetails] = useState(null);
   const [loading, setLoading] = useState(true);
+  
+  // State mới: Kiểm tra người dùng đã làm bài chưa
+  const [hasAttempted, setHasAttempted] = useState(false);
 
   useEffect(() => {
-    const fetchQuizDetails = async () => {
+    const fetchQuizAndAttempts = async () => {
       try {
         setLoading(true);
-        // Truy vấn chi tiết Quiz và JOIN bảng categories
-        const { data, error } = await supabase
+
+        // 1. Lấy thông tin user hiện tại từ LocalStorage
+        const storedUser = localStorage.getItem('web-quiz-bcn-auth-user');
+        const user = storedUser ? JSON.parse(storedUser) : null;
+
+        // 2. Truy vấn chi tiết Quiz
+        const { data: quizData, error: quizError } = await supabase
           .from('quizzes')
           .select('*, categories(name)')
           .eq('id', id)
           .single();
 
-        if (error) throw error;
-        setQuizDetails(data);
+        if (quizError) throw quizError;
+        setQuizDetails(quizData);
+
+        // 3. Nếu đã đăng nhập, kiểm tra xem đã từng làm bài này chưa
+        if (user) {
+          const { data: attemptData, error: attemptError } = await supabase
+            .from('attempts')
+            .select('id, status')
+            .eq('quiz_id', id)
+            .eq('user_id', user.mssv);
+
+          if (!attemptError && attemptData && attemptData.length > 0) {
+            setHasAttempted(true); // Đã có lịch sử làm bài
+          }
+        }
+
       } catch (err) {
         console.error('Lỗi tải dữ liệu Quiz:', err);
       } finally {
@@ -39,7 +54,7 @@ export default function StartQuiz() {
       }
     };
 
-    if (id) fetchQuizDetails();
+    if (id) fetchQuizAndAttempts();
   }, [id]);
 
   if (loading) {
@@ -50,12 +65,10 @@ export default function StartQuiz() {
     return <div className={styles.container}><div className={styles.error}>Không tìm thấy bài Quiz!</div></div>;
   }
 
-  // Ánh xạ dữ liệu hiển thị
   const categoryName = quizDetails.categories?.name || 'Không xác định';
   const isWeekly = quizDetails.quiz_type === 'weekly';
   const displayDifficulty = quizDetails.difficulty === 'hard' ? 'Khó' : quizDetails.difficulty === 'medium' ? 'Trung bình' : 'Dễ';
   
-  // Style cho Tag độ khó
   const getDifficultyClass = (level) => {
     if (level === 'hard') return styles.diffHard;
     if (level === 'medium') return styles.diffMedium;
@@ -63,23 +76,18 @@ export default function StartQuiz() {
   };
 
   const handleStart = () => {
-    // Chuyển hướng tới trang làm bài thực tế (ví dụ: /quiz/do/:id)
-    console.log("Bắt đầu làm bài ID:", id);
-    // navigate(`/quiz/do/${id}`);
+    navigate(`/quiz/do/${id}`);
   };
 
   return (
     <div className={styles.container}>
-      {/* Nút Quay lại */}
       <button className={styles.backButton} onClick={() => navigate('/quiz-list')}>
         <ArrowLeft size={18} />
         <span>Quay lại danh sách</span>
       </button>
 
-      {/* Thẻ nội dung chính */}
       <div className={styles.mainCard}>
         
-        {/* Phần Title & Description */}
         <div className={styles.headerSection}>
           <h1 className={styles.title}>{quizDetails.title}</h1>
           <p className={styles.description}>
@@ -87,10 +95,10 @@ export default function StartQuiz() {
           </p>
         </div>
 
-        {/* Lưới thông tin Meta (Grid) */}
         <div className={styles.metaGrid}>
-          {/* Item 1: Danh mục */}
-          <div className={styles.metaItem}>
+          {/* ... (Giữ nguyên các Item 1, 2, 3, 4, 5 ở đây) ... */}
+           {/* Item 1: Danh mục */}
+           <div className={styles.metaItem}>
             <div className={styles.metaLabel}>
               <Folder size={16} /> DANH MỤC
             </div>
@@ -142,14 +150,35 @@ export default function StartQuiz() {
           </div>
         </div>
 
+        {/* Khung cảnh báo / Thông báo hoàn thành */}
+        {isWeekly && hasAttempted ? (
+          <div className={styles.successBox}>
+            <div className={styles.warningHeader}>
+              <CheckCircle size={20} className={styles.successIcon} />
+              <h4 className={styles.successTitle}>Bạn đã hoàn thành Quiz tuần này!</h4>
+            </div>
+            <p className={styles.successText}>
+              Mỗi tài khoản chỉ được tham gia Weekly Quiz 1 lần duy nhất. Kết quả của bạn đã được ghi nhận trên bảng xếp hạng. Hẹn gặp lại bạn vào tuần sau nhé!
+            </p>
+          </div>
+        ) : (
+          <div>
+            
+          </div>
+        )}
+
         {/* Footer Buttons */}
         <div className={styles.footerSection}>
           <button className={styles.btnCancel} onClick={() => navigate('/quiz-list')}>
-            Hủy bỏ
+            {hasAttempted ? 'Quay lại' : 'Hủy bỏ'}
           </button>
-          <button className={styles.btnStart} onClick={handleStart}>
-            BẮT ĐẦU LÀM BÀI <Play size={16} fill="currentColor" />
-          </button>
+          
+          {/* Logic chặn nút: Ẩn nút làm bài nếu là weekly quiz VÀ đã làm */}
+          {(!isWeekly || !hasAttempted) && (
+             <button className={styles.btnStart} onClick={handleStart}>
+                BẮT ĐẦU LÀM BÀI <Play size={16} fill="currentColor" />
+             </button>
+          )}
         </div>
 
       </div>

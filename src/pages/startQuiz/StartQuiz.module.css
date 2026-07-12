@@ -221,6 +221,33 @@
 .btnStart:active {
   transform: scale(0.97);
 }
+
+/* Thêm CSS cho khung thông báo đã làm bài */
+.successBox {
+  margin: 0 2.5rem 2.5rem 2.5rem;
+  background-color: rgba(46, 125, 50, 0.15); /* Nền xanh lá nhạt */
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.successIcon {
+  color: #4CAF50;
+}
+
+.successTitle {
+  color: #4CAF50;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.successText {
+  color: #B4B9C9;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0.5rem 0 0 0;
+}
 /* --- RESPONSIVE --- */
 
 /* Tablet (Màn hình dưới 768px) */
