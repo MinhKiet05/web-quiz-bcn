@@ -1,6 +1,9 @@
+/* =========================================
+   1. LAYOUT CHÍNH QUẢN LÝ ĐỘ RỘNG
+========================================= */
 .sidebar {
-  width: 260px;
-  min-width: 260px;
+  width: 72px; /* Kích thước khi thu gọn */
+  min-width: 72px;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -8,16 +11,29 @@
   flex-shrink: 0;
   overflow: hidden;
   
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 100;
+  /* Thêm transition cho toàn bộ sidebar để co giãn mượt mà */
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* 1. Logo Section */
+.sidebar:hover,
+.sidebar:focus-within {
+  width: 260px; /* Kích thước khi mở rộng */
+  min-width: 260px;
+}
+
+/* =========================================
+   2. LOGO SECTION
+========================================= */
 .logoSection {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  gap: 0.75rem;
-  padding: 1.5rem 0.75rem 1rem;
-  padding-bottom: 1rem;
+  justify-content: flex-start; /* Luôn neo bên trái */
+  gap: 1rem;
+  padding: 1.5rem 1.5rem 1rem; /* Canh lề 1.5rem để icon nằm ngay giữa thanh 72px */
 }
 
 .logoIconContainer {
@@ -30,12 +46,6 @@
   flex-shrink: 0;
 }
 
-.logoIcon {
-  width: 1.5rem;
-  height: 1.5rem;
-  color: #ffffff;
-}
-
 .logoTextContainer {
   display: flex;
   flex-direction: column;
@@ -43,7 +53,7 @@
   opacity: 0;
   overflow: hidden;
   white-space: nowrap;
-  transition: max-width 0.25s ease, opacity 0.2s ease;
+  transition: max-width 0.3s ease, opacity 0.2s ease;
 }
 
 .sidebar:hover .logoTextContainer,
@@ -70,20 +80,18 @@
   line-height: 1.25;
 }
 
-/* 2. Navigation Section */
+/* =========================================
+   3. NAVIGATION CHUNG
+========================================= */
 .navigation {
   flex: 1;
   overflow-y: auto;
-  padding: 0.75rem 1rem;
-}
-
-/* Ẩn thanh cuộn scrollbar của nav nhưng vẫn cuộn được */
-.navigation::-webkit-scrollbar {
-  display: none;
-}
-.navigation {
+  padding: 0.75rem 0; /* Đưa padding ngang vào từng item bên dưới */
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+.navigation::-webkit-scrollbar {
+  display: none;
 }
 
 .menuGroup {
@@ -92,31 +100,21 @@
   gap: 0.25rem;
 }
 
+/* =========================================
+   4. TỪNG ITEM (KHÔNG THAY ĐỔI PADDING KHI HOVER)
+========================================= */
 .navItem {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  gap: 0.75rem;
-  padding: 0.75rem 0.75rem;
+  justify-content: flex-start; /* Luôn canh trái */
+  gap: 1rem;
+  padding: 0.75rem 1.5rem; /* Giữ cố định padding này trong mọi trạng thái */
   border-radius: 8px;
   color: #939BB4;
   text-decoration: none;
   transition: all 0.2s ease;
   cursor: pointer;
-  border: 1px solid transparent; /* Thêm dòng này để ngăn lỗi giật UI khi có viền ở active */
-}
-
-.navItem:visited {
-  color: #939BB4;
-}
-
-.sidebar:not(:hover):not(:focus-within) .navItem {
-  justify-content: center;
-  gap: 0;
-  width: 3.25rem;
-  margin-left: 0.25rem;
-  padding-left: 0;
-  padding-right: 0;
+  border: 1px solid transparent;
 }
 
 .navItem:hover {
@@ -127,17 +125,10 @@
 .navItemActive {
   background-color: #2E3856;
   color: #ffffff;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  /* Lúc này thẻ đổi từ border trong suốt sang có màu, kích thước block hoàn toàn không bị lệch */
 }
 
 .sidebar:not(:hover):not(:focus-within) .navItemActive {
-  background-color: #2E3856;
   border: 1px solid #3B4668;
-}
-
-.itemIconActive {
-  color: #818cf8;
 }
 
 .navItem > div {
@@ -155,7 +146,7 @@
   opacity: 0;
   overflow: hidden;
   white-space: nowrap;
-  transition: max-width 0.25s ease, opacity 0.2s ease;
+  transition: max-width 0.3s ease, opacity 0.2s ease;
 }
 
 .sidebar:hover .itemLabel,
@@ -164,27 +155,24 @@
   opacity: 1;
 }
 
-/* Divider block */
+/* =========================================
+   5. DIVIDER BẢO TOÀN KHOẢNG TRỐNG
+========================================= */
 .dividerContainer {
-  margin-top: 2rem;
-  margin-bottom: 1rem;
-  opacity: 0;
-  max-height: 0;
-  overflow: hidden;
-  transition: opacity 0.2s ease, max-height 0.25s ease;
-}
-
-.sidebar:hover .dividerContainer,
-.sidebar:focus-within .dividerContainer {
-  opacity: 1;
-  max-height: 4rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  padding: 0 1.5rem; /* Cùng trục dọc với icon */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* Xóa max-height 0, để nó luôn chiếm diện tích giữ chỗ */
 }
 
 .dividerLine {
   height: 1px;
   background-color: #1E2541;
   width: 100%;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .dividerText {
@@ -193,23 +181,33 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  padding-left: 0.75rem;
+  opacity: 0; /* Ẩn chữ đi khi không hover */
+  white-space: nowrap;
+  transition: opacity 0.3s ease;
 }
 
-/* 3. Footer Profile Section */
+.sidebar:hover .dividerText,
+.sidebar:focus-within .dividerText {
+  opacity: 1; /* Hiện chữ lại khi bung sidebar */
+}
+
+/* =========================================
+   6. FOOTER SECTION (PROFILE & LOGOUT)
+========================================= */
 .footerSection {
-  padding: 1rem;
+  padding: 1rem 0;
 }
 
 .userCard {
   background-color: #151932;
   border: 1px solid #2E3856;
   border-radius: 12px;
-  padding: 0.75rem;
+  margin: 0 0.5rem 1rem 0.5rem; 
+  padding: 0.5rem;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  gap: 1rem;
+  transition: background-color 0.2s, border-color 0.2s;
 }
 
 .userCardLink {
@@ -223,25 +221,13 @@
   background-color: #1b2040;
 }
 
-.userCardLink:visited {
-  color: inherit;
-}
-
-.sidebar:not(:hover):not(:focus-within) .userCard {
-  width: 3.75rem;
-  padding: 0.75rem;
-  justify-content: center;
-  gap: 0;
-  background-color: #1B2040;
-}
-
-
 .userAvatar {
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid #1E2541;
+  flex-shrink: 0;
 }
 
 .userInfo {
@@ -250,7 +236,7 @@
   overflow: hidden;
   max-width: 0;
   opacity: 0;
-  transition: max-width 0.25s ease, opacity 0.2s ease;
+  transition: max-width 0.3s ease, opacity 0.2s ease;
 }
 
 .sidebar:hover .userInfo,
@@ -267,6 +253,7 @@
   text-overflow: ellipsis;
   overflow: hidden;
 }
+
 .userMSSV {
   font-size: 0.75rem;
   color: #939BB4;
@@ -290,8 +277,8 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  gap: 0.75rem;
-  padding: 0.625rem 0.75rem;
+  gap: 1rem;
+  padding: 0.625rem 1.5rem; /* Giữ padding trái 1.5rem để ngang hàng với icon phía trên */
   width: 100%;
   background: none;
   border: none;
@@ -301,15 +288,6 @@
   transition: color 0.2s, background-color 0.2s;
 }
 
-.sidebar:not(:hover):not(:focus-within) .logoutButton {
-  width: 3.25rem;
-  justify-content: center;
-  gap: 0;
-  padding-left: 0;
-  padding-right: 0;
-  margin-left: 0.25rem;
-}
-
 .logoutButton:hover {
   color: #ffffff;
   background-color: #1E2541;
@@ -317,10 +295,11 @@
 
 .logoutIcon {
   transition: color 0.2s;
+  flex-shrink: 0;
 }
 
 .logoutButton:hover .logoutIcon {
-  color: #f87171; /* Đổi màu icon logout sang màu đỏ nhẹ khi hover */
+  color: #f87171;
 }
 
 .logoutText {
@@ -330,28 +309,11 @@
   opacity: 0;
   overflow: hidden;
   white-space: nowrap;
-  transition: max-width 0.25s ease, opacity 0.2s ease;
+  transition: max-width 0.3s ease, opacity 0.2s ease;
 }
 
 .sidebar:hover .logoutText,
 .sidebar:focus-within .logoutText {
-  max-width: 120px;
-  opacity: 1;
-}
-
-
-.loginText {
-  font-size: 0.875rem;
-  font-weight: 500;
-  max-width: 0;
-  opacity: 0;
-  overflow: hidden;
-  white-space: nowrap;
-  transition: max-width 0.25s ease, opacity 0.2s ease;
-}
-
-.sidebar:hover .loginText,
-.sidebar:focus-within .loginText {
   max-width: 120px;
   opacity: 1;
 }
