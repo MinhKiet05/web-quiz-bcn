@@ -1,0 +1,126 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 40px); /* Trừ hao padding của layout nếu có */
+  position: relative;
+  font-family: 'Inter', sans-serif;
+  color: #ffffff;
+}
+
+.glowEffect {
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(66, 85, 255, 0.1) 0%, rgba(11, 14, 30, 0) 70%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.contentCard {
+  background-color: #171B31;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 3rem;
+  max-width: 500px;
+  width: 90%;
+  text-align: center;
+  z-index: 1;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.iconWrapper {
+  color: #4255FF;
+  margin-bottom: 1rem;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.errorCode {
+  font-size: 5rem;
+  font-weight: 800;
+  margin: 0;
+  background: linear-gradient(135deg, #ffffff 0%, #727C9E 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1;
+}
+
+.title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin: 1rem 0 0.75rem 0;
+  color: #E2E4EB;
+}
+
+.description {
+  font-size: 1rem;
+  color: #939BB4;
+  line-height: 1.6;
+  margin: 0 0 2rem 0;
+}
+
+/* Action Buttons */
+.actionGroup {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  width: 100%;
+  justify-content: center;
+}
+
+.btnBack, .btnHome {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btnBack {
+  background-color: transparent;
+  color: #939BB4;
+  border: 1px solid rgba(147, 155, 180, 0.3);
+}
+
+.btnBack:hover {
+  background-color: rgba(147, 155, 180, 0.1);
+  color: #ffffff;
+}
+
+.btnHome {
+  background-color: #4255FF;
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 4px 12px rgba(66, 85, 255, 0.25);
+}
+
+.btnHome:hover {
+  background-color: #3646E8;
+}
+
+.countdownText {
+  font-size: 0.9rem;
+  color: #727C9E;
+  margin: 0;
+}
+
+.countdownText span {
+  color: #ffffff;
+  font-weight: 700;
+}

@@ -3,10 +3,12 @@ import { Search, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import styles from './QuizList.module.css';
 import CardQuiz from '../../components/cardQuiz/CardQuiz'; 
 import { supabase } from '../../lib/supabaseClient'; 
-
+import { useNavigate } from 'react-router-dom';
+import ConfirmationLoginModal from '../../components/confirmationModal/ConfirmationLoginModal';
 const ITEMS_PER_PAGE = 6;
 
 export default function QuizList() {
+  const navigate = useNavigate();
   const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
@@ -16,7 +18,7 @@ export default function QuizList() {
   const [searchTerm, setSearchTerm] = useState('');
   const [category, setCategory] = useState('all');
   const [difficulty, setDifficulty] = useState('all');
-
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   // Lấy dữ liệu từ Supabase
   const fetchQuizzes = async () => {
     setLoading(true);
@@ -160,7 +162,7 @@ export default function QuizList() {
       ) : quizzes.length > 0 ? (
         <div className={styles.quizGrid}>
           {quizzes.map((quiz) => (
-            <CardQuiz key={quiz.id} quiz={quiz} />
+            <CardQuiz key={quiz.id} quiz={quiz} onRequireLogin={() => setIsLoginModalOpen(true)}/>
           ))}
         </div>
       ) : (
@@ -191,6 +193,14 @@ export default function QuizList() {
           </button>
         </div>
       )}
+      <ConfirmationLoginModal 
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+        onConfirm={() => {
+          setIsLoginModalOpen(false); 
+          navigate('/login');         
+        }}
+      />
     </div>
   );
 }
