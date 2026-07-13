@@ -1,0 +1,294 @@
+.container {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 2rem;
+  max-width: 1072px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+}
+
+/* --- Header & Dropdown --- */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.description {
+  flex: 1;
+  color: #939BB4;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin: 0;
+  min-width: 300px;
+}
+
+.selectWrapper {
+  position: relative;
+  min-width: 250px;
+}
+
+.selectBox {
+  appearance: none;
+  background-color: #21263E; /* Trùng màu nền input của ảnh */
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: #E2E4EB;
+  padding: 0.75rem 2.5rem 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  outline: none;
+  cursor: pointer;
+  width: 100%;
+}
+
+.selectBox:focus {
+  border-color: #4255FF;
+}
+
+.selectIcon {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #727C9E;
+  pointer-events: none;
+}
+
+.divider {
+  width: 100%;
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* --- Trạng thái Loading / Trống --- */
+.loadingState, .emptyState {
+  text-align: center;
+  padding: 4rem 0;
+  color: #727C9E;
+  font-size: 1.1rem;
+}
+
+/* =========================================
+   PODIUM (BỤC VINH QUANG TOP 3)
+   ========================================= */
+.podiumContainer {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end; /* Ép bục nằm bằng phẳng ở đáy */
+  gap: 1.5rem;
+  margin-bottom: 4rem;
+  min-height: 320px;
+}
+
+.podiumItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 30%;
+  max-width: 280px;
+  /* Animation trồi lên */
+  opacity: 0;
+  transform: translateY(40px);
+  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Delay cho từng Hạng để tạo hiệu ứng lần lượt */
+.rank2 { animation-delay: 0.2s; }
+.rank1 { animation-delay: 0.4s; z-index: 2; }
+.rank3 { animation-delay: 0.6s; }
+
+/* Các Huy hiệu Hạng */
+.rankBadgeGold, .rankBadgeSilver, .rankBadgeBronze {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+}
+
+.rankBadgeGold { color: #FACC15; font-size: 1.8rem; text-shadow: 0 0 10px rgba(250, 204, 21, 0.5); }
+.rankBadgeSilver { color: #CBD5E1; }
+.rankBadgeBronze { color: #D97706; }
+
+/* Thẻ (Card) trên Bục */
+.podiumCardBronze, .podiumCardGold, .podiumCardSilver {
+  background-color: #21263E; /* Nền xanh xám */
+  border-radius: 12px 12px 0 0;
+  padding: 2rem 1rem;
+  width: 90%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Thẻ Top 1 cao hơn và có viền sáng bóng */
+.podiumCardGold {
+  background: linear-gradient(180deg, #2A3154 0%, #171B31 100%);
+  padding: 3.5rem 1rem;
+  border: 1px solid rgba(250, 204, 21, 0.3);
+  box-shadow: 0 10px 40px rgba(250, 204, 21, 0.15);
+}
+.podiumCardSilver {
+  background: linear-gradient(180deg, #2A3154 0%, #171B31 100%);
+  padding: 2.5rem 1rem;
+  border: 1px solid rgba(203, 213, 225, 0.3);
+  box-shadow: 0 10px 40px rgba(203, 213, 225, 0.15);
+}
+.podiumCardBronze {
+  background: linear-gradient(180deg, #2A3154 0%, #171B31 100%);
+  padding: 2rem 1rem;
+  border: 1px solid rgba(217, 119, 6, 0.3);
+  box-shadow: 0 10px 40px rgba(217, 119, 6, 0.15);
+}
+.podiumName {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.podiumMssv, .podiumMssvGold {
+  font-size: 0.95rem;
+  margin: 0 0 0.5rem 0;
+}
+.podiumMssv { color: #939BB4; }
+.podiumMssvGold { color: #FACC15; font-weight: 600; }
+
+.podiumScore, .podiumScoreGold, .podiumScoreBronze {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0 0 1.5rem 0;
+}
+.podiumScore { color: #939BB4; }
+.podiumScoreGold { color: #FACC15; }
+.podiumScoreBronze { color: #D97706; }
+
+.podiumTime {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #727C9E;
+  font-size: 0.85rem;
+}
+
+/* =========================================
+   BẢNG XẾP HẠNG (TỪ HẠNG 4)
+   ========================================= */
+.tableContainer {
+  background-color: #21263E;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: 0.8s;
+  opacity: 0;
+}
+
+.leaderboardTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.leaderboardTable th {
+  background-color: #2A3154;
+  color: #939BB4;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 1.25rem 1.5rem;
+  text-align: left;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+}
+
+.leaderboardTable td {
+  padding: 1.25rem 1.5rem;
+  color: #E2E4EB;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  font-size: 0.95rem;
+}
+
+.leaderboardTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Hover mượt mà cho dòng */
+.leaderboardTable tbody tr {
+  transition: background-color 0.2s;
+}
+
+.leaderboardTable tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+/* Căn lề cột */
+.textCenter { text-align: center !important; }
+.textRight { text-align: right !important; }
+.rankCell { font-weight: 700; color: #ffffff; width: 80px; }
+.mssvCell { color: #939BB4; width: 150px; }
+.scoreCell { text-align: center; font-weight: 700; color: #ffffff; width: 120px; }
+.timeCell { text-align: right; color: #727C9E; width: 120px; }
+
+.nameCell {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Highlight cho User hiện tại */
+.currentUserRow {
+  background-color: rgba(66, 85, 255, 0.1) !important;
+  border-left: 3px solid #4255FF;
+}
+
+.youBadge {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  letter-spacing: 0.05em;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .podiumContainer {
+    align-items: flex-end;
+    gap: 0.5rem;
+    min-height: 250px;
+  }
+  
+  .podiumItem {
+    width: 32%;
+  }
+
+  .podiumCard, .podiumCardGold {
+    padding: 1rem 0.5rem;
+  }
+  
+  .podiumName { font-size: 0.9rem; }
+  .podiumMssv, .podiumScore { font-size: 0.8rem; }
+  
+  .leaderboardTable th, .leaderboardTable td {
+    padding: 1rem 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .mssvCell, .timeCell {
+    display: none; /* Ẩn bớt cột MSSV và Thời gian trên đt cho đỡ chật */
+  }
+}
