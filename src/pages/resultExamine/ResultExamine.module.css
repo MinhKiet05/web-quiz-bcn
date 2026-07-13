@@ -1,0 +1,244 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  min-height: calc(100vh - 80px);
+  font-family: 'Inter', sans-serif;
+}
+
+.loadingText, .errorText {
+  color: #939BB4;
+  font-size: 1.1rem;
+}
+
+/* --- Card Chính --- */
+.resultCard {
+  position: relative;
+  width: 100%;
+  max-width: 680px;
+  background-color: #21263E; /* Nền xanh navy sáng hơn layout */
+  border-radius: 16px;
+  padding: 3rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  text-align: center;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glowTop {
+  position: absolute;
+  top: -50px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px;
+  height: 150px;
+  background: radial-gradient(ellipse at top, rgba(66, 85, 255, 0.25) 0%, rgba(33, 38, 62, 0) 70%);
+  pointer-events: none;
+}
+
+/* --- Trophy --- */
+.trophyWrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.trophyCircle {
+  width: 64px;
+  height: 64px;
+  background-color: #171A2B;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.trophyIcon {
+  color: #FACC15; /* Vàng rực */
+}
+
+/* --- Tiêu đề --- */
+.mainTitle {
+  color: #ffffff;
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0 0 1rem 0;
+}
+
+.subtitleWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 2.5rem;
+}
+
+.tagCategory {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #939BB4;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.quizTitle {
+  color: #E2E4EB;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+/* --- Điểm số --- */
+.scoreSection {
+  margin-bottom: 2.5rem;
+}
+
+.scoreLabel {
+  color: #727C9E;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  margin: 0 0 0.5rem 0;
+}
+
+.scoreValue {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
+.highlightScore {
+  color: #ffffff;
+  font-size: 4rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.maxScore {
+  color: #727C9E;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+/* --- Thống kê --- */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.statBox {
+  background-color: #171A2B;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 1.25rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.2s;
+}
+
+
+.iconCorrect { color: #10B981; margin-bottom: 0.75rem; } /* Xanh lục */
+.iconIncorrect { color: #EF4444; margin-bottom: 0.75rem; } /* Đỏ */
+.iconTime { color: #3B82F6; margin-bottom: 0.75rem; } /* Xanh dương */
+
+.statLabel {
+  color: #939BB4;
+  font-size: 0.85rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.statValue {
+  color: #ffffff;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* --- Cảnh báo Weekly Quiz --- */
+.warningBox {
+  background-color: #2C2424; /* Nền ám nâu đỏ/cam */
+  border: 1px solid rgba(249, 115, 22, 0.2);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  text-align: left;
+}
+
+.warningIcon {
+  color: #F97316; /* Cam */
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.warningText {
+  color: #D1D5DB;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* --- Nút bấm --- */
+.actionButtons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.btnSecondary, .btnPrimaryWeekly, .btnPrimaryNormal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex: 1;
+}
+
+.btnSecondary {
+  background-color: #171A2B;
+  color: #E2E4EB;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btnSecondary:hover {
+  background-color: #1E233A;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Nút cho Quiz Tuần */
+.btnPrimaryWeekly {
+  background-color: #2E3856;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btnPrimaryWeekly:hover {
+  background-color: #384469;
+}
+
+/* Nút cho Quiz Thường */
+.btnPrimaryNormal {
+  background-color: #4255FF;
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 4px 12px rgba(66, 85, 255, 0.25);
+}
+
+.btnPrimaryNormal:hover {
+  background-color: #3646E8;
+}

@@ -228,8 +228,12 @@
   object-fit: cover;
   border: 2px solid #1E2541;
   flex-shrink: 0;
+  color: #939BB4
 }
-
+.userCardLink:hover .userAvatar,
+.userCardLinkActive .userAvatar {
+  color: #ffffff;      /* khi hover hoặc đang active */
+}
 .userInfo {
   display: flex;
   flex-direction: column;

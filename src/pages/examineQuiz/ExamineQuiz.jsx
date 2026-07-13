@@ -153,7 +153,7 @@ export default function ExamineQuiz() {
       if (error) throw error;
 
       toast.success('Nộp bài thành công!', { id: toastId });
-      navigate('/history');
+      navigate(`/result/${data[0].attempt_id}`);
 
     } catch (err) {
       toast.error('Lỗi khi nộp bài: ' + err.message, { id: toastId });

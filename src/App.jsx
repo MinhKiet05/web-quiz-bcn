@@ -15,7 +15,7 @@ import DashBoardUser from './pages/dashBoardUser/DashBoardUser';
 import StartQuiz from './pages/startQuiz/StartQuiz';
 import NotFound from './pages/notFound/NotFound';
 import ExamineQuiz from './pages/examineQuiz/ExamineQuiz';
-
+import ResultExamine from './pages/resultExamine/ResultExamine';
 
 import { Toaster } from 'sonner';
 const AUTH_STORAGE_KEY = 'web-quiz-bcn-auth-user';
@@ -174,7 +174,7 @@ function App() {
           path="/leaderboard"
           element={<LeaderBoard />}
         />
-
+        <Route path="/result/:id" element={<AuthGate user={user}><ResultExamine /></AuthGate>} />
         <Route
           path="/history"
           element={
