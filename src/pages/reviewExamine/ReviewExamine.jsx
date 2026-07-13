@@ -31,6 +31,21 @@ export default function ReviewExamine() {
           .single();
 
         if (attemptError) throw attemptError;
+
+
+        // ==========================================
+        // THÊM ĐOẠN NÀY: BẢO MẬT CHỐNG XEM TRỘM BÀI
+        // ==========================================
+        const storedUser = JSON.parse(localStorage.getItem('web-quiz-bcn-auth-user'));
+        
+        // Kiểm tra: Nếu MSSV của bài làm KHÔNG khớp với MSSV người đang đăng nhập
+        if (storedUser && attemptData.user_id !== storedUser.mssv) {
+          toast.error('Cảnh báo: Bạn không có quyền xem bài làm của người khác!');
+          navigate('/quiz-list', { replace: true });
+          return; // Dừng lại, không chạy code bên dưới nữa
+        }
+        // ==========================================
+
         setAttempt(attemptData);
         setQuiz(attemptData.quizzes);
 

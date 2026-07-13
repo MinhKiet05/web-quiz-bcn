@@ -37,6 +37,7 @@ export default function ResultExamine() {
 
         // ==========================================
         // BẢO MẬT: CHẶN XEM KẾT QUẢ NGƯỜI KHÁC
+        // THÊM ĐOẠN NÀY: CHẶN XEM KẾT QUẢ NGƯỜI KHÁC
         // ==========================================
         const storedUser = JSON.parse(localStorage.getItem('web-quiz-bcn-auth-user'));
         if (storedUser && data.user_id !== storedUser.mssv) {
