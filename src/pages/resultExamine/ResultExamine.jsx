@@ -31,6 +31,17 @@ export default function ResultExamine() {
           .single();
 
         if (error) throw error;
+
+        // ==========================================
+        // THÊM ĐOẠN NÀY: CHẶN XEM KẾT QUẢ NGƯỜI KHÁC
+        // ==========================================
+        const storedUser = JSON.parse(localStorage.getItem('web-quiz-bcn-auth-user'));
+        if (storedUser && data.user_id !== storedUser.mssv) {
+          toast.error('Cảnh báo: Bạn không có quyền xem kết quả của người khác!');
+          navigate('/quiz-list', { replace: true });
+          return;
+        }
+
         setResultData(data);
       } catch (err) {
         console.error('Lỗi khi tải kết quả:', err);
