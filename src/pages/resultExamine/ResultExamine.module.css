@@ -74,7 +74,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .tagCategory {
@@ -94,7 +94,7 @@
 
 /* --- Điểm số --- */
 .scoreSection {
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .scoreLabel {

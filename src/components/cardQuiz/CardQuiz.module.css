@@ -59,8 +59,8 @@
 
 /* Style cho các loại tag khác nhau */
 .tagCategory {
-  background-color: #161932; /* Nền tối cho môn học */
-  color: #939BB4;
+  background-color: rgba(66, 85, 255, 0.15);
+  color: #8C9EFF;
 }
 
 .tagWeekly {

@@ -1,0 +1,423 @@
+.container {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 2rem;
+  max-width: 1072px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  color: #ffffff;
+}
+
+/* --- Filter Bar --- */
+/* --- Filter Bar --- */
+.filterBar {
+  background-color: #171B31;
+  border-radius: 12px;
+  padding: 0.5rem 1.25rem;
+  margin-bottom: 0.5rem; /* Giữ lại margin này để cách danh sách bài thi bên dưới */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap; /* Cho phép các thành phần rớt dòng */
+}
+
+.searchContainer {
+  position: relative;
+  flex: 1 1 300px; /* Cho phép co giãn tự do với min-size 300px */
+}
+
+.searchIcon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #727C9E;
+}
+
+.searchInput {
+  width: 100%;
+  background-color: #0B0E1E;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+  padding: 0.75rem 1rem 0.75rem 2.75rem; /* Padding trái rộng ra để chừa chỗ cho searchIcon */
+  border-radius: 8px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.searchInput:focus {
+  border-color: #4255FF;
+}
+
+.dropdownsContainer {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap; /* Cho phép 2 ô select rớt dòng nếu màn hình ép quá nhỏ */
+}
+
+.selectWrapper {
+  position: relative;
+}
+
+.selectBox {
+  appearance: none;
+  background-color: #0B0E1E;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: #E2E4EB;
+  padding: 0.75rem 2.5rem 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  outline: none;
+  cursor: pointer;
+  min-width: 180px;
+}
+
+.selectBox:focus {
+  border-color: #4255FF;
+}
+
+.selectIcon {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #727C9E;
+  pointer-events: none;
+}
+
+/* --- Sub Text --- */
+.subText {
+  color: #939BB4;
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+}
+
+/* --- Lịch sử Card --- */
+.loadingState, .emptyState {
+  text-align: center;
+  padding: 4rem 0;
+  color: #727C9E;
+  font-size: 1.1rem;
+}
+/* --- Lịch sử Card --- */
+.loadingState, .emptyState {
+  text-align: center;
+  padding: 4rem 0;
+  color: #727C9E;
+  font-size: 1.1rem;
+}
+
+.historyList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.historyCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #21263E;
+  padding: 1.5rem 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  transition: transform 0.2s, box-shadow 0.2s;
+  
+  /* THÊM VÀO ĐÂY: Tự động xuống dòng khi card bị ép chiều rộng */
+  flex-wrap: wrap;
+  gap: 1.5rem; 
+}
+
+.historyCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Cột Trái: Info */
+.cardInfo {
+  flex: 1 1 300px; /* Hạ xuống 300px để thân thiện với iPad */
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-width: 0; /* Quan trọng: Ngăn nội dung dài phá vỡ khung */
+}
+
+.quizTitle {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.dateTime {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #939BB4;
+  font-size: 0.85rem;
+}
+
+.tagGroup {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+  /* THÊM VÀO ĐÂY: Các tag con tự động xuống dòng nếu tên môn thi quá dài */
+  flex-wrap: wrap; 
+}
+
+/* Áp dụng chung cho tất cả các loại tag */
+.tagCategory, .tagNormal, .tagWeekly, .diffEasy, .diffMedium, .diffHard {
+  padding: 0.35rem 1rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  white-space: nowrap; /* Không cho chữ trong tag bị bẻ đôi dòng */
+}
+
+.tagCategory {
+  background-color: rgba(66, 85, 255, 0.15);
+  color: #8C9EFF;
+}
+
+.tagNormal {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #B4B9C9;
+}
+
+.tagWeekly {
+  background-color: #4255FF;
+  color: #ffffff;
+}
+
+.diffEasy {
+  background-color: rgba(46, 125, 50, 0.2);
+  color: #4CAF50;
+}
+
+.diffMedium {
+  background-color: rgba(169, 78, 59, 0.25);
+  color: #E28C76;
+}
+
+.diffHard {
+  background-color: rgba(198, 40, 40, 0.2);
+  color: #E53935;
+}
+
+/* Cột Giữa: Stats (Điểm số & Thời gian) */
+.cardStats {
+  flex: 1 1 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 120px;
+}
+
+.scoreContainer {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+}
+
+.scoreNumber {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #E2E4EB;
+  line-height: 1;
+}
+
+.scoreLow {
+  color: #EF4444;
+}
+
+.scoreMax {
+  font-size: 1.25rem;
+  color: #727C9E;
+  font-weight: 500;
+}
+
+.timeContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #939BB4;
+  font-size: 0.85rem;
+}
+
+/* Cột Phải: Actions (Các nút Xem lại / Làm lại) */
+.cardActions {
+  flex: 1 1 250px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap; 
+  min-width: 0; /* Chống tràn giao diện */
+}
+.btnReview, .btnRetry {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex: 1; /* Cho phép các nút tự động dãn đều bằng nhau */
+  min-width: 120px; /* Độ rộng tối thiểu để nút không bị quá nhỏ */
+  white-space: nowrap;
+}
+
+.btnReview {
+  background-color: transparent;
+  color: #B4B9C9;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btnReview:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+}
+
+.btnLocked {
+  opacity: 0.5;
+  cursor: not-allowed;
+  color: #727C9E;
+}
+
+.btnRetry {
+  background-color: #4255FF;
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 4px 10px rgba(66, 85, 255, 0.2);
+}
+
+.btnRetry:hover:not(:disabled) {
+  background-color: #3646E8;
+}
+
+.btnRetry:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #2A3154;
+  color: #727C9E;
+  box-shadow: none;
+}
+
+/* Thêm logic để nút chỉ đổi màu hover khi chưa bị khóa */
+.btnRetry:hover:not(:disabled) {
+  background-color: #3646E8;
+}
+
+/* Thêm trạng thái khóa dành riêng cho nút Làm lại */
+.btnRetry:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #2A3154; /* Màu xám xanh tối */
+  color: #727C9E; /* Chữ xám mờ */
+  box-shadow: none; /* Tắt đổ bóng */
+}
+
+/* --- Pagination --- */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 3rem;
+}
+
+.pageBtn, .pageNumber {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+  color: #939BB4;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pageBtn:hover:not(:disabled), .pageNumber:hover:not(.pageActive) {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+}
+
+.pageBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pageActive {
+  background-color: #4255FF;
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(66, 85, 255, 0.3);
+}
+
+/* --- Media Queries Responsive --- */
+/* Màn hình dưới 767px: dàn lại thanh filter */
+@media (max-width: 766px) {
+  .dropdownsContainer {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .selectWrapper {
+    flex: 1; /* Cho 2 nút select chia đều không gian */
+  }
+  
+  .selectBox {
+    width: 100%;
+    min-width: unset; /* Bỏ min-width để tránh bị tràn ngang trên điện thoại */
+  }
+}
+/* Màn hình nhỏ (dưới 768px): Ép card chuyển hẳn sang dạng block dọc */
+@media (max-width: 768px) {
+  .historyCard {
+    flex-direction: column;
+    align-items: flex-start; /* Căn trái toàn bộ */
+    padding: 1.25rem; /* Thu nhỏ đệm một chút cho vừa màn hình nhỏ */
+    gap: 1rem;
+  }
+
+  /* Ép tất cả các cột thành chiều rộng 100% và gỡ bỏ flex-basis */
+  .cardInfo, .cardStats, .cardActions {
+    width: 100%;
+    flex: none; 
+    min-width: 0;
+  }
+
+  /* Đưa điểm số và thời gian nằm ngang hàng nhau cho gọn */
+  .cardStats {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 1rem 0;
+  }
+
+  /* Các nút hành động xếp dọc để to rõ, dễ bấm trên điện thoại */
+  .cardActions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .btnReview, .btnRetry {
+    width: 100%;
+    justify-content: center;
+  }
+}

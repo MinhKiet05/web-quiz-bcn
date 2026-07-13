@@ -81,44 +81,45 @@ function App() {
     }
   }, [defaultRoute, location.pathname, navigate, user]);
 
-  const handleLogin = async ({ mssv, password }) => {
+  const handleLogin = async ({ email, password }) => {
     setLoading(true);
     setError('');
 
     try {
-      const { data, error: rpcError } = await supabase.rpc('login_user', {
-        p_mssv: mssv.trim(),
-        p_password: password,
+      // Gọi API đăng nhập chuẩn của Supabase (Dùng Email thay vì MSSV)
+      const { data, error: loginError } = await supabase.auth.signInWithPassword({
+        email: email, 
+        password: password,
       });
 
-      if (rpcError) {
-        throw rpcError;
-      }
+      if (loginError) throw loginError;
 
-      const profile = Array.isArray(data) ? data[0] : data;
-
-      if (!profile) {
-        throw new Error('MSSV hoặc mật khẩu không đúng.');
-      }
-
+      // Supabase trả về data.user, trong đó có chứa cái user_metadata hồi nãy mình cất vào
+      const sessionUser = data.user;
+      
       const normalizedUser = {
-        ...profile,
-        role: String(profile.role ?? 'student').toLowerCase(),
+        mssv: sessionUser.user_metadata.mssv,
+        full_name: sessionUser.user_metadata.full_name,
+        email: sessionUser.email,
+        role: sessionUser.user_metadata.role || 'student',
       };
 
       setUser(normalizedUser);
       navigate(routeByRole[normalizedUser.role] ?? '/quiz-list', { replace: true });
       return normalizedUser;
-    } catch (loginError) {
-      const message = loginError instanceof Error ? loginError.message : 'Đăng nhập thất bại.';
-      setError(message);
-      throw loginError;
+
+    } catch (err) {
+      setError('Email hoặc mật khẩu không đúng.');
+      throw err;
     } finally {
       setLoading(false);
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    // Kêu Supabase xóa phiên đăng nhập trên máy chủ
+    await supabase.auth.signOut(); 
+    
     setUser(null);
     setError('');
     navigate('/login', { replace: true });
