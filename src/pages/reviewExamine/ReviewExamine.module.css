@@ -1,0 +1,364 @@
+.loadingScreen {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  align-items: center;
+  justify-content: center;
+  background-color: #0B0D17;
+  color: #939BB4;
+  font-size: 1.2rem;
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #070913; 
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+}
+
+/* --- HEADER --- */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: #171A2B;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.headerLeft { flex: 1; }
+.quizTitle { font-size: 1.1rem; font-weight: 600; margin: 0; }
+
+.headerCenter {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.reviewModeTag {
+  background-color: rgba(66, 85, 255, 0.15);
+  color: #8C9EFF;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.headerRight {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.scoreDisplay {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: #10B981;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+.scoreDisplay strong { font-size: 1.2rem; }
+
+/* --- MAIN CONTENT --- */
+.mainContent {
+  flex: 1;
+  display: flex;
+  gap: 1.5rem;
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* --- TRÁI: KHUNG CÂU HỎI --- */
+.questionSection {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.weeklyWarning {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background-color: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  color: #FCD34D;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+.warningIcon { flex-shrink: 0; }
+
+.questionCard {
+  background-color: #171A2B;
+  border-radius: 12px;
+  padding: 2.5rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+.questionMetaHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.questionMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #939BB4;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.questionIcon {
+  width: 20px;
+  height: 20px;
+  background-color: rgba(147, 155, 180, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+}
+
+.statusCorrect { color: #10B981; display: flex; align-items: center; gap: 0.4rem; font-size: 0.9rem; font-weight: 600; }
+.statusIncorrect { color: #EF4444; display: flex; align-items: center; gap: 0.4rem; font-size: 0.9rem; font-weight: 600; }
+.statusPending { color: #939BB4; font-size: 0.9rem; font-weight: 600; }
+
+.questionText {
+  font-size: 1.3rem;
+  line-height: 1.6;
+  margin: 0 0 1.5rem 0;
+  font-weight: 600;
+}
+
+.codeSnippet {
+  background-color: #0C0F1D;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  overflow-x: auto;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.codeSnippet pre { margin: 0; }
+.codeSnippet code {
+  font-family: 'Fira Code', 'Consolas', monospace;
+  font-size: 0.95rem;
+  color: #E2E4EB;
+}
+
+/* Các đáp án MCQ */
+.optionsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.optionItem {
+  display: flex;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  background-color: #1C2035;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  opacity: 0.8;
+}
+
+/* Trạng thái Ẩn kết quả (Chưa tới giờ) */
+.optionSelected {
+  background-color: rgba(66, 85, 255, 0.15);
+  border-color: #4255FF;
+  opacity: 1;
+}
+
+/* Trạng thái Hiện kết quả */
+.optionCorrect {
+  background-color: rgba(16, 185, 129, 0.1);
+  border-color: #10B981;
+  opacity: 1;
+}
+
+.optionIncorrect {
+  background-color: rgba(239, 68, 68, 0.1);
+  border-color: #EF4444;
+  opacity: 1;
+}
+
+/* Chấm radio */
+.radioCircle {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #5C6584;
+  margin-right: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.circleSelected { border-color: #4255FF; }
+.circleCorrect { border-color: #10B981; }
+.circleIncorrect { border-color: #EF4444; }
+
+.radioDot { width: 10px; height: 10px; border-radius: 50%; background-color: currentColor; }
+.circleSelected .radioDot { background-color: #4255FF; }
+.circleCorrect .radioDot { background-color: #10B981; }
+.circleIncorrect .radioDot { background-color: #EF4444; }
+
+.correctCheck { color: #10B981; }
+
+.optionChar { color: #939BB4; font-weight: 600; margin-right: 0.75rem; }
+.optionText { font-size: 1rem; color: #E2E4EB; }
+
+/* Fill Text */
+.fillTextContainer { margin-top: 0.5rem; width: 100%; }
+.fillLabel { display: block; color: #939BB4; font-size: 0.9rem; margin-bottom: 0.5rem; }
+
+.fillTextInput {
+  width: 100%;
+  background-color: #0C0F1D;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #E2E4EB;
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  opacity: 0.8;
+}
+
+.inputCorrect { border-color: #10B981; background-color: rgba(16, 185, 129, 0.05); color: #10B981; opacity: 1; font-weight: 600;}
+.inputIncorrect { border-color: #EF4444; background-color: rgba(239, 68, 68, 0.05); color: #EF4444; opacity: 1; text-decoration: line-through;}
+
+.correctFillTextAlert {
+  margin-top: 0.75rem;
+  color: #10B981;
+  font-size: 0.95rem;
+  background-color: rgba(16, 185, 129, 0.1);
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  border-left: 3px solid #10B981;
+}
+
+/* Explanation */
+.explanationBox {
+  margin-top: 2rem;
+  background-color: #1B243B;
+  border: 1px solid #2A3655;
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.explanationHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #8C9EFF;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+}
+
+.explanationContent {
+  color: #B4B9C9;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* Nút điều hướng */
+.navigationButtons { display: flex; justify-content: space-between; }
+
+.navBtn, .navBtnPrimary {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.75rem 1.5rem; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; border: none;
+}
+.navBtn { background-color: #171A2B; color: #E2E4EB; }
+.navBtn:hover:not(:disabled) { background-color: #1E233A; }
+.navBtnPrimary { background-color: #4255FF; color: #fff; }
+.navBtnPrimary:hover:not(:disabled) { background-color: #3646E8; }
+.navBtn:disabled, .navBtnPrimary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* --- PHẢI: BẢNG CÂU HỎI --- */
+.sidePanel {
+  width: 320px;
+  background-color: #171A2B;
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.panelHeader { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+.panelHeader h3 { margin: 0; font-size: 1.1rem; color: #E2E4EB; }
+.gridIcon { color: #727C9E; }
+
+.questionGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.gridBtn {
+  aspect-ratio: 1;
+  background-color: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #939BB4;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gridBtnAnswered { background-color: #2E344E; color: #fff; border-color: #2E344E; } /* Chờ */
+.gridBtnCorrect { background-color: rgba(16, 185, 129, 0.15); color: #10B981; border-color: #10B981; }
+.gridBtnIncorrect { background-color: rgba(239, 68, 68, 0.15); color: #EF4444; border-color: #EF4444; }
+.gridBtnUnanswered { background-color: transparent; border: 1px dashed rgba(255, 255, 255, 0.2); }
+
+.gridBtnCurrent {
+  border: 2px solid #ffffff;
+  color: #fff;
+}
+
+.legend { margin-bottom: auto; }
+.legendItem { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; font-size: 0.85rem; color: #939BB4; }
+.legendDot { width: 12px; height: 12px; border-radius: 50%; }
+
+.dotCorrect { background-color: #10B981; }
+.dotIncorrect { background-color: #EF4444; }
+.dotAnswered { background-color: #2E344E; }
+.dotUnanswered { border: 1px dashed rgba(255, 255, 255, 0.4); background-color: transparent; }
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  background-color: transparent;
+  color: #939BB4;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 1.5rem;
+  transition: all 0.2s;
+}
+
+.backBtn:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+}

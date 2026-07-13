@@ -16,6 +16,8 @@ import StartQuiz from './pages/startQuiz/StartQuiz';
 import NotFound from './pages/notFound/NotFound';
 import ExamineQuiz from './pages/examineQuiz/ExamineQuiz';
 import ResultExamine from './pages/resultExamine/ResultExamine';
+import ReviewExamine from './pages/reviewExamine/ReviewExamine';
+
 
 import { Toaster } from 'sonner';
 const AUTH_STORAGE_KEY = 'web-quiz-bcn-auth-user';
@@ -124,9 +126,9 @@ function App() {
 
   return (
     <>
-    {/* Cấu hình Toaster gốc nằm ở top-right và bật dark mode */}
-      <Toaster 
-        position="top-right" 
+      {/* Cấu hình Toaster gốc nằm ở top-right và bật dark mode */}
+      <Toaster
+        position="top-right"
         theme="dark"
         toastOptions={{
           // Tùy biến CSS inline hoặc gán class trực tiếp cho quả toast
@@ -138,109 +140,115 @@ function App() {
           },
         }}
       />
-    
-    
+
+
       <Routes>
         <Route path="/quiz/do/:id" element={
           <AuthGate user={user}>
             <ExamineQuiz />
           </AuthGate>
-        }/>
-      {/* Route cha bọc tất cả các trang, giữ AppLayout (Sidebar) cố định */}
-      <Route element={<RootLayout user={user} onLogout={handleLogout} />}>
-        
-        <Route
-          path="/login"
-          element={
-            user ? (
-              <Navigate to={defaultRoute} replace />
-            ) : (
-              <Login onLogin={handleLogin} loading={loading} error={error} />
-            )
-          }
-        />
+        } />
+        <Route path="/history/review/:id" element={
+          <AuthGate user={user}>
+            <ReviewExamine />
+          </AuthGate>
+        } />
 
-        <Route
-          path="/"
-          element={<Navigate to={defaultRoute} replace />}
-        />
+        {/* Route cha bọc tất cả các trang, giữ AppLayout (Sidebar) cố định */}
+        <Route element={<RootLayout user={user} onLogout={handleLogout} />}>
 
-        <Route
-          path="/quiz-list"
-          element={<QuizList />}
-        />
+          <Route
+            path="/login"
+            element={
+              user ? (
+                <Navigate to={defaultRoute} replace />
+              ) : (
+                <Login onLogin={handleLogin} loading={loading} error={error} />
+              )
+            }
+          />
 
-        <Route
-          path="/leaderboard"
-          element={<LeaderBoard />}
-        />
-        <Route path="/result/:id" element={<AuthGate user={user}><ResultExamine /></AuthGate>} />
-        <Route
-          path="/history"
-          element={
-            <AuthGate user={user}>
-              <History />
-            </AuthGate>
-          }
-        />
+          <Route
+            path="/"
+            element={<Navigate to={defaultRoute} replace />}
+          />
 
-        <Route
-          path="/quiz-manager"
-          element={
-            <AuthGate user={user} allowedRoles={['editor', 'admin']}>
-              <QuizManager />
-            </AuthGate>
-          }
-        />
+          <Route
+            path="/quiz-list"
+            element={<QuizList />}
+          />
 
-        <Route
-          path="/question-manager"
-          element={
-            <AuthGate user={user} allowedRoles={['editor', 'admin']}>
-              <QuestionManager />
-            </AuthGate>
-          }
-        />
+          <Route
+            path="/leaderboard"
+            element={<LeaderBoard />}
+          />
+          <Route path="/result/:id" element={<AuthGate user={user}><ResultExamine /></AuthGate>} />
+          <Route
+            path="/history"
+            element={
+              <AuthGate user={user}>
+                <History />
+              </AuthGate>
+            }
+          />
 
-        <Route
-          path="/admin/dashboard"
-          element={
-            <AuthGate user={user} allowedRoles={['admin']}>
-              <DashBoardAdmin />
-            </AuthGate>
-          }
-        />
+          <Route
+            path="/quiz-manager"
+            element={
+              <AuthGate user={user} allowedRoles={['editor', 'admin']}>
+                <QuizManager />
+              </AuthGate>
+            }
+          />
 
-        <Route
-          path="/user-manager"
-          element={
-            <AuthGate user={user} allowedRoles={['admin']}>
-              <UserManager />
-            </AuthGate>
-          }
-        />
+          <Route
+            path="/question-manager"
+            element={
+              <AuthGate user={user} allowedRoles={['editor', 'admin']}>
+                <QuestionManager />
+              </AuthGate>
+            }
+          />
 
-        <Route
-          path="/user/dashboard"
-          element={
-            <AuthGate user={user}>
-              <DashBoardUser />
-            </AuthGate>
-          }
-        />
-        <Route
-          path="/quiz/:id"
-          element={
-            <AuthGate user={user}>
-              <StartQuiz />
-            </AuthGate>
-          }
-        />
-        <Route path="*" element={<NotFound />} />
-        
-      </Route>
+          <Route
+            path="/admin/dashboard"
+            element={
+              <AuthGate user={user} allowedRoles={['admin']}>
+                <DashBoardAdmin />
+              </AuthGate>
+            }
+          />
+
+          <Route
+            path="/user-manager"
+            element={
+              <AuthGate user={user} allowedRoles={['admin']}>
+                <UserManager />
+              </AuthGate>
+            }
+          />
+
+          <Route
+            path="/user/dashboard"
+            element={
+              <AuthGate user={user}>
+                <DashBoardUser />
+              </AuthGate>
+            }
+          />
+          <Route
+            path="/quiz/:id"
+            element={
+              <AuthGate user={user}>
+                <StartQuiz />
+              </AuthGate>
+            }
+          />
+          <Route path="*" element={<NotFound />} />
+
+        </Route>
       </Routes>
-      </>
+    </>
   );
 }
 
