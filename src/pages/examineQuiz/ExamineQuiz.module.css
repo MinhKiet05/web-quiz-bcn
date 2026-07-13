@@ -1,0 +1,430 @@
+.loadingScreen {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  align-items: center;
+  justify-content: center;
+  background-color: #0B0D17;
+  color: #fff;
+  font-size: 1.2rem;
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #070913; /* Màu nền tối nhất */
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+}
+
+/* --- HEADER --- */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: #171A2B;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.headerLeft {
+  flex: 1;
+}
+
+.quizTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.headerCenter {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.progressText {
+  font-size: 0.85rem;
+  color: #939BB4;
+}
+
+.progressBarBg {
+  width: 250px;
+  height: 6px;
+  background-color: #070913;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progressBarFill {
+  height: 100%;
+  background-color: #4255FF;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.headerRight {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.timer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: rgba(226, 140, 118, 0.1);
+  color: #E28C76;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.timerWarning {
+  color: #ff4d4d;
+  background-color: rgba(255, 77, 77, 0.1);
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.7; }
+  100% { opacity: 1; }
+}
+
+/* --- MAIN CONTENT --- */
+.mainContent {
+  flex: 1;
+  display: flex;
+  gap: 1.5rem;
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* --- TRÁI: KHUNG CÂU HỎI --- */
+.questionSection {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.questionCard {
+  background-color: #171A2B;
+  border-radius: 12px;
+  padding: 2.5rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+.questionMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #939BB4;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.questionIcon {
+  width: 20px;
+  height: 20px;
+  background-color: rgba(147, 155, 180, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+}
+
+.questionText {
+  font-size: 1.3rem;
+  line-height: 1.6;
+  margin: 0 0 1.5rem 0;
+  font-weight: 600;
+}
+
+.codeSnippet {
+  background-color: #0C0F1D;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  overflow-x: auto;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.codeSnippet pre {
+  margin: 0;
+}
+
+.codeSnippet code {
+  font-family: 'Fira Code', 'Consolas', monospace;
+  font-size: 0.95rem;
+  color: #E2E4EB;
+  line-height: 1.5;
+}
+
+/* Các đáp án */
+.optionsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.optionItem {
+  display: flex;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  background-color: #1C2035;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.optionItem:hover {
+  background-color: #232842;
+}
+
+.optionSelected {
+  background-color: rgba(66, 85, 255, 0.15);
+  border-color: #4255FF;
+}
+
+.radioCircle {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #5C6584;
+  margin-right: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.optionSelected .radioCircle {
+  border-color: #4255FF;
+}
+
+.radioDot {
+  width: 10px;
+  height: 10px;
+  background-color: #4255FF;
+  border-radius: 50%;
+}
+
+.optionChar {
+  color: #939BB4;
+  font-weight: 600;
+  margin-right: 0.75rem;
+}
+
+.optionText {
+  font-size: 1rem;
+  color: #E2E4EB;
+}
+
+/* Nút điều hướng dưới */
+.navigationButtons {
+  display: flex;
+  justify-content: space-between;
+}
+
+.navBtn, .navBtnPrimary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.navBtn {
+  background-color: #171A2B;
+  color: #E2E4EB;
+}
+
+.navBtn:hover:not(:disabled) {
+  background-color: #1E233A;
+}
+
+.navBtnPrimary {
+  background-color: #4255FF;
+  color: #fff;
+}
+
+.navBtnPrimary:hover:not(:disabled) {
+  background-color: #3646E8;
+}
+
+.navBtn:disabled, .navBtnPrimary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+
+/* --- PHẢI: BẢNG CÂU HỎI --- */
+.sidePanel {
+  width: 320px;
+  background-color: #171A2B;
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.panelHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.panelHeader h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #E2E4EB;
+}
+
+.gridIcon {
+  color: #727C9E;
+}
+
+.questionGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.gridBtn {
+  aspect-ratio: 1;
+  background-color: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #939BB4;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.gridBtn:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.gridBtnAnswered {
+  background-color: #4255FF;
+  color: #fff;
+  border-color: #4255FF;
+}
+
+.gridBtnCurrent {
+  border: 2px solid #4255FF;
+  color: #fff;
+}
+
+.gridBtnAnswered.gridBtnCurrent {
+  box-shadow: 0 0 0 2px rgba(66, 85, 255, 0.4);
+}
+
+.legend {
+  margin-bottom: auto; /* Đẩy nút nộp bài xuống đáy */
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
+  color: #939BB4;
+}
+
+.legendDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.dotAnswered { background-color: #4255FF; }
+.dotCurrent { border: 2px solid #4255FF; background-color: transparent; }
+.dotUnanswered { background-color: #2E344E; }
+
+.submitBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  background-color: #28a745;
+  color: #fff;
+  border: none;
+  padding: 1rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 1.5rem;
+  transition: background-color 0.2s;
+}
+
+.submitBtn:hover {
+  background-color: #218838;
+}
+
+.submitBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* --- FOOTER --- */
+.footer {
+  text-align: center;
+  padding: 1rem;
+  background-color: #111424;
+  color: #727C9E;
+  font-size: 0.85rem;
+}
+
+/* --- Fill Text (Điền từ) --- */
+.fillTextContainer {
+  margin-top: 0.5rem;
+  width: 100%;
+}
+
+.fillTextInput {
+  width: 100%;
+  background-color: #0C0F1D;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #E2E4EB;
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.fillTextInput:focus {
+  border-color: #4255FF;
+  background-color: #111424;
+  box-shadow: 0 0 0 3px rgba(66, 85, 255, 0.15);
+}
+
+.fillTextInput::placeholder {
+  color: #5C6584;
+}

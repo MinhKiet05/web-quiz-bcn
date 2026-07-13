@@ -14,6 +14,9 @@ import UserManager from './pages/userManager/UserManager';
 import DashBoardUser from './pages/dashBoardUser/DashBoardUser';
 import StartQuiz from './pages/startQuiz/StartQuiz';
 import NotFound from './pages/notFound/NotFound';
+import ExamineQuiz from './pages/examineQuiz/ExamineQuiz';
+import ResultExamine from './pages/resultExamine/ResultExamine';
+
 import { Toaster } from 'sonner';
 const AUTH_STORAGE_KEY = 'web-quiz-bcn-auth-user';
 
@@ -137,7 +140,12 @@ function App() {
       />
     
     
-    <Routes>
+      <Routes>
+        <Route path="/quiz/do/:id" element={
+          <AuthGate user={user}>
+            <ExamineQuiz />
+          </AuthGate>
+        }/>
       {/* Route cha bọc tất cả các trang, giữ AppLayout (Sidebar) cố định */}
       <Route element={<RootLayout user={user} onLogout={handleLogout} />}>
         
@@ -166,7 +174,7 @@ function App() {
           path="/leaderboard"
           element={<LeaderBoard />}
         />
-
+        <Route path="/result/:id" element={<AuthGate user={user}><ResultExamine /></AuthGate>} />
         <Route
           path="/history"
           element={
