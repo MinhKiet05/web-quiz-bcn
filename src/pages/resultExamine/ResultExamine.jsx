@@ -4,19 +4,21 @@ import {
   Trophy, CheckCircle, XCircle, Clock, Info, ArrowLeft, BarChart2, Eye
 } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
+import { toast } from 'sonner'; // Nhớ import toast để hiện thông báo lỗi bảo mật
 import styles from './ResultExamine.module.css';
 
 export default function ResultExamine() {
   const { id } = useParams(); // id của attempt (lượt làm bài)
   const navigate = useNavigate();
   const [resultData, setResultData] = useState(null);
+  const [maxScore, setMaxScore] = useState(0); // State lưu tổng điểm tuyệt đối
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchResult = async () => {
       try {
         setLoading(true);
-        // Lấy thông tin lượt làm bài kết hợp với thông tin Quiz và Category
+        // Lấy thông tin lượt làm bài kết hợp với Quiz, Category và lấy cả cột 'weight' của Câu hỏi
         const { data, error } = await supabase
           .from('attempts')
           .select(`
@@ -24,13 +26,34 @@ export default function ResultExamine() {
             quizzes (
               title,
               quiz_type,
-              categories (name)
+              categories (name),
+              questions (weight)
             )
           `)
           .eq('id', id)
           .single();
 
         if (error) throw error;
+
+        // ==========================================
+        // BẢO MẬT: CHẶN XEM KẾT QUẢ NGƯỜI KHÁC
+        // ==========================================
+        const storedUser = JSON.parse(localStorage.getItem('web-quiz-bcn-auth-user'));
+        if (storedUser && data.user_id !== storedUser.mssv) {
+          toast.error('Cảnh báo: Bạn không có quyền xem kết quả của người khác!');
+          navigate('/quiz-list', { replace: true });
+          return;
+        }
+
+        // ==========================================
+        // LOGIC TÍNH TỔNG ĐIỂM TỐI ĐA TỪ DATABASE
+        // ==========================================
+        const calculatedMaxScore = data.quizzes?.questions?.reduce((sum, q) => {
+          // Lấy weight, nếu câu nào null thì mặc định 10 điểm (Khớp với SQL COALESCE)
+          return sum + (q.weight || 10); 
+        }, 0) || 0;
+
+        setMaxScore(calculatedMaxScore);
         setResultData(data);
       } catch (err) {
         console.error('Lỗi khi tải kết quả:', err);
@@ -40,7 +63,7 @@ export default function ResultExamine() {
     };
 
     if (id) fetchResult();
-  }, [id]);
+  }, [id, navigate]);
 
   if (loading) {
     return (
@@ -87,13 +110,6 @@ export default function ResultExamine() {
         {/* Hào quang nền phía trên thẻ */}
         <div className={styles.glowTop}></div>
 
-        {/* Icon Cúp */}
-        <div className={styles.trophyWrapper}>
-          <div className={styles.trophyCircle}>
-            <Trophy size={28} className={styles.trophyIcon} weight="fill" />
-          </div>
-        </div>
-
         {/* Tiêu đề & Thông tin Quiz */}
         <h1 className={styles.mainTitle}>Chúc mừng bạn đã hoàn thành bài thi!</h1>
         <div className={styles.subtitleWrapper}>
@@ -106,7 +122,7 @@ export default function ResultExamine() {
           <p className={styles.scoreLabel}>ĐIỂM SỐ CỦA BẠN</p>
           <div className={styles.scoreValue}>
             <span className={styles.highlightScore}>{score}</span>
-            <span className={styles.maxScore}> / {total_questions * 10}</span> {/* Giả sử mỗi câu 10 điểm, có thể tùy chỉnh lại */}
+            <span className={styles.maxScore}> / {maxScore}</span>
           </div>
         </div>
 
@@ -160,7 +176,7 @@ export default function ResultExamine() {
           ) : (
             <button 
               className={styles.btnPrimaryNormal} 
-              onClick={() => navigate(`/history/review/${id}`)} // Route xem lại bài (nếu có)
+              onClick={() => navigate(`/history/review/${id}`)} 
             >
               <Eye size={18} /> Xem lại bài làm
             </button>

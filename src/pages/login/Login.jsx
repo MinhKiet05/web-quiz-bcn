@@ -5,7 +5,8 @@ import { toast } from 'sonner';
 
 export default function Login({ onLogin, loading = false, error = '' }) {
   const [showPassword, setShowPassword] = useState(false);
-  const [mssv, setMssv] = useState('');
+  // 1. Đổi state mssv thành email
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleLogin = async (e) => {
@@ -15,15 +16,12 @@ export default function Login({ onLogin, loading = false, error = '' }) {
     }
 
     try {
-      // Nhận dữ liệu user trả về từ hàm onLogin của component cha
-      const userData = await onLogin({ mssv, password });
+      // 2. Truyền email thay vì mssv
+      const userData = await onLogin({ email, password });
       
-      // Trích xuất tên (giả sử dữ liệu trả về có trường full_name hoặc name)
-      // Nếu không có, fallback về chữ "bạn"
       const userName = userData?.full_name || userData?.name || 'bạn';
 
       toast.success('Đăng nhập thành công!', {
-        // Sử dụng backtick để chèn biến userName vào chuỗi
         description: `Chào mừng ${userName} quay trở lại hệ thống.`,
       });
     } catch {
@@ -36,7 +34,6 @@ export default function Login({ onLogin, loading = false, error = '' }) {
       <div className={styles.glowEffect}></div>
       
       <div className={styles.loginCard}>
-        {/* Header */}
         <h2 className={styles.title}>Đăng nhập</h2>
         <p className={styles.subtitle}>
           Vui lòng sử dụng tài khoản được Ban Công Nghệ cấp phát.
@@ -44,28 +41,27 @@ export default function Login({ onLogin, loading = false, error = '' }) {
 
         {error ? <p className={styles.errorMessage}>{error}</p> : null}
 
-        {/* Form đăng nhập */}
         <form onSubmit={handleLogin} className={styles.form}>
           
-          {/* Input MSSV */}
+          {/* 3. Đổi input MSSV thành input Email */}
           <div className={styles.formGroup}>
-            <label htmlFor="mssv" className={styles.label}>Mã số sinh viên (MSSV)</label>
+            <label htmlFor="email" className={styles.label}>Địa chỉ Email</label>
             <div className={styles.inputWrapper}>
               <Contact className={styles.inputIcon} size={20} />
               <input
-                id="mssv"
-                type="text"
-                placeholder="Nhập MSSV của bạn..."
+                id="email"
+                type="email"
+                placeholder="Nhập email của bạn..."
                 className={styles.input}
-                value={mssv}
-                onChange={(e) => setMssv(e.target.value)}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
-                autoComplete="username"
+                autoComplete="email"
               />
             </div>
           </div>
 
-          {/* Input Mật khẩu */}
+          {/* Input Mật khẩu giữ nguyên */}
           <div className={styles.formGroup}>
             <label htmlFor="password" className={styles.label}>Mật khẩu</label>
             <div className={styles.inputWrapper}>
@@ -91,7 +87,6 @@ export default function Login({ onLogin, loading = false, error = '' }) {
             </div>
           </div>
 
-          {/* Nút Submit */}
           <button type="submit" className={styles.submitButton} disabled={loading}>
             <span>{loading ? 'Đang đăng nhập...' : 'Đăng nhập'}</span>
             <LogIn size={20} />
@@ -99,7 +94,6 @@ export default function Login({ onLogin, loading = false, error = '' }) {
 
         </form>
 
-        {/* Footer Note */}
         <div className={styles.divider}></div>
         <p className={styles.footerNote}>
           Lưu ý: Hệ thống không mở đăng ký tự do. Nếu quên hoặc chưa được cấp tài khoản, vui lòng liên hệ Ban Công Nghệ để được hỗ trợ.
