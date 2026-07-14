@@ -1,0 +1,222 @@
+/* OVERLAY & LAYOUT CHÍNH */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(11, 14, 30, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 1.5rem;
+}
+
+.modalContainer {
+  background-color: #171B31;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 500px; /* Nhỏ gọn hơn Modal Quiz */
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  font-family: 'Inter', sans-serif;
+  color: #ffffff;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* HEADER & FOOTER */
+.header {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.closeBtn {
+  background: transparent;
+  border: none;
+  color: #727C9E;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 6px;
+  transition: all 0.2s;
+  display: flex;
+}
+
+.closeBtn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.footer {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* BUTTONS */
+.btnCancel {
+  background-color: transparent;
+  color: #B4B9C9;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.6rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btnCancel:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+}
+
+.btnSave {
+  background-color: #4255FF;
+  color: #ffffff;
+  border: none;
+  padding: 0.6rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btnSave:hover {
+  background-color: #3646E8;
+}
+
+/* BODY (FORM NHẬP LIỆU) */
+.body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.formGroup label {
+  font-size: 0.9rem;
+  color: #E2E4EB;
+  font-weight: 500;
+}
+
+.inputField, .selectField {
+  background-color: #0B0E1E;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.inputField:focus, .selectField:focus {
+  border-color: #4255FF;
+  box-shadow: 0 0 0 2px rgba(66, 85, 255, 0.2);
+}
+
+.inputField:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: #1A1D36;
+}
+
+.selectField {
+  appearance: none;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23727C9E' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  padding-right: 2.5rem;
+}
+
+/* HIỂN THỊ BADGE BÊN CẠNH NHÃN VAI TRÒ */
+.labelWithBadge {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.roleBadge {
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badgeStudent { background-color: rgba(16, 185, 129, 0.15); color: #10B981; }
+.badgeEditor { background-color: rgba(139, 92, 246, 0.15); color: #A78BFA; }
+.badgeAdmin { background-color: rgba(239, 68, 68, 0.15); color: #F87171; }
+
+/* TOGGLE STATUS (HOẠT ĐỘNG / KHÓA CHẶN) */
+.toggleWrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  width: fit-content;
+  margin-top: 0.25rem;
+}
+
+.toggleTrack {
+  width: 44px;
+  height: 24px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  position: relative;
+  transition: background-color 0.3s;
+}
+
+/* Theo thiết kế, toggle active có màu xanh blue */
+.toggleTrack.active {
+  background-color: #4255FF; 
+}
+
+.toggleThumb {
+  width: 18px;
+  height: 18px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  transition: transform 0.3s;
+}
+
+.toggleTrack.active .toggleThumb {
+  transform: translateX(20px);
+}
+
+.toggleLabel {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #B4B9C9;
+}

@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  Search, ChevronDown, Plus, Edit2, Trash2, ChevronLeft, ChevronRight, Star
+  Search, ChevronDown, Plus, Edit2, Trash2, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
 import QuizManagerModal from '../../components/quizManagerModal/QuizManagerModal';
+import ConfirmationDelete from '../../components/confirmationModal/ConfirmationDelete';
 import styles from './QuizManager.module.css';
 import { toast } from 'sonner';
 
@@ -22,9 +23,13 @@ export default function QuizManager() {
   const [category, setCategory] = useState('all');
   const [difficulty, setDifficulty] = useState('all');
 
-  // States cho Modal
+  // States cho Modal Thêm/Sửa
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedQuiz, setSelectedQuiz] = useState(null);
+
+  // States cho Modal Xóa (Confirmation)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
 
   // KIỂM TRA QUYỀN TRUY CẬP (Chỉ Admin/Editor mới được vào)
   useEffect(() => {
@@ -85,7 +90,7 @@ export default function QuizManager() {
 
   const handleFilterChange = () => setPage(1);
 
-  // --- Handlers cho Modal ---
+  // --- Handlers cho Modal Thêm/Sửa ---
   const handleAddClick = () => {
     setSelectedQuiz(null); // Truyền null để modal hiểu là Thêm mới
     setIsModalOpen(true);
@@ -93,8 +98,6 @@ export default function QuizManager() {
 
   const handleEditClick = async (quiz) => {
     try {
-      // Đã xóa chữ 'content', thay bằng 'question_text'
-      // Đã bổ sung thêm 'question_type' và 'code_snippet' cho bản nâng cấp mới
       const { data, error } = await supabase
         .from('quizzes')
         .select(`
@@ -125,27 +128,38 @@ export default function QuizManager() {
     }
   };
 
-  const handleDeleteClick = async (id) => {
-    if (window.confirm('Bạn có chắc chắn muốn xóa bài Quiz này không? Toàn bộ câu hỏi và đáp án liên quan sẽ bị xóa!')) {
-      try {
-        const { error } = await supabase.from('quizzes').delete().eq('id', id);
-        if (error) throw error;
-        toast.success('Đã xóa bài thi thành công!');
-        fetchQuizzes(); // Refresh lại danh sách
-      } catch (err) {
-        console.error('Lỗi xóa quiz:', err);
-        toast.error('Lỗi khi xóa bài thi.');
-      }
-    }
-  };
-
   const handleModalSave = async (savedQuizData) => {
-    // Tại đây bạn sẽ viết logic Upsert (Update/Insert) lên Supabase
-    // Tạm thời đóng modal và thông báo
     console.log("Dữ liệu cần lưu:", savedQuizData);
     setIsModalOpen(false);
     toast.success('Đã ghi nhận lưu bài thi (Chờ tích hợp API)!');
     fetchQuizzes();
+  };
+
+  // --- Handlers cho Modal Xóa Mềm ---
+  const handleDeleteClick = (id) => {
+    setItemToDelete(id);
+    setIsDeleteModalOpen(true); // Chỉ mở Modal chứ chưa xóa ngay
+  };
+
+  const executeDeleteAction = async () => {
+    if (!itemToDelete) return;
+    try {
+      // Xóa mềm: Chuyển trạng thái sang 'inactive'
+      const { error } = await supabase
+        .from('quizzes')
+        .update({ status: 'inactive' })
+        .eq('id', itemToDelete);
+
+      if (error) throw error;
+      
+      toast.success('Đã chuyển bài thi về trạng thái vô hiệu hóa (Xóa mềm)!');
+      setIsDeleteModalOpen(false); 
+      setItemToDelete(null);
+      fetchQuizzes(); 
+    } catch (err) {
+      console.error('Lỗi xóa mềm quiz:', err);
+      toast.error('Lỗi khi thao tác xóa bài thi.');
+    }
   };
 
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
@@ -253,9 +267,13 @@ export default function QuizManager() {
                     <td>{renderDifficulty(quiz.difficulty)}</td>
                     <td className={styles.timeCell}>{quiz.duration} phút</td>
                     <td>
-                      <span className={quiz.status === 'active' ? styles.statusActive : styles.statusDraft}>
+                      {/* Bổ sung hiển thị cho trạng thái Inactive */}
+                      <span className={
+                        quiz.status === 'active' ? styles.statusActive : 
+                        (quiz.status === 'draft' ? styles.statusDraft : styles.statusInactive)
+                      }>
                         <span className={styles.dot}></span>
-                        {quiz.status === 'active' ? 'Active' : 'Draft'}
+                        {quiz.status === 'active' ? 'Active' : (quiz.status === 'draft' ? 'Draft' : 'Inactive')}
                       </span>
                     </td>
                     <td>
@@ -309,14 +327,22 @@ export default function QuizManager() {
         </div>
       )}
 
-      {/* MODAL */}
+      {/* MODAL THÊM / SỬA */}
       <QuizManagerModal 
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         initialData={selectedQuiz}
         onSave={handleModalSave}
       />
-
+      
+      {/* MODAL CẢNH BÁO XÓA */}
+      <ConfirmationDelete 
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={executeDeleteAction}
+        title="Vô hiệu hóa bài thi?" 
+        message="Bạn có chắc chắn muốn vô hiệu hóa bài thi này? Bài thi sẽ chuyển sang trạng thái Inactive và sinh viên không thể truy cập."
+      />
     </div>
   );
 }
