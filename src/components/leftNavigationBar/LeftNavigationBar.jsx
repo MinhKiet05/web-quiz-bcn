@@ -60,6 +60,16 @@ export default function LeftNavigationBar({ user, onLogout }) {
     description: 'Hẹn gặp lại bạn lần sau!',
   });
   };
+    const renderRoleBadge = (role) => {
+      switch (role) {
+        case 'admin':
+          return <span className={`${styles.badge} ${styles.badgeAdmin}`}>Admin</span>;
+        case 'editor':
+          return <span className={`${styles.badge} ${styles.badgeEditor}`}>Editor</span>;
+        default:
+          return <span className={`${styles.badge} ${styles.badgeStudent}`}>Student</span>;
+      }
+    };
   return (
     <aside className={styles.sidebar}>
       <div className={styles.logoSection}>
@@ -107,7 +117,7 @@ export default function LeftNavigationBar({ user, onLogout }) {
               <div className={styles.userInfo}>
                 <span className={styles.userName}>{user?.full_name ?? 'Người dùng'}</span>
                 <span className={styles.userMSSV}>{user?.mssv ?? ''}</span>
-                <span className={styles.userRoleBadge}>{(user?.role ?? 'student').toUpperCase()}</span>
+                <span >{renderRoleBadge(user.role)}</span>
               </div>
             </div>
           </NavLink>
