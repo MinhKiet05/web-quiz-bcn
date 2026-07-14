@@ -1,0 +1,336 @@
+.container {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 2rem;
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+}
+
+.loading {
+  text-align: center;
+  padding: 4rem;
+  color: #939BB4;
+  font-size: 1.1rem;
+}
+
+/* ==========================================
+   1. PROFILE CARD
+   ========================================== */
+.profileCard {
+  background-color: #262B46; /* Nền xanh xám tương tự hình */
+  border-radius: 16px;
+  padding: 2.5rem;
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.avatarWrapper {
+  width: 110px;
+  height: 110px;
+  background-color: #1A1D36;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 2px solid rgba(66, 85, 255, 0.2);
+}
+
+.avatarIcon {
+  color: #8C9EFF;
+}
+
+.profileInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.nameSection {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.userName {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+}
+
+.roleBadge {
+  background-color: #3A2A38;
+  color: #E5A8A0;
+  padding: 0.35rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.detailsGrid {
+  display: flex;
+  gap: 4rem;
+  flex-wrap: wrap;
+}
+
+.detailItem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.detailIcon {
+  width: 40px;
+  height: 40px;
+  background-color: #1A1D36;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #939BB4;
+}
+
+.detailLabel {
+  margin: 0 0 0.2rem 0;
+  font-size: 0.75rem;
+  color: #727C9E;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.detailValue {
+  margin: 0;
+  font-size: 1.05rem;
+  color: #E2E4EB;
+  font-weight: 500;
+}
+
+/* ==========================================
+   2. TRANG TRÍ CHUYỂN TIẾP
+   ========================================== */
+.decorativeIcon {
+  margin: 1.5rem 0 1rem 0;
+  color: rgba(66, 85, 255, 0.4);
+  display: flex;
+  align-items: center;
+}
+.decorativeIcon p {
+  margin: 0 0 0 0.5rem;
+  font-size: 1.5rem;
+  color: #B4B9C9;
+    font-weight: 600;
+}
+
+/* ==========================================
+   3. LƯỚI THỐNG KÊ (3 THẺ)
+   ========================================== */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.statCard, .statCardChart {
+  background-color: #262B46;
+  border-radius: 12px;
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.statCardChart {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.statHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+}
+
+.statTitle {
+  margin: 0;
+  font-size: 1rem;
+  color: #B4B9C9;
+  font-weight: 500;
+}
+
+.iconBox, .iconBoxOrange {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconBox {
+  background-color: rgba(66, 85, 255, 0.1);
+  color: #8C9EFF;
+}
+
+.iconBoxOrange {
+  background-color: rgba(249, 115, 22, 0.1);
+  color: #FB923C;
+}
+
+.statMainNumber {
+  margin: 0 0 0.5rem 0;
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.scoreWrapper {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.scoreDivider {
+  font-size: 1.5rem;
+  color: #727C9E;
+  font-weight: 600;
+}
+
+.statSubText {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #939BB4;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.statSubTextLight {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #727C9E;
+}
+
+.trendIcon { color: #10B981; }
+.trendHighlight { color: #10B981; font-weight: 600; }
+
+
+/* ==========================================
+   4. SVG CIRCULAR CHART (HIỆU ỨNG TỶ LỆ)
+   ========================================== */
+.chartInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.chartWrapper {
+  position: relative;
+  width: 110px;
+  height: 110px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Xoay SVG -90 độ để điểm bắt đầu nằm ở hướng 12h */
+.svgCircle {
+  transform: rotate(-90deg);
+  width: 100%;
+  height: 100%;
+}
+
+.circleBg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.05); /* Nền vòng tròn mờ */
+  stroke-width: 10;
+}
+
+.circleProgress {
+  fill: none;
+  stroke: #4255FF; /* Xanh dương nổi bật */
+  stroke-width: 10;
+  stroke-linecap: round;
+  /* Hiệu ứng chuyển động mượt mà trong 1.5s */
+  transition: stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.chartPercentage {
+  position: absolute;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+/* ==========================================
+   5. RESPONSIVE QUERIES
+   ========================================== */
+/* Tablet */
+@media (max-width: 1024px) {
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  /* Đẩy card biểu đồ xuống hàng dưới và chiếm 2 cột */
+  .statCardChart {
+    grid-column: span 2; 
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .profileCard {
+    flex-direction: column;
+    text-align: center;
+    gap: 1.5rem;
+    padding: 2rem 1.5rem;
+  }
+
+  .nameSection {
+    justify-content: center;
+  }
+
+  .detailsGrid {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .detailItem {
+    justify-content: center;
+    text-align: center;
+  }
+  
+  .detailItem > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .statCardChart {
+    grid-column: span 1;
+    flex-direction: column;
+    text-align: center;
+    gap: 1.5rem;
+  }
+}
