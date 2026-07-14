@@ -1,0 +1,320 @@
+.container {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 2rem;
+  max-width: 1300px; /* Bảng này nhiều cột nên cho rộng hơn chút */
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+}
+
+/* --- TOP ACTIONS & FILTER BAR (Đồng bộ QuizManager) --- */
+.topActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.filterBar {
+  flex: 1;
+  background-color: #171B31;
+  border-radius: 12px;
+  padding: 0.5rem 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.searchContainer {
+  position: relative;
+  flex: 1 1 250px;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #727C9E;
+}
+
+.searchInput {
+  width: 100%;
+  background-color: #0B0E1E;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+  padding: 0.75rem 1rem 0.75rem 2.75rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.searchInput:focus { border-color: #4255FF; }
+
+.dropdownsContainer {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.selectWrapper { position: relative; }
+
+.selectBox {
+  appearance: none;
+  background-color: #0B0E1E;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: #E2E4EB;
+  padding: 0.75rem 2.5rem 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  outline: none;
+  cursor: pointer;
+  min-width: 180px;
+}
+
+.selectBox:focus { border-color: #4255FF; }
+
+.selectIcon {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #727C9E;
+  pointer-events: none;
+}
+
+/* --- TABLE CONTAINER --- */
+.tableContainer {
+  background-color: #21263E; /* Nền bảng hơi sáng hơn */
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.table th {
+  background-color: #1A1D36;
+  color: #939BB4;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 1.25rem 1.25rem;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+  white-space: nowrap;
+}
+
+.table td {
+  padding: 1.25rem 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  font-size: 0.95rem;
+  color: #E2E4EB;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.table tbody tr {
+  transition: background-color 0.2s;
+}
+
+.table tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* --- CỘT ĐẶC THÙ TRONG BẢNG ATTAMPT --- */
+.textCenter { text-align: center !important; }
+
+.mssvCell { 
+  color: #8C9EFF; 
+  font-weight: 500; 
+}
+
+.nameCell { 
+  color: #ffffff; 
+  font-weight: 500;
+}
+
+.quizTitleCell { 
+  color: #ffffff; 
+  font-weight: 600; 
+}
+
+.scoreWrapper {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+}
+
+.scorePass { color: #ffffff; font-size: 1.05rem; }
+.scoreFail { color: #EF4444; font-size: 1.05rem; }
+.scoreTotal { color: #727C9E; font-size: 0.9rem; }
+
+.timeCell, .dateCell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #B4B9C9;
+}
+
+.iconSmall { color: #727C9E; }
+
+/* TRẠNG THÁI (STATUS) */
+.statusSubmitted, .statusInProgress {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 0.25rem 0.6rem;
+  border-radius: 20px;
+}
+.statusSubmitted { 
+  color: #10B981; 
+  background-color: rgba(16, 185, 129, 0.1);
+}
+.statusInProgress { 
+  color: #939BB4; 
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.statusSubmitted .dot { background-color: #10B981; box-shadow: 0 0 6px rgba(16, 185, 129, 0.4); }
+.statusInProgress .dot { background-color: #939BB4; }
+
+
+/* ACTION BUTTONS */
+.actionButtons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btnAction {
+  background: transparent;
+  border: none;
+  color: #939BB4;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-radius: 6px;
+}
+
+.btnAction:hover { 
+  background-color: rgba(255, 255, 255, 0.05); 
+  color: #ffffff; 
+}
+
+/* TRẠNG THÁI RỖNG / LOADING */
+.loadingState, .emptyState {
+  text-align: center;
+  padding: 4rem 0;
+  color: #727C9E;
+  font-size: 1.05rem;
+}
+
+/* --- BOTTOM SECTION (INFO & PAGINATION) --- */
+.bottomSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.pageInfo {
+  color: #727C9E;
+  font-size: 0.9rem;
+}
+
+/* --- PHÂN TRANG (Đồng bộ QuizManager) --- */
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pageBtn, .pageNumber {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+  color: #939BB4;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pageBtn:hover:not(:disabled), .pageNumber:hover:not(.pageActive) {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+}
+
+.pageBtn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.pageActive {
+  background-color: #4255FF;
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(66, 85, 255, 0.3);
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 992px) {
+  .topActions { flex-direction: column; align-items: stretch; }
+  .filterBar { flex-direction: column; align-items: stretch; }
+  .dropdownsContainer { width: 100%; justify-content: space-between; }
+  .selectWrapper { flex: 1; }
+  .selectBox { width: 100%; min-width: unset; }
+  .bottomSection { flex-direction: column; justify-content: center; text-align: center; }
+}
+/* =========================================
+   TÙY CHỈNH THANH CUỘN NGANG CHO BẢNG
+   ========================================= */
+.tableContainer::-webkit-scrollbar {
+  height: 8px; /* Độ dày của thanh cuộn ngang */
+}
+
+.tableContainer::-webkit-scrollbar-track {
+  background-color: #1A1D36; /* Màu nền rãnh cuộn (đồng bộ với header bảng) */
+  border-radius: 0 0 12px 12px;
+}
+
+.tableContainer::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.15); /* Màu thanh cuộn */
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.tableContainer::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.25); /* Sáng hơn khi hover chuột */
+}
