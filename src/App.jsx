@@ -8,7 +8,6 @@ import QuizList from './pages/quizList/QuizList';
 import LeaderBoard from './pages/leaderBoard/LeaderBoard';
 import History from './pages/history/History';
 import QuizManager from './pages/quizManager/QuizManager';
-import QuestionManager from './pages/questionManager/QuestionManager';
 import DashBoardAdmin from './pages/dashBoardAdmin/DashBoardAdmin';
 import UserManager from './pages/userManager/UserManager';
 import DashBoardUser from './pages/dashBoardUser/DashBoardUser';
@@ -202,14 +201,7 @@ function App() {
             }
           />
 
-          <Route
-            path="/question-manager"
-            element={
-              <AuthGate user={user} allowedRoles={['editor', 'admin']}>
-                <QuestionManager />
-              </AuthGate>
-            }
-          />
+          
 
           <Route
             path="/admin/dashboard"
