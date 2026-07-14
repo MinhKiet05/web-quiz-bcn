@@ -16,7 +16,7 @@ import NotFound from './pages/notFound/NotFound';
 import ExamineQuiz from './pages/examineQuiz/ExamineQuiz';
 import ResultExamine from './pages/resultExamine/ResultExamine';
 import ReviewExamine from './pages/reviewExamine/ReviewExamine';
-
+import AttemptManager from './pages/attemptManager/AttemptManager';
 
 import { Toaster } from 'sonner';
 const AUTH_STORAGE_KEY = 'web-quiz-bcn-auth-user';
@@ -208,6 +208,15 @@ function App() {
             element={
               <AuthGate user={user} allowedRoles={['admin']}>
                 <DashBoardAdmin />
+              </AuthGate>
+            }
+          />
+
+          <Route
+            path="/attempt-manager"
+            element={
+              <AuthGate user={user} allowedRoles={['admin']}>
+                <AttemptManager />
               </AuthGate>
             }
           />
