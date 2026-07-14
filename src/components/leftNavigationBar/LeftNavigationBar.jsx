@@ -25,7 +25,6 @@ const NAV_SETS = {
   ],
   editorExtra: [
     { icon: <BookOpen size={20} />, label: 'Quản lý Quiz', to: '/quiz-manager', end: true },
-    { icon: <HelpCircle size={20} />, label: 'Quản lý Câu hỏi', to: '/question-manager', end: true },
   ],
   adminExtra: [
     { icon: <LayoutDashboard size={20} />, label: 'Dashboard thống kê', to: '/admin/dashboard', end: true },
