@@ -7,7 +7,7 @@ import { supabase } from '../../lib/supabaseClient';
 import DetailAttemptModal from '../../components/detailAttemptModal/DetailAttemptModal';
 import styles from './AttemptManager.module.css';
 import { toast } from 'sonner';
-
+import ConfirmationUnlock from '../../components/confirmationModal/ConfirmationUnlock';
 const ITEMS_PER_PAGE = 10;
 
 export default function AttemptManager() {
@@ -25,6 +25,10 @@ export default function AttemptManager() {
   // States cho Modal Xem chi tiết
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedAttempt, setSelectedAttempt] = useState(null);
+
+  // States cho Modal Mở khóa
+  const [isUnlockModalOpen, setIsUnlockModalOpen] = useState(false);
+  const [attemptToUnlock, setAttemptToUnlock] = useState(null);
 
   // Kiểm tra quyền
   useEffect(() => {
@@ -55,14 +59,20 @@ export default function AttemptManager() {
             questions ( weight ) 
           )
         `, { count: 'exact' });
-        // LƯU Ý: Lấy thêm questions(weight) ở trên để tính toán tổng điểm tối đa động
+      // LƯU Ý: Lấy thêm questions(weight) ở trên để tính toán tổng điểm tối đa động
 
       if (searchTerm) {
         query = query.or(`mssv.ilike.%${searchTerm}%,full_name.ilike.%${searchTerm}%`, { foreignTable: 'users' });
       }
 
-      if (statusFilter !== 'all') {
-        query = query.eq('status', statusFilter);
+      if (statusFilter === 'submitted') {
+        query = query
+          .eq('status', 'submitted')
+          .or('is_delete.is.null,is_delete.eq.false');
+      }
+
+      if (statusFilter === 'deleted') {
+        query = query.eq('is_delete', true);
       }
 
       const from = (page - 1) * ITEMS_PER_PAGE;
@@ -77,17 +87,12 @@ export default function AttemptManager() {
       if (error) throw error;
 
       // XỬ LÝ LỌC DỮ LIỆU Ở FRONTEND:
-      // Lọc bỏ những attempt có is_delete là true, chỉ giữ lại false hoặc null
-      const validAttempts = (data || []).filter(attempt => attempt.is_delete !== true);
+      setAttempts(data || []);
 
-      // Cập nhật State bằng danh sách đã được lọc
-      setAttempts(validAttempts);
-      
       // Chỉnh sửa lại Total Count cho chuẩn xác với phân trang
       if (count !== null) {
-         // Lấy tổng số DB trả về trừ đi số lượng dòng vừa bị lọc bỏ ở trang hiện tại
-         const deletedCount = (data || []).length - validAttempts.length;
-         setTotalCount(count - deletedCount);
+        // Lấy tổng số DB trả về trừ đi số lượng dòng vừa bị lọc bỏ ở trang hiện tại
+        setTotalCount(count || 0);
       }
 
     } catch (error) {
@@ -104,7 +109,7 @@ export default function AttemptManager() {
   }, [page, searchTerm, quizFilter, statusFilter]);
 
   const handleFilterChange = () => setPage(1);
-  
+
   // --- Handlers Hành động ---
   const handleViewDetail = async (attempt) => {
     const quizId = attempt.quiz_id;
@@ -190,32 +195,28 @@ export default function AttemptManager() {
   };
 
   const handleUnlockAttempt = async (id) => {
-    const isConfirm = window.confirm('Bạn có chắc chắn muốn hủy kết quả này để sinh viên có thể thi lại không?');
-    
-    if (isConfirm) {
-      try {
-        // Cập nhật cột is_delete thành true thay vì dùng lệnh .delete()
-        const { error } = await supabase
-          .from('attempts')
-          .update({ is_delete: true })
-          .eq('id', id);
+    try {
+      const { error } = await supabase
+        .from('attempts')
+        .update({ is_delete: true })
+        .eq('id', id);
 
-        if (error) throw error;
+      if (error) throw error;
 
-        toast.success('Đã hủy lượt thi thành công! Sinh viên hiện đã có thể làm lại bài.');
-        
-        // Tải lại bảng dữ liệu sau khi xóa
-        fetchAttempts();
-      } catch (err) {
-        console.error('Lỗi khi mở khóa lượt thi:', err.message);
-        toast.error('Có lỗi xảy ra khi thao tác. Vui lòng thử lại!');
-      }
+      toast.success(
+        'Đã hủy lượt thi thành công! Sinh viên hiện đã có thể làm lại bài.'
+      );
+
+      fetchAttempts();
+    } catch (err) {
+      console.error('Lỗi khi mở khóa lượt thi:', err.message);
+      toast.error('Có lỗi xảy ra khi thao tác. Vui lòng thử lại!');
     }
   };
 
   // --- Tiện ích Format Dữ liệu ---
   const formatTime = (start, end) => {
-    if (!start || !end) return '05m 10s'; 
+    if (!start || !end) return '05m 10s';
     const diffMs = new Date(end) - new Date(start);
     if (diffMs <= 0) return '--';
     const m = Math.floor(diffMs / 60000);
@@ -226,7 +227,7 @@ export default function AttemptManager() {
   const formatDate = (dateStr) => {
     if (!dateStr) return '--/--/----';
     const d = new Date(dateStr);
-    return d.toLocaleDateString('en-GB'); 
+    return d.toLocaleDateString('en-GB');
   };
 
   const formatDateTime = (dateStr) => {
@@ -273,9 +274,9 @@ export default function AttemptManager() {
                 value={statusFilter}
                 onChange={(e) => { setStatusFilter(e.target.value); handleFilterChange(); }}
               >
-                <option value="all">Lọc theo Trạng thái</option>
+                <option value="all">Tất cả</option>
                 <option value="submitted">Đã nộp</option>
-                <option value="in_progress">Đang làm</option>
+                <option value="deleted">Đã xóa</option>
               </select>
               <ChevronDown className={styles.selectIcon} size={16} />
             </div>
@@ -301,12 +302,12 @@ export default function AttemptManager() {
             </thead>
             <tbody>
               {attempts.map((attempt) => {
-                const isSubmitted = attempt.status === 'submitted';
+                const isDeleted = attempt.is_delete === true;
                 const score = attempt.score ?? '-';
-                
+
                 // TÍNH TOÁN ĐIỂM TỐI ĐA ĐỘNG TỪ MẢNG QUESTIONS
                 const totalScore = attempt.quizzes?.questions?.reduce((sum, q) => sum + (q.weight || 0), 0) || 0;
-                
+
                 // Điều kiện Pass/Fail dựa trên > 50% tổng điểm
                 const isPassed = score !== '-' && score >= (totalScore / 2);
 
@@ -323,7 +324,7 @@ export default function AttemptManager() {
                         <span className={styles.scoreTotal}> / {totalScore > 0 ? totalScore : '...'}</span>
                       </span>
                     </td>
-                    
+
 
                     <td className={styles.dateCell}>
                       <Calendar size={14} className={styles.iconSmall} />
@@ -331,9 +332,15 @@ export default function AttemptManager() {
                     </td>
 
                     <td>
-                      <span className={isSubmitted ? styles.statusSubmitted : styles.statusInProgress}>
+                      <span
+                        className={
+                          isDeleted
+                            ? styles.statusDeleted
+                            : styles.statusSubmitted
+                        }
+                      >
                         <span className={styles.dot}></span>
-                        {isSubmitted ? 'Đã nộp' : 'Đang làm'}
+                        {isDeleted ? 'Đã xóa' : 'Đã nộp'}
                       </span>
                     </td>
                     <td>
@@ -341,9 +348,21 @@ export default function AttemptManager() {
                         <button className={styles.btnAction} onClick={() => handleViewDetail(attempt)} title="Xem chi tiết">
                           <Eye size={18} />
                         </button>
-                        <button className={styles.btnAction} onClick={() => handleUnlockAttempt(attempt.id)} title="Mở khóa/Cho thi lại">
-                          <Unlock size={18} />
-                        </button>
+
+                        <button
+  className={styles.btnAction}
+  disabled={attempt.is_delete}
+  onClick={() => {
+    if (attempt.is_delete) return;
+
+    setAttemptToUnlock(attempt);
+    setIsUnlockModalOpen(true);
+  }}
+  title={attempt.is_delete ? "Lượt thi đã được hủy" : "Mở khóa/Cho thi lại"}
+>
+  <Unlock size={18} />
+</button>
+                        
                       </div>
                     </td>
                   </tr>
@@ -397,7 +416,22 @@ export default function AttemptManager() {
         onClose={() => setIsDetailModalOpen(false)}
         attemptData={selectedAttempt}
       />
+      <ConfirmationUnlock
+        isOpen={isUnlockModalOpen}
+        onClose={() => {
+          setIsUnlockModalOpen(false);
+          setAttemptToUnlock(null);
+        }}
+        onConfirm={async () => {
+          if (!attemptToUnlock) return;
 
+          setIsUnlockModalOpen(false);
+
+          await handleUnlockAttempt(attemptToUnlock.id);
+
+          setAttemptToUnlock(null);
+        }}
+      />
     </div>
   );
 }

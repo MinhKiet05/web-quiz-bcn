@@ -90,50 +90,49 @@ export default function UserManager() {
   };
 
 const handleModalSave = async (savedUserData) => {
-    const toastId = toast.loading('Đang lưu thông tin người dùng. Vui lòng chờ...');
+    const isUpdate = selectedUser !== null;
+
+    // KIỂM TRA ĐỘ DÀI MẬT KHẨU NGAY TẠI FRONTEND
+    if (savedUserData.password && savedUserData.password.trim() !== '') {
+      if (savedUserData.password.length < 6) {
+        toast.error('Mật khẩu phải có ít nhất 6 ký tự!');
+        return; // Dừng hàm, không gửi request lên server
+      }
+    } else if (!isUpdate) {
+      // Khi tạo mới tài khoản bắt buộc phải nhập mật khẩu
+      toast.error('Vui lòng nhập mật khẩu cho tài khoản mới!');
+      return;
+    }
+
+    const toastId = toast.loading('Đang xử lý thông tin. Vui lòng chờ...');
 
     try {
-      const isUpdate = selectedUser !== null;
+      const actionType = isUpdate ? 'UPDATE' : 'CREATE';
 
-      if (isUpdate) {
-        // ========================================================
-        // 1. CẬP NHẬT: Gọi hàm RPC chạy ngầm trên máy chủ để vượt RLS
-        // ========================================================
-        const { error } = await supabase.rpc('admin_update_user_info', {
-          p_mssv: selectedUser.mssv,
-          p_full_name: savedUserData.full_name,
-          p_role: savedUserData.role,
-          p_is_active: savedUserData.is_active
-        });
+      // Lệnh gọi Edge Function
+      const { data, error } = await supabase.functions.invoke('manage-user', {
+        body: {
+          action: actionType,
+          userData: savedUserData
+        }
+      });
 
-        if (error) throw error;
-        toast.success('Cập nhật thông tin người dùng thành công ở cả hệ thống Auth!', { id: toastId });
-
-      } else {
-        // ========================================================
-        // 2. TẠO MỚI NGƯỜI DÙNG
-        // ========================================================
-        // Lưu ý: Đoạn code này chỉ insert vào public.users
-        const { error } = await supabase
-          .from('users')
-          .insert([{
-            mssv: savedUserData.mssv,
-            full_name: savedUserData.full_name,
-            email: savedUserData.email,
-            role: savedUserData.role || 'student',
-            is_active: savedUserData.is_active !== undefined ? savedUserData.is_active : true
-          }]);
-
-        if (error) throw error;
-        toast.success('Đã thêm người dùng (Chưa có mật khẩu Auth)!', { id: toastId });
+      // Bắt lỗi chi tiết từ Edge Function trả về nếu có
+      if (error) {
+        const errorDetails = await error.context?.json().catch(() => ({}));
+        throw new Error(errorDetails?.error || error.message);
       }
+      if (data && data.error) throw new Error(data.error);
 
+      // Thành công
+      toast.success(data?.message || 'Xử lý thành công!', { id: toastId });
+      
       setIsModalOpen(false);
       fetchUsers(); 
 
     } catch (err) {
       console.error('Lỗi khi lưu User:', err);
-      toast.error('Có lỗi xảy ra: ' + err.message, { id: toastId });
+      toast.error(`Lỗi: ${err.message}`, { id: toastId });
     }
   };
 
