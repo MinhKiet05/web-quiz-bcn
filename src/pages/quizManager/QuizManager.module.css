@@ -265,12 +265,26 @@
 }
 
 /* --- PHÂN TRANG (PAGINATION) --- */
+/* --- BOTTOM SECTION (INFO & PAGINATION) --- */
+.bottomSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.pageInfo {
+  color: #727C9E;
+  font-size: 0.9rem;
+}
+
+/* --- PHÂN TRANG (PAGINATION) --- */
 .pagination {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 0.5rem;
-  margin-top: 1rem;
 }
 
 .pageBtn, .pageNumber {
@@ -309,4 +323,5 @@
   .dropdownsContainer { width: 100%; justify-content: space-between; }
   .selectWrapper { flex: 1; }
   .selectBox { width: 100%; min-width: unset; }
+  .bottomSection { flex-direction: column; justify-content: center; text-align: center; }
 }

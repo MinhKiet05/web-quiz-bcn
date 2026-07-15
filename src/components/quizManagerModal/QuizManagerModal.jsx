@@ -2,34 +2,52 @@ import React, { useState, useEffect } from 'react';
 import { X, Trash2, Plus, CheckCircle2, Circle, Code2 } from 'lucide-react';
 import styles from './QuizManagerModal.module.css';
 
+// Hàm hỗ trợ format định dạng Timestamp của Supabase sang định dạng của thẻ <input type="datetime-local">
+const formatDateTimeForInput = (dateStr) => {
+  if (!dateStr) return '';
+  // Supabase trả về dạng "2026-07-12 13:58:40.110668", input cần "YYYY-MM-DDTHH:mm"
+  return dateStr.replace(' ', 'T').substring(0, 16);
+};
+
 export default function QuizManagerModal({ isOpen, onClose, onSave, initialData = null }) {
   const [quizData, setQuizData] = useState({
     title: '',
+    description: '',
     category_id: '1',
     quiz_type: 'normal',
     difficulty: 'medium',
     duration: 60,
     status: 'active',
+    weekly_start: '',
+    weekly_end: '',
     questions: []
   });
 
   useEffect(() => {
     if (isOpen) {
       if (initialData) {
-        setQuizData(initialData);
+        setQuizData({
+          ...initialData,
+          description: initialData.description || '',
+          weekly_start: formatDateTimeForInput(initialData.weekly_start),
+          weekly_end: formatDateTimeForInput(initialData.weekly_end),
+        });
       } else {
         setQuizData({
           title: '',
+          description: '',
           category_id: '1',
           quiz_type: 'normal',
           difficulty: 'medium',
           duration: 60,
           status: 'active',
+          weekly_start: '',
+          weekly_end: '',
           questions: [
             {
               id: Date.now(),
               question_text: '',
-              question_type: 'mcq', // Mặc định là trắc nghiệm
+              question_type: 'mcq',
               code_snippet: '',
               weight: 10,
               answers: [
@@ -86,7 +104,6 @@ export default function QuizManagerModal({ isOpen, onClose, onSave, initialData 
       const newQuestions = [...prev.questions];
       newQuestions[qIndex][field] = value;
       
-      // Nếu đổi sang Điền khuyết, tự động set tất cả đáp án hiện tại thành True (đáp án được chấp nhận)
       if (field === 'question_type' && value === 'fill_text') {
         newQuestions[qIndex].answers = newQuestions[qIndex].answers.map(ans => ({ ...ans, is_correct: true }));
       }
@@ -104,7 +121,7 @@ export default function QuizManagerModal({ isOpen, onClose, onSave, initialData 
       newQuestions[qIndex].answers.push({
         id: Date.now(),
         answer_text: '', 
-        is_correct: isFillText // Nếu là điền khuyết, mặc định add vào là true
+        is_correct: isFillText 
       });
       return { ...prev, questions: newQuestions };
     });
@@ -129,7 +146,6 @@ export default function QuizManagerModal({ isOpen, onClose, onSave, initialData 
   const handleSetCorrectAnswer = (qIndex, aIndex) => {
     setQuizData(prev => {
       const newQuestions = [...prev.questions];
-      // Chỉ hoạt động khi là trắc nghiệm (mcq)
       if (newQuestions[qIndex].question_type === 'mcq') {
         newQuestions[qIndex].answers = newQuestions[qIndex].answers.map((ans, idx) => ({
           ...ans,
@@ -141,7 +157,24 @@ export default function QuizManagerModal({ isOpen, onClose, onSave, initialData 
   };
 
   const handleSubmit = () => {
-    if (onSave) onSave(quizData);
+    const payload = {
+      ...quizData,
+      description: quizData.description.trim() === '' ? null : quizData.description,
+      weekly_start: quizData.weekly_start === '' ? null : quizData.weekly_start,
+      weekly_end: quizData.weekly_end === '' ? null : quizData.weekly_end,
+    };
+    
+    // Nếu chuyển từ weekly về normal, tự động xóa thời gian tuần
+    if (payload.quiz_type !== 'weekly') {
+      payload.weekly_start = null;
+      payload.weekly_end = null;
+    } else {
+      // Tùy chọn: Set duration thành null hoặc 0 đối với weekly quiz 
+      // (vì UI đã ẩn nên tránh lưu nhầm data cũ)
+      payload.duration = 0;
+    }
+
+    if (onSave) onSave(payload);
   };
 
   return (
@@ -163,6 +196,16 @@ export default function QuizManagerModal({ isOpen, onClose, onSave, initialData 
               <input type="text" className={styles.inputField} placeholder="Nhập tên bài quiz..." value={quizData.title} onChange={(e) => handleInfoChange('title', e.target.value)} />
             </div>
 
+            <div className={styles.formGroup}>
+              <label>Mô tả (Description)</label>
+              <textarea 
+                className={`${styles.textareaField} ${styles.descField}`} 
+                placeholder="Nhập mô tả bài quiz..." 
+                value={quizData.description} 
+                onChange={(e) => handleInfoChange('description', e.target.value)} 
+              />
+            </div>
+
             <div className={styles.rowGrid}>
               <div className={styles.formGroup}>
                 <label>Danh mục</label>
@@ -181,7 +224,32 @@ export default function QuizManagerModal({ isOpen, onClose, onSave, initialData 
               </div>
             </div>
 
-            <div className={styles.rowGrid}>
+            {/* CHỈ HIỂN THỊ CHỌN NGÀY KHI LOẠI QUIZ LÀ WEEKLY - NẰM TRÊN 2 DÒNG */}
+            {quizData.quiz_type === 'weekly' && (
+              <>
+                <div className={styles.formGroup}>
+                  <label>Weekly Start (Từ lúc)</label>
+                  <input 
+                    type="datetime-local" 
+                    className={styles.inputField} 
+                    value={quizData.weekly_start} 
+                    onChange={(e) => handleInfoChange('weekly_start', e.target.value)} 
+                  />
+                </div>
+                <div className={styles.formGroup}>
+                  <label>Weekly End (Đến lúc)</label>
+                  <input 
+                    type="datetime-local" 
+                    className={styles.inputField} 
+                    value={quizData.weekly_end} 
+                    onChange={(e) => handleInfoChange('weekly_end', e.target.value)} 
+                  />
+                </div>
+              </>
+            )}
+
+            {/* NẾU LÀ WEEKLY: ĐỘ KHÓ FULL DÒNG. NẾU LÀ NORMAL: ĐỘ KHÓ + THỜI GIAN TRÊN CÙNG DÒNG */}
+            <div className={quizData.quiz_type !== 'weekly' ? styles.rowGrid : ''}>
               <div className={styles.formGroup}>
                 <label>Độ khó</label>
                 <select className={styles.selectField} value={quizData.difficulty} onChange={(e) => handleInfoChange('difficulty', e.target.value)}>
@@ -190,10 +258,13 @@ export default function QuizManagerModal({ isOpen, onClose, onSave, initialData 
                   <option value="hard">Khó</option>
                 </select>
               </div>
-              <div className={styles.formGroup}>
-                <label>Thời gian (phút)</label>
-                <input type="number" className={styles.inputField} value={quizData.duration} onChange={(e) => handleInfoChange('duration', parseInt(e.target.value) || 0)} />
-              </div>
+              
+              {quizData.quiz_type !== 'weekly' && (
+                <div className={styles.formGroup}>
+                  <label>Thời gian (phút)</label>
+                  <input type="number" className={styles.inputField} value={quizData.duration || ''} onChange={(e) => handleInfoChange('duration', parseInt(e.target.value) || 0)} />
+                </div>
+              )}
             </div>
 
             <div className={styles.formGroup}>

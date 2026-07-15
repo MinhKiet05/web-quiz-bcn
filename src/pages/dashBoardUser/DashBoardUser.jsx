@@ -33,7 +33,7 @@ export default function DashBoardUser() {
         setUser(storedUser);
 
         // Lấy tất cả bài thi đã nộp của sinh viên này
-        const { data: attempts, error } = await supabase
+        const { data: rawAttempts, error } = await supabase
           .from('attempts')
           .select(`
             score,
@@ -41,6 +41,7 @@ export default function DashBoardUser() {
             total_questions,
             submitted_at,
             quiz_id,
+            is_delete,
             quizzes ( title, questions(weight) )
           `)
           .eq('user_id', storedUser.mssv)
@@ -48,18 +49,21 @@ export default function DashBoardUser() {
 
         if (error) throw error;
 
+        // ==========================================
+        // CHỈ TÍNH NHỮNG ATTEMPT HỢP LỆ (is_delete KHÁC true)
+        // Dùng filter để an toàn với cả những record cũ có is_delete là null
+        // ==========================================
+        const attempts = (rawAttempts || []).filter(a => a.is_delete !== true);
+
         if (attempts && attempts.length > 0) {
-          // ==========================================
-          // ĐÃ FIX LOGIC: Đếm theo tổng số lượt thi (attempts)
-          // ==========================================
-          const totalAttemptsCount = attempts.length; // Tổng số lượt thi từ trước đến nay
+          const totalAttemptsCount = attempts.length; // Tổng số lượt thi hợp lệ
           
           // Tính số lượt thi thực tế diễn ra trong vòng 7 ngày qua
           const oneWeekAgo = new Date();
           oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
           const recentCount = attempts.filter(a => new Date(a.submitted_at) >= oneWeekAgo).length;
 
-          // 2. Tìm bài có điểm cao nhất
+          // Tìm bài có điểm cao nhất
           let maxScore = -1;
           let maxAttempt = null;
           let sumCorrect = 0;
@@ -85,6 +89,16 @@ export default function DashBoardUser() {
             maxPossibleOfHighest: maxPossible,
             highestQuizTitle: maxAttempt?.quizzes?.title || 'Không xác định',
             averageAccuracy: accuracy
+          });
+        } else {
+          // Xử lý trường hợp có attempts bị xóa sạch, không còn lượt nào hợp lệ
+          setStats({
+            totalQuizzes: 0,
+            recentCount: 0,
+            highestScore: 0,
+            maxPossibleOfHighest: 0,
+            highestQuizTitle: 'Chưa có dữ liệu',
+            averageAccuracy: 0
           });
         }
       } catch (err) {

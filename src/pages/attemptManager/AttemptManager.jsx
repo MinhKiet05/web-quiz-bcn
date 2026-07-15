@@ -42,28 +42,29 @@ export default function AttemptManager() {
       let query = supabase
         .from('attempts')
         .select(`
-   id,
-   quiz_id, 
-   score,
-   status,
-   started_at,
-   submitted_at,
-   users!inner ( mssv, full_name ),
-   quizzes!inner ( title )
-`);
+          id,
+          quiz_id, 
+          score,
+          status,
+          started_at,
+          submitted_at,
+          is_delete, 
+          users!inner ( mssv, full_name ),
+          quizzes!inner ( 
+            title,
+            questions ( weight ) 
+          )
+        `, { count: 'exact' });
+        // LƯU Ý: Lấy thêm questions(weight) ở trên để tính toán tổng điểm tối đa động
 
-      // Lọc theo tìm kiếm (Tên hoặc MSSV)
-      // Lưu ý: Tùy thuộc vào cấu hình Supabase, bạn có thể cần dùng RPC hoặc View cho việc tìm kiếm text phức tạp qua bảng JOIN.
       if (searchTerm) {
         query = query.or(`mssv.ilike.%${searchTerm}%,full_name.ilike.%${searchTerm}%`, { foreignTable: 'users' });
       }
 
-      // Lọc theo trạng thái
       if (statusFilter !== 'all') {
         query = query.eq('status', statusFilter);
       }
 
-      // Phân trang
       const from = (page - 1) * ITEMS_PER_PAGE;
       const to = from + ITEMS_PER_PAGE - 1;
 
@@ -75,8 +76,19 @@ export default function AttemptManager() {
 
       if (error) throw error;
 
-      setAttempts(data || []);
-      if (count !== null) setTotalCount(count);
+      // XỬ LÝ LỌC DỮ LIỆU Ở FRONTEND:
+      // Lọc bỏ những attempt có is_delete là true, chỉ giữ lại false hoặc null
+      const validAttempts = (data || []).filter(attempt => attempt.is_delete !== true);
+
+      // Cập nhật State bằng danh sách đã được lọc
+      setAttempts(validAttempts);
+      
+      // Chỉnh sửa lại Total Count cho chuẩn xác với phân trang
+      if (count !== null) {
+         // Lấy tổng số DB trả về trừ đi số lượng dòng vừa bị lọc bỏ ở trang hiện tại
+         const deletedCount = (data || []).length - validAttempts.length;
+         setTotalCount(count - deletedCount);
+      }
 
     } catch (error) {
       console.error('Lỗi khi tải danh sách lượt làm bài:', error.message);
@@ -92,20 +104,18 @@ export default function AttemptManager() {
   }, [page, searchTerm, quizFilter, statusFilter]);
 
   const handleFilterChange = () => setPage(1);
-
+  
   // --- Handlers Hành động ---
   const handleViewDetail = async (attempt) => {
-    // 1. Kiểm tra ID bài quiz trước khi gọi Supabase để tránh lỗi undefined
-    const quizId = attempt.quiz_id || attempt.quizzes?.id;
+    const quizId = attempt.quiz_id;
 
     if (!quizId) {
-      console.error("Lỗi: Không tìm thấy ID bài Quiz!", attempt);
       toast.error("Không thể xác định bài thi này.");
       return;
     }
 
     try {
-      // 2. Lấy chi tiết câu trả lời của sinh viên (Sử dụng cột fill_text_answer đúng như bạn đã chỉ ra)
+      // 1. Lấy chi tiết câu trả lời của sinh viên 
       const { data: studentAnswers, error: ansError } = await supabase
         .from('attempt_answers')
         .select('*')
@@ -113,7 +123,13 @@ export default function AttemptManager() {
 
       if (ansError) throw ansError;
 
-      // 3. Kéo toàn bộ câu hỏi & đáp án gốc của bài Quiz này
+      // CẢNH BÁO KIỂM TRA RLS BỊ CHẶN
+      console.log("Dữ liệu từ attempt_answers:", studentAnswers);
+      if (studentAnswers && studentAnswers.length === 0) {
+        toast.warning("Dữ liệu câu trả lời trống! Vui lòng kiểm tra lại RLS của bảng attempt_answers trên Supabase.");
+      }
+
+      // 2. Kéo toàn bộ câu hỏi & đáp án gốc của bài Quiz này
       const { data: quizData, error: quizError } = await supabase
         .from('quizzes')
         .select(`
@@ -131,12 +147,12 @@ export default function AttemptManager() {
             )
           )
         `)
-        .eq('id', attempt.quiz_id) // Dùng đúng cột quiz_id
+        .eq('id', quizId)
         .single();
 
       if (quizError) throw quizError;
 
-      // 4. Khớp dữ liệu
+      // 3. Khớp dữ liệu
       const formattedQuestions = quizData.questions.map((q) => {
         const studentAns = studentAnswers.find(ans => ans.question_id === q.id);
 
@@ -147,19 +163,20 @@ export default function AttemptManager() {
           question_type: q.question_type,
           code_snippet: q.code_snippet,
           selected_answer_id: studentAns ? studentAns.selected_answer_id : null,
-          // Đã khớp với cột fill_text_answer trong DB của bạn
           student_text_answer: studentAns ? studentAns.fill_text_answer : '',
           answers: q.answers
         };
       });
+
+      // Lấy tổng điểm đã tính từ trước
+      const totalScore = attempt.quizzes?.questions?.reduce((sum, q) => sum + (q.weight || 0), 0) || 0;
 
       setSelectedAttempt({
         mssv: attempt.users?.mssv,
         studentName: attempt.users?.full_name,
         quizTitle: quizData.title,
         score: attempt.score || 0,
-        totalScore: quizData.questions.reduce((sum, q) => sum + (q.weight || 0), 0),
-        // Sử dụng started_at và submitted_at đã khớp với dữ liệu bạn vừa gửi
+        totalScore: totalScore,
         timeTaken: formatTime(attempt.started_at, attempt.submitted_at),
         submittedAt: formatDateTime(attempt.submitted_at),
         questions: formattedQuestions
@@ -172,9 +189,33 @@ export default function AttemptManager() {
     }
   };
 
+  const handleUnlockAttempt = async (id) => {
+    const isConfirm = window.confirm('Bạn có chắc chắn muốn hủy kết quả này để sinh viên có thể thi lại không?');
+    
+    if (isConfirm) {
+      try {
+        // Cập nhật cột is_delete thành true thay vì dùng lệnh .delete()
+        const { error } = await supabase
+          .from('attempts')
+          .update({ is_delete: true })
+          .eq('id', id);
+
+        if (error) throw error;
+
+        toast.success('Đã hủy lượt thi thành công! Sinh viên hiện đã có thể làm lại bài.');
+        
+        // Tải lại bảng dữ liệu sau khi xóa
+        fetchAttempts();
+      } catch (err) {
+        console.error('Lỗi khi mở khóa lượt thi:', err.message);
+        toast.error('Có lỗi xảy ra khi thao tác. Vui lòng thử lại!');
+      }
+    }
+  };
+
   // --- Tiện ích Format Dữ liệu ---
   const formatTime = (start, end) => {
-    if (!start || !end) return '05m 10s'; // Mock cho lúc đang làm (status = in_progress)
+    if (!start || !end) return '05m 10s'; 
     const diffMs = new Date(end) - new Date(start);
     if (diffMs <= 0) return '--';
     const m = Math.floor(diffMs / 60000);
@@ -185,7 +226,7 @@ export default function AttemptManager() {
   const formatDate = (dateStr) => {
     if (!dateStr) return '--/--/----';
     const d = new Date(dateStr);
-    return d.toLocaleDateString('en-GB'); // Format DD/MM/YYYY
+    return d.toLocaleDateString('en-GB'); 
   };
 
   const formatDateTime = (dateStr) => {
@@ -198,8 +239,6 @@ export default function AttemptManager() {
 
   return (
     <div className={styles.container}>
-
-      {/* 1. FILTER BAR (Đồng bộ QuizManager) */}
       <div className={styles.topActions}>
         <div className={styles.filterBar}>
           <div className={styles.searchContainer}>
@@ -244,7 +283,6 @@ export default function AttemptManager() {
         </div>
       </div>
 
-      {/* 2. BẢNG QUẢN LÝ LƯỢT LÀM BÀI */}
       <div className={styles.tableContainer}>
         {loading ? (
           <div className={styles.loadingState}>Đang tải dữ liệu...</div>
@@ -265,8 +303,12 @@ export default function AttemptManager() {
               {attempts.map((attempt) => {
                 const isSubmitted = attempt.status === 'submitted';
                 const score = attempt.score ?? '-';
-                const totalScore = 100;
-                const isPassed = score !== '-' && score >= 50;
+                
+                // TÍNH TOÁN ĐIỂM TỐI ĐA ĐỘNG TỪ MẢNG QUESTIONS
+                const totalScore = attempt.quizzes?.questions?.reduce((sum, q) => sum + (q.weight || 0), 0) || 0;
+                
+                // Điều kiện Pass/Fail dựa trên > 50% tổng điểm
+                const isPassed = score !== '-' && score >= (totalScore / 2);
 
                 return (
                   <tr key={attempt.id}>
@@ -278,12 +320,11 @@ export default function AttemptManager() {
                         <strong className={isPassed ? styles.scorePass : styles.scoreFail}>
                           {score}
                         </strong>
-                        <span className={styles.scoreTotal}> / {totalScore}</span>
+                        <span className={styles.scoreTotal}> / {totalScore > 0 ? totalScore : '...'}</span>
                       </span>
                     </td>
+                    
 
-
-                    {/* CỘT NGÀY NỘP BÀI (Tách riêng biệt) */}
                     <td className={styles.dateCell}>
                       <Calendar size={14} className={styles.iconSmall} />
                       {formatDate(attempt.submitted_at)}
@@ -315,7 +356,6 @@ export default function AttemptManager() {
         )}
       </div>
 
-      {/* 3. PHÂN TRANG (Đồng bộ thiết kế cũ) */}
       <div className={styles.bottomSection}>
         <div className={styles.pageInfo}>
           Hiển thị {(page - 1) * ITEMS_PER_PAGE + (totalCount > 0 ? 1 : 0)} to {Math.min(page * ITEMS_PER_PAGE, totalCount)} of {totalCount} entries
@@ -352,7 +392,6 @@ export default function AttemptManager() {
         )}
       </div>
 
-      {/* MODAL XEM CHI TIẾT */}
       <DetailAttemptModal
         isOpen={isDetailModalOpen}
         onClose={() => setIsDetailModalOpen(false)}

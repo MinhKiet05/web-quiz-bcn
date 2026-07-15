@@ -6,7 +6,6 @@ import UserManagerModal from '../../components/userManagerModal/UserManagerModal
 import ConfirmationDelete from '../../components/confirmationModal/ConfirmationDelete';
 import styles from './UserManager.module.css';
 import { toast } from 'sonner';
-
 const ITEMS_PER_PAGE = 10;
 
 export default function UserManager() {
@@ -90,12 +89,52 @@ export default function UserManager() {
     setIsModalOpen(true);
   };
 
-  const handleModalSave = async (savedUserData) => {
-    // Tạm thời log ra, ở đây bạn sẽ gọi API Supabase Auth Admin để tạo/sửa user
-    console.log("Dữ liệu cần lưu:", savedUserData);
-    setIsModalOpen(false);
-    toast.success('Đã ghi nhận lưu thông tin người dùng!');
-    fetchUsers();
+const handleModalSave = async (savedUserData) => {
+    const toastId = toast.loading('Đang lưu thông tin người dùng. Vui lòng chờ...');
+
+    try {
+      const isUpdate = selectedUser !== null;
+
+      if (isUpdate) {
+        // ========================================================
+        // 1. CẬP NHẬT: Gọi hàm RPC chạy ngầm trên máy chủ để vượt RLS
+        // ========================================================
+        const { error } = await supabase.rpc('admin_update_user_info', {
+          p_mssv: selectedUser.mssv,
+          p_full_name: savedUserData.full_name,
+          p_role: savedUserData.role,
+          p_is_active: savedUserData.is_active
+        });
+
+        if (error) throw error;
+        toast.success('Cập nhật thông tin người dùng thành công ở cả hệ thống Auth!', { id: toastId });
+
+      } else {
+        // ========================================================
+        // 2. TẠO MỚI NGƯỜI DÙNG
+        // ========================================================
+        // Lưu ý: Đoạn code này chỉ insert vào public.users
+        const { error } = await supabase
+          .from('users')
+          .insert([{
+            mssv: savedUserData.mssv,
+            full_name: savedUserData.full_name,
+            email: savedUserData.email,
+            role: savedUserData.role || 'student',
+            is_active: savedUserData.is_active !== undefined ? savedUserData.is_active : true
+          }]);
+
+        if (error) throw error;
+        toast.success('Đã thêm người dùng (Chưa có mật khẩu Auth)!', { id: toastId });
+      }
+
+      setIsModalOpen(false);
+      fetchUsers(); 
+
+    } catch (err) {
+      console.error('Lỗi khi lưu User:', err);
+      toast.error('Có lỗi xảy ra: ' + err.message, { id: toastId });
+    }
   };
 
   // --- Handlers cho Modal Xóa Mềm ---

@@ -48,29 +48,31 @@ export default function LeaderBoard() {
       if (!selectedQuizId) return;
       setLoading(true);
       try {
-        // Truy vấn lấy dữ liệu từ bảng attempts, join với users để lấy tên
+        // Truy vấn lấy dữ liệu từ bảng attempts (Bỏ limit để lấy đủ dữ liệu lọc)
         const { data, error } = await supabase
           .from('attempts')
           .select(`
             user_id,
             score,
             completion_time,
+            is_delete,
             users ( full_name )
           `)
           .eq('quiz_id', selectedQuizId)
           .eq('status', 'submitted')
           .order('score', { ascending: false }) // Ưu tiên 1: Điểm cao nhất
-          .order('completion_time', { ascending: true }) // Ưu tiên 2: Thời gian ngắn nhất
-          .limit(50); // Lấy top 50
+          .order('completion_time', { ascending: true }); // Ưu tiên 2: Thời gian ngắn nhất
 
         if (error) throw error;
 
-        // Xử lý dữ liệu trùng lặp (nếu sinh viên nào đó lỡ có 2 dòng do lỗi hệ thống cũ)
-        // và format lại cho dễ dùng
+        // 1. LỌC DỮ LIỆU: Bỏ qua những lượt thi đã bị xóa mềm
+        const validAttempts = (data || []).filter(attempt => attempt.is_delete !== true);
+
+        // 2. Xử lý dữ liệu trùng lặp (chỉ lấy lượt làm bài hợp lệ tốt nhất của mỗi người)
         const uniqueRankings = [];
         const seenUsers = new Set();
         
-        data.forEach(attempt => {
+        validAttempts.forEach(attempt => {
           if (!seenUsers.has(attempt.user_id)) {
             seenUsers.add(attempt.user_id);
             uniqueRankings.push({
@@ -82,7 +84,9 @@ export default function LeaderBoard() {
           }
         });
 
-        setLeaderboardData(uniqueRankings);
+        // 3. Cắt lấy đúng Top 50 người cao nhất sau khi đã lọc sạch sẽ
+        setLeaderboardData(uniqueRankings.slice(0, 50));
+        
       } catch (err) {
         console.error('Lỗi khi tải Bảng xếp hạng:', err.message);
       } finally {
