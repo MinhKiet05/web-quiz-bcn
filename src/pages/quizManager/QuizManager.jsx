@@ -128,11 +128,124 @@ export default function QuizManager() {
     }
   };
 
-  const handleModalSave = async (savedQuizData) => {
-    console.log("Dữ liệu cần lưu:", savedQuizData);
-    setIsModalOpen(false);
-    toast.success('Đã ghi nhận lưu bài thi (Chờ tích hợp API)!');
-    fetchQuizzes();
+const handleModalSave = async (savedQuizData) => {
+    // Hiển thị trạng thái loading (Toast sẽ không tự tắt cho đến khi gọi success hoặc error)
+    const toastId = toast.loading('Đang lưu dữ liệu bài thi. Vui lòng chờ...');
+
+    try {
+      // Tách mảng questions ra khỏi payload của Quiz
+      const { questions, ...quizPayload } = savedQuizData;
+      let currentQuizId = quizPayload.id;
+
+      quizPayload.total_questions = questions ? questions.length : 0;
+      // ========================================================
+      // BƯỚC 1: LƯU THÔNG TIN QUIZ (BẢNG quizzes)
+      // ========================================================
+      if (currentQuizId) {
+        // Nếu có ID -> Update Quiz cũ
+        const { error: quizErr } = await supabase
+          .from('quizzes')
+          .update(quizPayload)
+          .eq('id', currentQuizId);
+        if (quizErr) throw quizErr;
+      } else {
+        // Nếu không có ID -> Insert Quiz mới và lấy ID về
+        const { data: newQuiz, error: quizErr } = await supabase
+          .from('quizzes')
+          .insert(quizPayload)
+          .select()
+          .single();
+        if (quizErr) throw quizErr;
+        currentQuizId = newQuiz.id;
+      }
+
+      // ========================================================
+      // BƯỚC 2: QUẢN LÝ CÂU HỎI (BẢNG questions)
+      // ========================================================
+      
+      // 2.1: Lấy danh sách ID câu hỏi hiện tại trong DB để so sánh
+      const { data: existingQs } = await supabase
+        .from('questions')
+        .select('id')
+        .eq('quiz_id', currentQuizId);
+
+      const existingQIds = existingQs?.map(q => q.id) || [];
+      const incomingQIds = questions.filter(q => typeof q.id === 'string').map(q => q.id);
+      
+      // Tìm ra những ID có trong DB nhưng KHÔNG có trong payload mới (nghĩa là đã bị user bấm xóa)
+      const qIdsToDelete = existingQIds.filter(id => !incomingQIds.includes(id));
+
+      if (qIdsToDelete.length > 0) {
+        const { error: delQErr } = await supabase.from('questions').delete().in('id', qIdsToDelete);
+        if (delQErr) throw delQErr;
+      }
+
+      // 2.2: Duyệt vòng lặp để Insert hoặc Update từng câu hỏi
+      for (let i = 0; i < questions.length; i++) {
+        const q = questions[i];
+        const { answers, id: qId, ...qPayload } = q; // Tách mảng answers ra
+        
+        qPayload.quiz_id = currentQuizId;
+        qPayload.display_order = i + 1; // Ghi nhận thứ tự hiển thị của câu hỏi
+
+        // Nếu ID là dạng chuỗi (UUID từ DB) thì là câu hỏi cũ, ngược lại là câu mới (Date.now())
+        let currentQuestionId = typeof qId === 'string' ? qId : null;
+
+        if (currentQuestionId) {
+          const { error: updQErr } = await supabase.from('questions').update(qPayload).eq('id', currentQuestionId);
+          if (updQErr) throw updQErr;
+        } else {
+          const { data: newQ, error: insQErr } = await supabase.from('questions').insert(qPayload).select().single();
+          if (insQErr) throw insQErr;
+          currentQuestionId = newQ.id;
+        }
+
+        // ========================================================
+        // BƯỚC 3: QUẢN LÝ ĐÁP ÁN (BẢNG answers)
+        // ========================================================
+        
+        const { data: existingAns } = await supabase
+          .from('answers')
+          .select('id')
+          .eq('question_id', currentQuestionId);
+
+        const existingAIds = existingAns?.map(a => a.id) || [];
+        const incomingAIds = answers.filter(a => typeof a.id === 'string').map(a => a.id);
+        const aIdsToDelete = existingAIds.filter(id => !incomingAIds.includes(id));
+
+        // Xóa các đáp án đã bị user loại bỏ
+        if (aIdsToDelete.length > 0) {
+          const { error: delAErr } = await supabase.from('answers').delete().in('id', aIdsToDelete);
+          if (delAErr) throw delAErr;
+        }
+
+        // Insert / Update từng đáp án
+        for (let j = 0; j < answers.length; j++) {
+          const a = answers[j];
+          const { id: aId, ...aPayload } = a;
+          
+          aPayload.question_id = currentQuestionId;
+          aPayload.display_order = j + 1; // Ghi nhận thứ tự hiển thị của đáp án (A, B, C, D)
+
+          if (typeof aId === 'string') {
+            const { error: updAErr } = await supabase.from('answers').update(aPayload).eq('id', aId);
+            if (updAErr) throw updAErr;
+          } else {
+            const { error: insAErr } = await supabase.from('answers').insert(aPayload);
+            if (insAErr) throw insAErr;
+          }
+        }
+      }
+
+      // Thành công toàn bộ tiến trình
+      toast.success('Lưu bài thi thành công!', { id: toastId });
+      setIsModalOpen(false);
+      fetchQuizzes(); // Refresh lại bảng
+
+    } catch (error) {
+      console.error('Lỗi khi lưu Quiz:', error);
+      toast.error('Có lỗi xảy ra khi lưu: ' + error.message, { id: toastId });
+    }
   };
 
   // --- Handlers cho Modal Xóa Mềm ---
@@ -296,36 +409,42 @@ export default function QuizManager() {
         )}
       </div>
 
-      {/* 3. PHÂN TRANG */}
-      {totalPages > 1 && (
-        <div className={styles.pagination}>
-          <button 
-            className={styles.pageBtn} 
-            disabled={page === 1}
-            onClick={() => setPage(p => Math.max(1, p - 1))}
-          >
-            <ChevronLeft size={18} />
-          </button>
-          
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
-            <button
-              key={pageNum}
-              className={`${styles.pageNumber} ${page === pageNum ? styles.pageActive : ''}`}
-              onClick={() => setPage(pageNum)}
-            >
-              {pageNum}
-            </button>
-          ))}
-
-          <button 
-            className={styles.pageBtn} 
-            disabled={page === totalPages}
-            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-          >
-            <ChevronRight size={18} />
-          </button>
+      {/* 3. BOTTOM SECTION & PHÂN TRANG */}
+      <div className={styles.bottomSection}>
+        <div className={styles.pageInfo}>
+          Hiển thị {(page - 1) * ITEMS_PER_PAGE + (totalCount > 0 ? 1 : 0)} to {Math.min(page * ITEMS_PER_PAGE, totalCount)} of {totalCount} entries
         </div>
-      )}
+
+        {totalPages > 1 && (
+          <div className={styles.pagination}>
+            <button 
+              className={styles.pageBtn} 
+              disabled={page === 1}
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+            >
+              <ChevronLeft size={18} />
+            </button>
+            
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
+              <button
+                key={pageNum}
+                className={`${styles.pageNumber} ${page === pageNum ? styles.pageActive : ''}`}
+                onClick={() => setPage(pageNum)}
+              >
+                {pageNum}
+              </button>
+            ))}
+
+            <button 
+              className={styles.pageBtn} 
+              disabled={page === totalPages}
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+            >
+              <ChevronRight size={18} />
+            </button>
+          </div>
+        )}
+      </div>
 
       {/* MODAL THÊM / SỬA */}
       <QuizManagerModal 

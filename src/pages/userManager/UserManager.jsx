@@ -6,7 +6,6 @@ import UserManagerModal from '../../components/userManagerModal/UserManagerModal
 import ConfirmationDelete from '../../components/confirmationModal/ConfirmationDelete';
 import styles from './UserManager.module.css';
 import { toast } from 'sonner';
-
 const ITEMS_PER_PAGE = 10;
 
 export default function UserManager() {
@@ -90,12 +89,51 @@ export default function UserManager() {
     setIsModalOpen(true);
   };
 
-  const handleModalSave = async (savedUserData) => {
-    // Tạm thời log ra, ở đây bạn sẽ gọi API Supabase Auth Admin để tạo/sửa user
-    console.log("Dữ liệu cần lưu:", savedUserData);
-    setIsModalOpen(false);
-    toast.success('Đã ghi nhận lưu thông tin người dùng!');
-    fetchUsers();
+const handleModalSave = async (savedUserData) => {
+    const isUpdate = selectedUser !== null;
+
+    // KIỂM TRA ĐỘ DÀI MẬT KHẨU NGAY TẠI FRONTEND
+    if (savedUserData.password && savedUserData.password.trim() !== '') {
+      if (savedUserData.password.length < 6) {
+        toast.error('Mật khẩu phải có ít nhất 6 ký tự!');
+        return; // Dừng hàm, không gửi request lên server
+      }
+    } else if (!isUpdate) {
+      // Khi tạo mới tài khoản bắt buộc phải nhập mật khẩu
+      toast.error('Vui lòng nhập mật khẩu cho tài khoản mới!');
+      return;
+    }
+
+    const toastId = toast.loading('Đang xử lý thông tin. Vui lòng chờ...');
+
+    try {
+      const actionType = isUpdate ? 'UPDATE' : 'CREATE';
+
+      // Lệnh gọi Edge Function
+      const { data, error } = await supabase.functions.invoke('manage-user', {
+        body: {
+          action: actionType,
+          userData: savedUserData
+        }
+      });
+
+      // Bắt lỗi chi tiết từ Edge Function trả về nếu có
+      if (error) {
+        const errorDetails = await error.context?.json().catch(() => ({}));
+        throw new Error(errorDetails?.error || error.message);
+      }
+      if (data && data.error) throw new Error(data.error);
+
+      // Thành công
+      toast.success(data?.message || 'Xử lý thành công!', { id: toastId });
+      
+      setIsModalOpen(false);
+      fetchUsers(); 
+
+    } catch (err) {
+      console.error('Lỗi khi lưu User:', err);
+      toast.error(`Lỗi: ${err.message}`, { id: toastId });
+    }
   };
 
   // --- Handlers cho Modal Xóa Mềm ---

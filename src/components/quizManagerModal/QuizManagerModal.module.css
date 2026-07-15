@@ -151,6 +151,12 @@
   transition: border-color 0.2s;
 }
 
+.inputField::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 0.6;
+  cursor: pointer;
+}
+
 .inputField:focus, .selectField:focus, .textareaField:focus {
   border-color: #4255FF;
 }
@@ -164,8 +170,12 @@
   resize: vertical;
   min-height: 80px;
   line-height: 1.5;
-  width:100%;
+  width: 100%;
   box-sizing: border-box;
+}
+
+.descField {
+  min-height: 60px;
 }
 
 /* TOGGLE STATUS */
@@ -436,6 +446,7 @@
   margin: 0.5rem 0;
   font-style: italic;
 }
+
 /* RESPONSIVE */
 @media (max-width: 860px) {
   .body {

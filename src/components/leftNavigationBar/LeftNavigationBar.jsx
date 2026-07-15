@@ -12,6 +12,7 @@ import {
   LogOut,
   CircleUserRound,
   LogIn,
+  ClipboardCheck,
 } from 'lucide-react';
 import styles from './LeftNavigationBar.module.css';
 import bcn from '/bcn.webp';
@@ -29,6 +30,7 @@ const NAV_SETS = {
   adminExtra: [
     { icon: <LayoutDashboard size={20} />, label: 'Dashboard thống kê', to: '/admin/dashboard', end: true },
     { icon: <Users size={20} />, label: 'Quản lý Người dùng', to: '/user-manager', end: true },
+    { icon: <ClipboardCheck size={20} />, label: 'Quản lý Lịch sử làm bài', to: '/attempt-manager', end: true },
   ],
 };
 

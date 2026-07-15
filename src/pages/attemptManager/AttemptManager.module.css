@@ -2,7 +2,7 @@
   width: 100%;
   box-sizing: border-box;
   padding: 2rem;
-  max-width: 1200px;
+  max-width: 1300px; /* Bảng này nhiều cột nên cho rộng hơn chút */
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -11,7 +11,7 @@
   font-family: 'Inter', sans-serif;
 }
 
-/* --- TOP ACTIONS: FILTER & ADD BUTTON --- */
+/* --- TOP ACTIONS & FILTER BAR (Đồng bộ QuizManager) --- */
 .topActions {
   display: flex;
   justify-content: space-between;
@@ -78,7 +78,7 @@
   font-size: 0.95rem;
   outline: none;
   cursor: pointer;
-  min-width: 160px;
+  min-width: 180px;
 }
 
 .selectBox:focus { border-color: #4255FF; }
@@ -92,28 +92,9 @@
   pointer-events: none;
 }
 
-/* NÚT THÊM QUIZ */
-.btnAdd {
-  background-color: #4255FF;
-  color: #ffffff;
-  border: none;
-  padding: 0 1.5rem;
-  border-radius: 12px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-  transition: background-color 0.2s, transform 0.1s;
-}
-
-.btnAdd:hover { background-color: #3646E8; }
-.btnAdd:active { transform: scale(0.98); }
-
 /* --- TABLE CONTAINER --- */
 .tableContainer {
-  background-color: #1A1D36;
+  background-color: #21263E; /* Nền bảng hơi sáng hơn */
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.05);
   overflow-x: auto;
@@ -126,22 +107,22 @@
 }
 
 .table th {
-  background-color: #21263E;
+  background-color: #1A1D36;
   color: #939BB4;
   font-size: 0.85rem;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 1.25rem 1rem;
+  padding: 1.25rem 1.25rem;
   border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+  white-space: nowrap;
 }
 
 .table td {
-  padding: 1.25rem 1rem;
+  padding: 1.25rem 1.25rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.03);
   font-size: 0.95rem;
   color: #E2E4EB;
   vertical-align: middle;
+  white-space: nowrap;
 }
 
 .table tbody tr {
@@ -156,78 +137,70 @@
   border-bottom: none;
 }
 
-/* CỘT ĐẶC THÙ */
-.indexCell { color: #727C9E; font-weight: 500; text-align: center; }
-.titleCell { font-weight: 600; color: #ffffff; }
-.timeCell { color: #939BB4; }
+/* --- CỘT ĐẶC THÙ TRONG BẢNG ATTAMPT --- */
 .textCenter { text-align: center !important; }
 
-/* BADGES (THẺ NHÃN) */
-.badgeCategory, .badgeNormal, .badgeWeekly {
-  padding: 0.3rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
+.mssvCell { 
+  color: #8C9EFF; 
+  font-weight: 500; 
+}
+
+.nameCell { 
+  color: #ffffff; 
   font-weight: 500;
-  display: inline-flex;
+}
+
+.quizTitleCell { 
+  color: #ffffff; 
+  font-weight: 600; 
+}
+
+.scoreWrapper {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+}
+
+.scorePass { color: #ffffff; font-size: 1.05rem; }
+.scoreFail { color: #EF4444; font-size: 1.05rem; }
+.scoreTotal { color: #727C9E; font-size: 0.9rem; }
+
+.timeCell, .dateCell {
+  display: flex;
   align-items: center;
-  gap: 0.3rem;
-  white-space: nowrap;
+  gap: 0.5rem;
+  color: #B4B9C9;
 }
 
-.badgeCategory { background-color: rgba(66, 85, 255, 0.15); color: #8C9EFF; }
-.badgeNormal { background-color: rgba(255, 255, 255, 0.08); color: #B4B9C9; }
-.badgeWeekly { 
-  background-color: #4255FF; 
-  color: #ffffff;
-}
-
-.diffEasy {
-  background-color: rgba(46, 125, 50, 0.2);
-  color: #4CAF50;
-  padding: 0.35rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 500;
-}
-
-.diffMedium {
-  background-color: rgba(169, 78, 59, 0.25);
-  color: #E28C76;
-  padding: 0.35rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 500;
-}
-
-.diffHard {
-  background-color: rgba(198, 40, 40, 0.2);
-  color: #E53935;
-  padding: 0.35rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 500;
-}
+.iconSmall { color: #727C9E; }
 
 /* TRẠNG THÁI (STATUS) */
-.statusActive, .statusDraft, .statusInactive {
+.statusSubmitted, .statusDeleted {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 500;
+  padding: 0.25rem 0.6rem;
+  border-radius: 20px;
 }
-.statusActive { color: #10B981; }
-.statusDraft { color: #939BB4; }
-.statusInactive { color: #EF4444; } /* Thêm màu đỏ cho trạng thái Inactive */
+.statusSubmitted { 
+  color: #10B981; 
+  background-color: rgba(16, 185, 129, 0.1);
+}
+.statusDeleted{
+    color:#dc2626;
+    background:#fee2e2;
+}
 
 .dot {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
 }
-.statusActive .dot { background-color: #10B981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.4); }
-.statusDraft .dot { background-color: #727C9E; }
-.statusInactive .dot { background-color: #EF4444; box-shadow: 0 0 8px rgba(239, 68, 68, 0.4); } /* Dot màu đỏ */
+.statusSubmitted .dot { background-color: #10B981; box-shadow: 0 0 6px rgba(16, 185, 129, 0.4); }
+.statusDeleted .dot { background-color: #dc2626; }
+
 
 /* ACTION BUTTONS */
 .actionButtons {
@@ -237,10 +210,10 @@
   gap: 0.5rem;
 }
 
-.btnAction, .btnActionDelete {
+.btnAction {
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 6px;
+  border: none;
+  color: #939BB4;
   width: 32px;
   height: 32px;
   display: flex;
@@ -248,13 +221,17 @@
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s;
+  border-radius: 6px;
 }
-
-.btnAction { color: #B4B9C9; }
-.btnAction:hover { background-color: rgba(255, 255, 255, 0.1); color: #ffffff; }
-
-.btnActionDelete { color: #EF4444; border-color: rgba(239, 68, 68, 0.2); }
-.btnActionDelete:hover { background-color: rgba(239, 68, 68, 0.1); color: #EF4444; }
+.btnAction:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.btnAction:hover { 
+  background-color: rgba(255, 255, 255, 0.05); 
+  color: #ffffff; 
+}
 
 /* TRẠNG THÁI RỖNG / LOADING */
 .loadingState, .emptyState {
@@ -264,7 +241,6 @@
   font-size: 1.05rem;
 }
 
-/* --- PHÂN TRANG (PAGINATION) --- */
 /* --- BOTTOM SECTION (INFO & PAGINATION) --- */
 .bottomSection {
   display: flex;
@@ -280,7 +256,7 @@
   font-size: 0.9rem;
 }
 
-/* --- PHÂN TRANG (PAGINATION) --- */
+/* --- PHÂN TRANG (Đồng bộ QuizManager) --- */
 .pagination {
   display: flex;
   align-items: center;
@@ -318,10 +294,31 @@
 
 /* --- RESPONSIVE --- */
 @media (max-width: 992px) {
-  .topActions { flex-direction: column; }
-  .btnAdd { padding: 0.8rem 1.5rem; justify-content: center; }
+  .topActions { flex-direction: column; align-items: stretch; }
+  .filterBar { flex-direction: column; align-items: stretch; }
   .dropdownsContainer { width: 100%; justify-content: space-between; }
   .selectWrapper { flex: 1; }
   .selectBox { width: 100%; min-width: unset; }
   .bottomSection { flex-direction: column; justify-content: center; text-align: center; }
+}
+/* =========================================
+   TÙY CHỈNH THANH CUỘN NGANG CHO BẢNG
+   ========================================= */
+.tableContainer::-webkit-scrollbar {
+  height: 8px; /* Độ dày của thanh cuộn ngang */
+}
+
+.tableContainer::-webkit-scrollbar-track {
+  background-color: #1A1D36; /* Màu nền rãnh cuộn (đồng bộ với header bảng) */
+  border-radius: 0 0 12px 12px;
+}
+
+.tableContainer::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.15); /* Màu thanh cuộn */
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.tableContainer::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.25); /* Sáng hơn khi hover chuột */
 }

@@ -40,7 +40,8 @@ export default function StartQuiz() {
             .from('attempts')
             .select('id, status')
             .eq('quiz_id', id)
-            .eq('user_id', user.mssv);
+            .eq('user_id', user.mssv)
+            .eq('is_delete', false);
 
           if (!attemptError && attemptData && attemptData.length > 0) {
             setHasAttempted(true); // Đã có lịch sử làm bài
