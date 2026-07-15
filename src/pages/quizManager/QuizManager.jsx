@@ -257,13 +257,19 @@ const handleModalSave = async (savedQuizData) => {
   const executeDeleteAction = async () => {
     if (!itemToDelete) return;
     try {
-      // Xóa mềm: Chuyển trạng thái sang 'inactive'
-      const { error } = await supabase
+      // Thêm .select() để bắt buộc Supabase trả về dữ liệu vừa sửa
+      const { data, error } = await supabase
         .from('quizzes')
         .update({ status: 'inactive' })
-        .eq('id', itemToDelete);
+        .eq('id', itemToDelete)
+        .select(); // <--- CHÌA KHÓA NẰM Ở ĐÂY
 
       if (error) throw error;
+
+      // Nếu RLS chặn (cập nhật 0 dòng), data sẽ là mảng rỗng []
+      if (!data || data.length === 0) {
+        throw new Error("Bị chặn bởi bảo mật (RLS) hoặc không tìm thấy bài thi!");
+      }
       
       toast.success('Đã chuyển bài thi về trạng thái vô hiệu hóa (Xóa mềm)!');
       setIsDeleteModalOpen(false); 
@@ -271,7 +277,8 @@ const handleModalSave = async (savedQuizData) => {
       fetchQuizzes(); 
     } catch (err) {
       console.error('Lỗi xóa mềm quiz:', err);
-      toast.error('Lỗi khi thao tác xóa bài thi.');
+      // Hiển thị trực tiếp lỗi thực tế lên Toast
+      toast.error(err.message || 'Lỗi khi thao tác xóa bài thi.');
     }
   };
 

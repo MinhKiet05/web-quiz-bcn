@@ -84,48 +84,9 @@ export default function UserManager() {
     setIsModalOpen(true);
   };
 
-  const handleEditClick = async (quiz) => {
-    try {
-      const { data, error } = await supabase
-        .from('quizzes')
-        .select(`
-          *,
-          questions (
-            id, 
-            question_text, 
-            weight, 
-            question_type, 
-            code_snippet,
-            display_order,
-            answers (
-              id, 
-              answer_text, 
-              is_correct,
-              display_order 
-            )
-          )
-        `)
-        .eq('id', quiz.id)
-        .single();
-
-      if (error) throw error;
-      
-      // Sắp xếp lại câu hỏi và đáp án theo đúng thứ tự lúc Admin đã tạo
-      if (data.questions) {
-        data.questions.sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
-        data.questions.forEach(q => {
-          if (q.answers) {
-            q.answers.sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
-          }
-        });
-      }
-
-      setSelectedQuiz(data);
-      setIsModalOpen(true);
-    } catch (err) {
-      console.error('Lỗi lấy chi tiết quiz:', err);
-      toast.error('Không thể lấy chi tiết bài thi để sửa.');
-    }
+const handleEditClick = (user) => {
+    setSelectedUser(user); // Truyền dữ liệu người dùng được chọn vào state
+    setIsModalOpen(true);  // Mở modal lên
   };
 
 const handleModalSave = async (savedUserData) => {
@@ -183,22 +144,42 @@ const handleModalSave = async (savedUserData) => {
 
   const executeDeleteAction = async () => {
     if (!itemToDelete) return;
-    try {
-      // Xóa mềm: Chuyển is_active thành false
-      const { error } = await supabase
-        .from('users')
-        .update({ is_active: false })
-        .eq('mssv', itemToDelete);
+    
+    const toastId = toast.loading('Đang xử lý khóa tài khoản...');
 
-      if (error) throw error;
+    try {
+      // 1. Tìm thông tin người dùng từ state để truyền đủ dữ liệu cho Edge Function
+      const userToBan = users.find(u => u.mssv === itemToDelete);
+      if (!userToBan) throw new Error('Không tìm thấy dữ liệu người dùng!');
+
+      // 2. Gọi Edge Function thay vì update trực tiếp để vượt RLS
+      const { data, error } = await supabase.functions.invoke('manage-user', {
+        body: {
+          action: 'UPDATE',
+          userData: {
+            mssv: userToBan.mssv,
+            full_name: userToBan.full_name,
+            role: userToBan.role,
+            is_active: false // <--- Ép trạng thái về False để ra lệnh Khóa
+          }
+        }
+      });
+
+      // Xử lý lỗi trả về từ server
+      if (error) {
+        const errorDetails = await error.context?.json().catch(() => ({}));
+        throw new Error(errorDetails?.error || error.message);
+      }
+      if (data && data.error) throw new Error(data.error);
       
-      toast.success('Đã khóa tài khoản thành công (Xóa mềm)!');
+      toast.success('Đã khóa tài khoản thành công trên toàn hệ thống!', { id: toastId });
       setIsDeleteModalOpen(false); 
       setItemToDelete(null);
-      fetchUsers(); // Tải lại bảng
+      fetchUsers(); // Tải lại bảng để thấy cập nhật
+
     } catch (err) {
-      console.error('Lỗi xóa mềm user:', err);
-      toast.error('Lỗi khi khóa người dùng.');
+      console.error('Lỗi khóa tài khoản:', err);
+      toast.error(`Lỗi: ${err.message}`, { id: toastId });
     }
   };
 

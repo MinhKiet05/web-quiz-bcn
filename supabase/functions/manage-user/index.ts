@@ -50,26 +50,32 @@ serve(async (req) => {
       const { data: pUser, error: pErr } = await supabase.from('users').select('id').eq('mssv', mssv).single()
       if (pErr || !pUser) throw new Error('Không tìm thấy user trong hệ thống!')
 
-      // BƯỚC 2: CẬP NHẬT TRONG auth.users
+      // BƯỚC 2: CẬP NHẬT TRONG auth.users VÀ KHÓA ĐĂNG NHẬP NẾU CẦN
       const updatePayload: any = {
-        user_metadata: { mssv, full_name, role }
+        user_metadata: { mssv, full_name, role },
+        // Lệnh này sẽ cấm đăng nhập 100 năm nếu is_active là false, và gỡ cấm (none) nếu is_active là true
+        ban_duration: is_active === false ? '876000h' : 'none' 
       }
-      // Nếu Admin có gõ mật khẩu mới thì mới cập nhật mật khẩu
+      
       if (password && password.trim() !== '') {
+        if (password.length < 6) throw new Error("Mật khẩu phải có ít nhất 6 ký tự!");
         updatePayload.password = password
       }
 
       const { error: authErr } = await supabase.auth.admin.updateUserById(pUser.id, updatePayload)
       if (authErr) throw authErr
 
-      // BƯỚC 3: CẬP NHẬT public.users (Đồng bộ hiển thị)
-      const { error: pubErr } = await supabase.from('users').update({
-        full_name, role, is_active
-      }).eq('mssv', mssv)
+      // BƯỚC 3: CẬP NHẬT CÁC THÔNG TIN CÒN LẠI VÀO public.users BẰNG RPC
+      const { error: rpcErr } = await supabase.rpc('admin_update_user_info', {
+        p_mssv: mssv,
+        p_full_name: full_name,
+        p_role: role,
+        p_is_active: is_active
+      });
       
-      if (pubErr) throw pubErr
+      if (rpcErr) throw rpcErr;
 
-      return new Response(JSON.stringify({ success: true, message: "Đã cập nhật tài khoản thành công!" }), 
+      return new Response(JSON.stringify({ success: true, message: "Đã cập nhật trạng thái tài khoản thành công!" }), 
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
       )
     }
