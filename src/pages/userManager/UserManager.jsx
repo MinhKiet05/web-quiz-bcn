@@ -84,9 +84,48 @@ export default function UserManager() {
     setIsModalOpen(true);
   };
 
-  const handleEditClick = (user) => {
-    setSelectedUser(user);
-    setIsModalOpen(true);
+  const handleEditClick = async (quiz) => {
+    try {
+      const { data, error } = await supabase
+        .from('quizzes')
+        .select(`
+          *,
+          questions (
+            id, 
+            question_text, 
+            weight, 
+            question_type, 
+            code_snippet,
+            display_order,
+            answers (
+              id, 
+              answer_text, 
+              is_correct,
+              display_order 
+            )
+          )
+        `)
+        .eq('id', quiz.id)
+        .single();
+
+      if (error) throw error;
+      
+      // Sắp xếp lại câu hỏi và đáp án theo đúng thứ tự lúc Admin đã tạo
+      if (data.questions) {
+        data.questions.sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+        data.questions.forEach(q => {
+          if (q.answers) {
+            q.answers.sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+          }
+        });
+      }
+
+      setSelectedQuiz(data);
+      setIsModalOpen(true);
+    } catch (err) {
+      console.error('Lỗi lấy chi tiết quiz:', err);
+      toast.error('Không thể lấy chi tiết bài thi để sửa.');
+    }
   };
 
 const handleModalSave = async (savedUserData) => {

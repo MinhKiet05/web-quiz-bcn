@@ -26,13 +26,32 @@ export default function QuizManagerModal({ isOpen, onClose, onSave, initialData 
   useEffect(() => {
     if (isOpen) {
       if (initialData) {
+        // KIỂM TRA: Nếu quiz cũ chưa có câu hỏi nào, tự động mọc ra 1 câu trống
+        const loadedQuestions = initialData.questions && initialData.questions.length > 0 
+          ? initialData.questions 
+          : [
+              {
+                id: Date.now(),
+                question_text: '',
+                question_type: 'mcq',
+                code_snippet: '',
+                weight: 10,
+                answers: [
+                  { id: Date.now() + 1, answer_text: '', is_correct: true },
+                  { id: Date.now() + 2, answer_text: '', is_correct: false }
+                ]
+              }
+            ];
+
         setQuizData({
           ...initialData,
           description: initialData.description || '',
           weekly_start: formatDateTimeForInput(initialData.weekly_start),
           weekly_end: formatDateTimeForInput(initialData.weekly_end),
+          questions: loadedQuestions // <-- Gán mảng câu hỏi đã xử lý
         });
       } else {
+        // Form trống khi Thêm mới
         setQuizData({
           title: '',
           description: '',
