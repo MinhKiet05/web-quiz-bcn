@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Plus, Edit2, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search,ChevronDown, Plus, Edit2, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
 import UserManagerModal from '../../components/userManagerModal/UserManagerModal';
 import ConfirmationDelete from '../../components/confirmationModal/ConfirmationDelete';
@@ -17,7 +17,7 @@ export default function UserManager() {
   // States cho Filters & Pagination
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
-
+  const [statusFilter, setStatusFilter] = useState('all');
   // States cho Modal Thêm/Sửa
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -48,6 +48,12 @@ export default function UserManager() {
         query = query.or(`mssv.ilike.%${searchTerm}%,full_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`);
       }
 
+      if (statusFilter === 'active') {
+        query = query.eq('is_active', true);
+      } else if (statusFilter === 'locked') {
+        query = query.eq('is_active', false);
+      }
+
       // Phân trang
       const from = (page - 1) * ITEMS_PER_PAGE;
       const to = from + ITEMS_PER_PAGE - 1;
@@ -74,7 +80,7 @@ export default function UserManager() {
   useEffect(() => {
     fetchUsers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, searchTerm]);
+  }, [page, searchTerm, statusFilter]);
 
   const handleFilterChange = () => setPage(1);
 
@@ -238,16 +244,32 @@ const handleModalSave = async (savedUserData) => {
     <div className={styles.container}>
       
       {/* 1. FILTER BAR & ADD BUTTON */}
+      {/* 1. FILTER BAR & ADD BUTTON */}
       <div className={styles.topActions}>
-        <div className={styles.searchContainer}>
-          <Search className={styles.searchIcon} size={20} />
-          <input
-            type="text"
-            placeholder="Tìm kiếm theo MSSV, Họ tên hoặc Email..."
-            className={styles.searchInput}
-            value={searchTerm}
-            onChange={(e) => { setSearchTerm(e.target.value); handleFilterChange(); }}
-          />
+        <div className={styles.filterGroup}>
+          <div className={styles.searchContainer}>
+            <Search className={styles.searchIcon} size={20} />
+            <input
+              type="text"
+              placeholder="Tìm kiếm theo MSSV, Họ tên hoặc Email..."
+              className={styles.searchInput}
+              value={searchTerm}
+              onChange={(e) => { setSearchTerm(e.target.value); handleFilterChange(); }}
+            />
+          </div>
+
+          <div className={styles.selectWrapper}>
+            <select 
+              className={styles.selectBox}
+              value={statusFilter}
+              onChange={(e) => { setStatusFilter(e.target.value); handleFilterChange(); }}
+            >
+              <option value="all">Trạng thái: Tất cả</option>
+              <option value="active">Hoạt động</option>
+              <option value="locked">Đã khóa</option>
+            </select>
+            <ChevronDown className={styles.selectIcon} size={16} />
+          </div>
         </div>
 
         <button className={styles.btnAdd} onClick={handleAddClick}>

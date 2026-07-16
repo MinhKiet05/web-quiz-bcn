@@ -40,6 +40,7 @@ export default function AttemptManager() {
   }, [navigate]);
 
   // Lấy dữ liệu từ Supabase
+  // Lấy dữ liệu từ Supabase
   const fetchAttempts = async () => {
     setLoading(true);
     try {
@@ -56,6 +57,7 @@ export default function AttemptManager() {
           users!inner ( mssv, full_name ),
           quizzes!inner ( 
             title,
+            category_id,
             questions ( weight ) 
           )
         `, { count: 'exact' });
@@ -64,6 +66,17 @@ export default function AttemptManager() {
       if (searchTerm) {
         query = query.or(`mssv.ilike.%${searchTerm}%,full_name.ilike.%${searchTerm}%`, { foreignTable: 'users' });
       }
+
+      // === THÊM LOGIC LỌC THEO DANH MỤC Ở ĐÂY ===
+      if (quizFilter === 'cpp') {
+        query = query.eq('quizzes.category_id', 1);
+      } else if (quizFilter === 'mobile') {
+        // Ánh xạ value="mobile" với category_id = 2 (Java)
+        query = query.eq('quizzes.category_id', 2);
+      } else if (quizFilter === 'web') {
+        query = query.eq('quizzes.category_id', 3);
+      }
+      // =========================================
 
       if (statusFilter === 'submitted') {
         query = query
@@ -91,7 +104,6 @@ export default function AttemptManager() {
 
       // Chỉnh sửa lại Total Count cho chuẩn xác với phân trang
       if (count !== null) {
-        // Lấy tổng số DB trả về trừ đi số lượng dòng vừa bị lọc bỏ ở trang hiện tại
         setTotalCount(count || 0);
       }
 
@@ -260,10 +272,10 @@ export default function AttemptManager() {
                 value={quizFilter}
                 onChange={(e) => { setQuizFilter(e.target.value); handleFilterChange(); }}
               >
-                <option value="all">Lọc theo Bài Quiz</option>
-                <option value="cpp">C/C++ Cơ bản</option>
-                <option value="web">Web Development</option>
-                <option value="algo">Algorithms</option>
+                <option value="all">Danh mục: Tất cả</option>
+                <option value="cpp">C/C++</option>
+                <option value="mobile">Java</option>
+                <option value="web">Web</option>
               </select>
               <ChevronDown className={styles.selectIcon} size={16} />
             </div>

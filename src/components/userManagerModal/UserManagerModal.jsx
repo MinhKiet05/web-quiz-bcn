@@ -119,7 +119,7 @@ export default function UserManagerModal({ isOpen, onClose, onSave, initialData 
   };
 
   return (
-    <div className={styles.overlay} onClick={onClose}>
+    <div className={styles.overlay}>
       <div className={styles.modalContainer} onClick={(e) => e.stopPropagation()}>
         
         <div className={styles.header}>

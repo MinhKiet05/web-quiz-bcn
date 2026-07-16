@@ -20,10 +20,19 @@
   flex-wrap: wrap;
 }
 
+.filterGroup {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+  flex-wrap: wrap;
+}
+
 .searchContainer {
   position: relative;
   flex: 1;
-  max-width: 600px;
+  min-width: 250px;
+  max-width: 500px;
 }
 
 .searchIcon {
@@ -49,6 +58,34 @@
 
 .searchInput:focus { border-color: #4255FF; }
 .searchInput::placeholder { color: #727C9E; }
+
+/* DROPDOWN SELECT */
+.selectWrapper { position: relative; }
+
+.selectBox {
+  appearance: none;
+  background-color: #21263E;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: #E2E4EB;
+  padding: 0.85rem 2.5rem 0.85rem 1rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  outline: none;
+  cursor: pointer;
+  min-width: 180px;
+  transition: border-color 0.2s;
+}
+
+.selectBox:focus { border-color: #4255FF; }
+
+.selectIcon {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #727C9E;
+  pointer-events: none;
+}
 
 /* NÚT THÊM USER */
 .btnAdd {
@@ -242,8 +279,12 @@
 }
 
 /* --- RESPONSIVE --- */
+/* --- RESPONSIVE --- */
 @media (max-width: 768px) {
   .topActions { flex-direction: column; align-items: stretch; }
+  .filterGroup { flex-direction: column; align-items: stretch; }
   .searchContainer { max-width: 100%; }
+  .selectWrapper { width: 100%; }
+  .selectBox { width: 100%; }
   .bottomSection { flex-direction: column; justify-content: center; text-align: center; }
 }

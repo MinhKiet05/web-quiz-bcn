@@ -446,7 +446,10 @@
   margin: 0.5rem 0;
   font-style: italic;
 }
-
+.inputError {
+  border-color: #EF4444 !important; /* Đỏ Red-500 */
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2) !important;
+}
 /* RESPONSIVE */
 @media (max-width: 860px) {
   .body {
