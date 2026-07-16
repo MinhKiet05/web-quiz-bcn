@@ -179,6 +179,13 @@ const handleModalSave = async (savedUserData) => {
   };
   // --- Handlers cho Modal Xóa Mềm ---
   const handleDeleteClick = (mssv) => {
+    // 1. NGĂN CHẶN TỰ KHÓA CHÍNH MÌNH
+    const storedUser = JSON.parse(localStorage.getItem('web-quiz-bcn-auth-user'));
+    if (storedUser && storedUser.mssv === mssv) {
+      toast.error('Lỗi: Bạn không thể tự khóa tài khoản của chính mình!');
+      return;
+    }
+
     setItemToDelete(mssv);
     setIsDeleteModalOpen(true);
   };

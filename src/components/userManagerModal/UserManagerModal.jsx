@@ -23,6 +23,10 @@ export default function UserManagerModal({ isOpen, onClose, onSave, initialData 
   const emailRef = useRef(null);
   const passwordRef = useRef(null);
 
+
+  const currentUser = JSON.parse(localStorage.getItem('web-quiz-bcn-auth-user'));
+  const isSelf = initialData && currentUser && initialData.mssv === currentUser.mssv;
+  const isEditingAdmin = initialData && initialData.role === 'admin';
   // Đồng bộ dữ liệu khi mở Modal
   useEffect(() => {
     if (isOpen) {
@@ -58,6 +62,11 @@ export default function UserManagerModal({ isOpen, onClose, onSave, initialData 
   };
 
   const toggleStatus = () => {
+    // Không cho phép tự khóa mình trong Modal
+    if (isSelf) {
+      toast.error("Bạn không thể tự khóa tài khoản của chính mình!");
+      return;
+    }
     setUserData(prev => ({ ...prev, is_active: !prev.is_active }));
   };
 
@@ -197,6 +206,9 @@ export default function UserManagerModal({ isOpen, onClose, onSave, initialData 
               className={styles.selectField}
               value={userData.role}
               onChange={(e) => handleChange('role', e.target.value)}
+              disabled={isEditingAdmin} /* <-- KHÓA Ô SELECT NẾU LÀ ADMIN */
+              title={isEditingAdmin ? "Không thể chỉnh sửa vai trò của Admin" : ""}
+              style={isEditingAdmin ? { cursor: 'not-allowed', opacity: 0.7 } : {}}
             >
               <option value="student">Student</option>
               <option value="editor">Editor</option>
