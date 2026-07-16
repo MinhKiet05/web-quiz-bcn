@@ -20,7 +20,7 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey)
 
     const { action, userData } = await req.json()
-    const { mssv, email, password, full_name, role, is_active } = userData
+    const { id, mssv, email, password, full_name, role, is_active } = userData
 
     if (action === 'CREATE') {
       // BƯỚC 1: TẠO USER MỚI TRONG auth.users
@@ -35,9 +35,7 @@ serve(async (req) => {
       
       if (authError) throw authError;
 
-      // Note: Nếu bạn đang cài Trigger tự động trên Supabase (handle_new_user), 
-      // bản ghi trong public.users đã tự động được sinh ra. 
-      // Đoạn update dưới đây đảm bảo cập nhật đúng trạng thái is_active
+      // Đồng bộ dữ liệu trạng thái
       await supabase.from('users').update({ is_active, role }).eq('mssv', mssv);
 
       return new Response(JSON.stringify({ success: true, message: "Đã tạo tài khoản thành công!" }), 
@@ -46,12 +44,12 @@ serve(async (req) => {
     } 
     
     if (action === 'UPDATE') {
-      // BƯỚC 1: LẤY ID CỦA USER TỪ public.users
-      const { data: pUser, error: pErr } = await supabase.from('users').select('id').eq('mssv', mssv).single()
-      if (pErr || !pUser) throw new Error('Không tìm thấy user trong hệ thống!')
+      // BƯỚC 1: XÁC MINH ID TRUYỀN LÊN TỪ FRONTEND
+      if (!id) throw new Error('Không tìm thấy ID người dùng để cập nhật!')
 
       // BƯỚC 2: CẬP NHẬT TRONG auth.users VÀ KHÓA ĐĂNG NHẬP NẾU CẦN
       const updatePayload: any = {
+        email: email, // Cập nhật cả Email trong auth.users
         user_metadata: { mssv, full_name, role },
         // Lệnh này sẽ cấm đăng nhập 100 năm nếu is_active là false, và gỡ cấm (none) nếu is_active là true
         ban_duration: is_active === false ? '876000h' : 'none' 
@@ -62,20 +60,25 @@ serve(async (req) => {
         updatePayload.password = password
       }
 
-      const { error: authErr } = await supabase.auth.admin.updateUserById(pUser.id, updatePayload)
+      const { error: authErr } = await supabase.auth.admin.updateUserById(id, updatePayload)
       if (authErr) throw authErr
 
-      // BƯỚC 3: CẬP NHẬT CÁC THÔNG TIN CÒN LẠI VÀO public.users BẰNG RPC
-      const { error: rpcErr } = await supabase.rpc('admin_update_user_info', {
-        p_mssv: mssv,
-        p_full_name: full_name,
-        p_role: role,
-        p_is_active: is_active
-      });
+      // BƯỚC 3: CẬP NHẬT TRỰC TIẾP TRONG BẢNG public.users THEO ID
+      // Sử dụng trực tiếp SDK của Service Role cho phép đổi cả MSSV và Email mà không cần RPC phức tạp
+      const { error: dbErr } = await supabase
+        .from('users')
+        .update({
+          mssv: mssv,
+          full_name: full_name,
+          email: email,
+          role: role,
+          is_active: is_active
+        })
+        .eq('id', id);
       
-      if (rpcErr) throw rpcErr;
+      if (dbErr) throw dbErr;
 
-      return new Response(JSON.stringify({ success: true, message: "Đã cập nhật trạng thái tài khoản thành công!" }), 
+      return new Response(JSON.stringify({ success: true, message: "Đã cập nhật thông tin tài khoản thành công!" }), 
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
       )
     }

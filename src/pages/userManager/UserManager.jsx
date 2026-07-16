@@ -104,6 +104,42 @@ const handleModalSave = async (savedUserData) => {
       return;
     }
 
+    // === BƯỚC KIỂM TRA TRÙNG MSSV VÀ EMAIL (CHO CẢ THÊM MỚI VÀ CHỈNH SỬA) ===
+    try {
+      let query = supabase
+        .from('users')
+        .select('id, mssv, email')
+        .or(`mssv.eq."${savedUserData.mssv}",email.eq."${savedUserData.email}"`);
+
+      // Nếu là chế độ Sửa, loại bỏ chính tài khoản hiện tại ra khỏi danh sách kiểm tra trùng
+      if (isUpdate) {
+        query = query.neq('id', selectedUser.id);
+      }
+
+      const { data: existingUsers, error: checkError } = await query;
+
+      if (checkError) throw checkError;
+
+      if (existingUsers && existingUsers.length > 0) {
+        const duplicateMssv = existingUsers.some(u => u.mssv === savedUserData.mssv);
+        const duplicateEmail = existingUsers.some(u => u.email === savedUserData.email);
+
+        if (duplicateMssv) {
+          toast.error(`Lỗi: MSSV ${savedUserData.mssv} đã tồn tại ở tài khoản khác!`);
+          return; // Dừng, không cho lưu
+        }
+        if (duplicateEmail) {
+          toast.error(`Lỗi: Email ${savedUserData.email} đã được sử dụng bởi tài khoản khác!`);
+          return; // Dừng, không cho lưu
+        }
+      }
+    } catch (err) {
+      console.error('Lỗi khi kiểm tra trùng lặp:', err);
+      toast.error('Có lỗi xảy ra khi kiểm tra dữ liệu, vui lòng thử lại!');
+      return;
+    }
+    // ====================================================================
+
     const toastId = toast.loading('Đang xử lý thông tin. Vui lòng chờ...');
 
     try {
@@ -135,7 +171,6 @@ const handleModalSave = async (savedUserData) => {
       toast.error(`Lỗi: ${err.message}`, { id: toastId });
     }
   };
-
   // --- Handlers cho Modal Xóa Mềm ---
   const handleDeleteClick = (mssv) => {
     setItemToDelete(mssv);
@@ -157,10 +192,12 @@ const handleModalSave = async (savedUserData) => {
         body: {
           action: 'UPDATE',
           userData: {
+            id: userToBan.id,           
+            email: userToBan.email,     
             mssv: userToBan.mssv,
             full_name: userToBan.full_name,
             role: userToBan.role,
-            is_active: false // <--- Ép trạng thái về False để ra lệnh Khóa
+            is_active: false           
           }
         }
       });
@@ -175,7 +212,7 @@ const handleModalSave = async (savedUserData) => {
       toast.success('Đã khóa tài khoản thành công trên toàn hệ thống!', { id: toastId });
       setIsDeleteModalOpen(false); 
       setItemToDelete(null);
-      fetchUsers(); // Tải lại bảng để thấy cập nhật
+      fetchUsers(); 
 
     } catch (err) {
       console.error('Lỗi khóa tài khoản:', err);
