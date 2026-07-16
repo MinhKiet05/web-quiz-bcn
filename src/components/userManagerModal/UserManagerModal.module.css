@@ -220,3 +220,39 @@
   font-weight: 500;
   color: #B4B9C9;
 }
+
+.inputError {
+  border-color: #EF4444 !important; /* Đỏ Red-500 */
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2) !important;
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.inputWrapper .inputField {
+  width: 100%;
+  padding-right: 2.5rem;
+}
+
+.eyeButton {
+  position: absolute;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  color: #727C9E;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  transition: color 0.2s;
+  outline: none;
+}
+
+.eyeButton:hover {
+  color: #ffffff;
+}

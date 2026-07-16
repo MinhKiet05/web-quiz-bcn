@@ -64,7 +64,7 @@ export default function DetailAttemptModal({ isOpen, onClose, attemptData }) {
   };
 
   return (
-    <div className={styles.overlay} onClick={onClose}>
+    <div className={styles.overlay}>
       <div className={styles.modalContainer} onClick={(e) => e.stopPropagation()}>
         
         {/* --- HEADER --- */}

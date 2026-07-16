@@ -163,7 +163,7 @@ export default function History() {
             >
               <option value="all">Danh mục: Tất cả</option>
               <option value="cpp">C/C++</option>
-              <option value="mobile">Java / Mobile</option>
+              <option value="mobile">Java</option>
               <option value="web">Web</option>
             </select>
             <ChevronDown className={styles.selectIcon} size={16} />
