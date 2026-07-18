@@ -197,6 +197,7 @@
   border-radius: 20px;
   font-size: 0.85rem;
   font-weight: 500;
+  white-space: nowrap
 }
 
 .diffHard {
@@ -315,7 +316,32 @@
   color: #ffffff;
   box-shadow: 0 4px 10px rgba(66, 85, 255, 0.3);
 }
+/* =========================================
+   TÙY CHỈNH THANH CUỘN NGANG CHO BẢNG
+   ========================================= */
+.tableContainer {
+  /* Đảm bảo thuộc tính này đã tồn tại để cho phép cuộn ngang */
+  overflow-x: auto; 
+}
 
+.tableContainer::-webkit-scrollbar {
+  height: 8px; /* Độ dày của thanh cuộn ngang */
+}
+
+.tableContainer::-webkit-scrollbar-track {
+  background-color: #1A1D36; /* Màu nền rãnh cuộn (đồng bộ với nền của bảng) */
+  border-radius: 0 0 12px 12px;
+}
+
+.tableContainer::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.15); /* Màu thanh cuộn tĩnh */
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.tableContainer::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.25); /* Sáng hơn khi người dùng chạm/hover */
+}
 /* --- RESPONSIVE --- */
 @media (max-width: 992px) {
   .topActions { flex-direction: column; }

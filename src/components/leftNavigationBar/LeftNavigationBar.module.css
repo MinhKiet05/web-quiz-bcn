@@ -10,7 +10,7 @@
   background-color: #07051A;
   flex-shrink: 0;
   overflow: hidden;
-  
+  padding-right: 1rem;
   position: fixed;
   left: 0;
   top: 0;
@@ -323,3 +323,8 @@
   max-width: 120px;
   opacity: 1;
 }
+@media (max-width: 800px) {
+  .sidebar {
+    display: none; /* Ẩn hoàn toàn Sidebar dọc trên Mobile */
+  }
+} 
