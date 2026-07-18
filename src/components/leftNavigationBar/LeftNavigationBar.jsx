@@ -6,7 +6,7 @@ import {
   Users,
   BookOpen,
   HelpCircle,
-  List,
+  Home,
   Trophy,
   History,
   LogOut,
@@ -20,7 +20,7 @@ import ConfirmationModal from '../confirmationModal/ConfirmationLogoutModal';
 import { toast } from 'sonner';
 const NAV_SETS = {
   student: [
-    { icon: <List size={20} />, label: 'Danh sách Quiz', to: '/quiz-list', end: true },
+    { icon: <Home size={20} />, label: 'Danh sách Quiz', to: '/quiz-list', end: true },
     { icon: <Trophy size={20} />, label: 'Bảng xếp hạng', to: '/leaderboard', end: true },
     { icon: <History size={20} />, label: 'Lịch sử làm bài', to: '/history', end: true },
   ],
@@ -45,7 +45,7 @@ export default function LeftNavigationBar({ user, onLogout }) {
       ? NAV_SETS.editorExtra
       : [];
   const guestItems = [
-    { icon: <List size={20} />, label: 'Danh sách Quiz', to: '/quiz-list', end: true },
+    { icon: <Home size={20} />, label: 'Danh sách Quiz', to: '/quiz-list', end: true },
     { icon: <Trophy size={20} />, label: 'Bảng xếp hạng', to: '/leaderboard', end: true },
   ];
   const menuItems = isAuthenticated ? commonItems : guestItems;

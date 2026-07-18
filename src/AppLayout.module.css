@@ -1,12 +1,13 @@
+/* Giao diện Desktop giữ nguyên theo thiết kế hiện tại của bạn */
 .layoutContainer {
   display: flex;
-  width: calc(100% - 200px); /* Trừ đi chiều rộng của sidebar */
+  width: calc(100% - 72px); /* Bạn sửa lại từ 200px thành 72px vì độ rộng gốc của sidebar là 72px */
   min-height: 100vh;
   background-color: #07051A;
   color: #ffffff;
   font-family: 'Inter', sans-serif;
   overflow: hidden;
-  padding-left: 200px;
+  padding-left: 72px; /* Sidebar thu gọn 72px */
 }
 
 .mainContent {
@@ -16,4 +17,18 @@
   position: relative;
   max-width: 1200px;
   margin: 0 auto;
+}
+
+/* =========================================
+   THIẾT LẬP REPONSIVE MOBILE (< 800px)
+========================================= */
+@media (max-width: 800px) {
+  .layoutContainer {
+    width: 100%;
+    padding-left: 0; /* Xóa khoảng trống của LeftNav */
+  }
+
+  .mainContent {
+    padding-bottom: 85px; /* Chừa khoảng trống bên dưới để BottomNav không đè lên content */
+  }
 }

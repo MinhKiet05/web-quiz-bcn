@@ -1,0 +1,107 @@
+.bottomNavContainer {
+  display: none; /* Mặc định ẩn trên Desktop */
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+}
+
+/* Chỉ hiện trên điện thoại / tablet (<800px) */
+@media (max-width: 800px) {
+  .bottomNavContainer {
+    display: block;
+  }
+}
+
+/* THANH BAR NẰM NGANG CHỨA ICON */
+.bottomBar {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: 65px;
+  background-color: #07051A; /* Cùng màu sidebar */
+  border-top: 2px solid #1E2541; /* Đường viền nhẹ ngăn cách */
+  position: relative;
+  z-index: 1001;
+}
+
+.navIcon {
+  background: transparent;
+  border: none;
+  color: #727C9E; /* Màu xám chưa chọn */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.navIcon:hover {
+  color: #ffffff;
+}
+
+.navIconActive {
+  color: #4255FF; /* Màu xanh active */
+}
+
+/* =========================================
+   POPUP MENU (TRƯỢT TỪ DƯỚI LÊN GIỐNG DUOLINGO)
+========================================= */
+.popupMenu {
+  position: absolute;
+  bottom: 65px; /* Nằm ngay trên bottomBar */
+  left: 0;
+  width: 100%;
+  background-color: #07051A;
+  border-top: 1px solid #1E2541;
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem 0;
+  box-shadow: 0 -10px 20px rgba(0, 0, 0, 0.4);
+  animation: slideUp 0.2s ease-out;
+  z-index: 1000;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.popupItem {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1rem 1.5rem;
+  color: #939BB4;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 600;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: all 0.2s;
+}
+
+.popupItem:last-child {
+  border-bottom: none;
+}
+
+.popupItem:hover {
+  background-color: #1E2541;
+  color: #ffffff;
+}
+
+.popupItemActive {
+  color: #ffffff;
+  background-color: #2E3856;
+}
+
+.logoutBtn:hover {
+  color: #F87171; /* Chữ đỏ khi hover đăng xuất */
+}
