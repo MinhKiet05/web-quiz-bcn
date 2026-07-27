@@ -7,12 +7,13 @@ export default function CardQuiz({ quiz, onRequireLogin}) {
   const navigate = useNavigate();
   
   const {
-    id, // Cần lấy thêm id để chuyển hướng
+    id, 
     title = 'Tên bài Quiz',
     category_name = 'C/C++',
     difficulty = 'easy',
     duration = 15,
-    quiz_type = 'normal', 
+    quiz_type = 'normal',
+    is_completed = false, // <-- Lấy props cờ đã làm
   } = quiz || {};
 
   const isWeekly = quiz_type === 'weekly';
@@ -35,14 +36,12 @@ export default function CardQuiz({ quiz, onRequireLogin}) {
 
   const difficultyData = getDifficultyDisplay(difficulty);
 
-  // Xử lý sự kiện click "Xem chi tiết"
   const handleViewDetail = () => {
     const storedUser = localStorage.getItem('web-quiz-bcn-auth-user');
     
     if (!storedUser) {
       if (onRequireLogin) onRequireLogin();
     } else {
-      // Nếu đã đăng nhập -> Chuyển tới trang StartQuiz kèm ID
       navigate(`/quiz/${id}`); 
     }
   };
@@ -58,6 +57,7 @@ export default function CardQuiz({ quiz, onRequireLogin}) {
 
       <div className={styles.tagsContainer}>
         {isWeekly && <span className={`${styles.tag} ${styles.tagWeekly}`}>Quiz tuần</span>}
+        {is_completed && <span className={`${styles.tag} ${styles.tagCompleted}`}>Đã làm</span>}
         <span className={`${styles.tag} ${styles.tagCategory}`}>{category_name}</span>
         {!isWeekly && <span className={`${styles.tag} ${difficultyData.className}`}>{difficultyData.label}</span>}
       </div>
@@ -73,9 +73,8 @@ export default function CardQuiz({ quiz, onRequireLogin}) {
 
       <div className={styles.divider}></div>
 
-      {/* Gắn sự kiện onClick vào nút */}
       <button className={styles.actionButton} onClick={handleViewDetail}>
-        Xem chi tiết
+        {is_completed ? 'Xem lại bài' : 'Xem chi tiết'}
       </button>
     </div>
   );

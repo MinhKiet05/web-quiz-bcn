@@ -105,6 +105,7 @@
   max-width: 1400px;
   margin: 0 auto;
   width: 100%;
+  max-width: calc(100vw - 5rem);
   user-select: none;
 }
 
@@ -121,6 +122,7 @@
   border-radius: 12px;
   padding: 2.5rem;
   box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  max-width: calc(100vw - 6rem);
 }
 
 .questionMeta {
@@ -160,8 +162,11 @@
   border: 1px solid rgba(255, 255, 255, 0.03);
 }
 
-.codeSnippet pre {
-  margin: 0;
+.codeSnippet code {
+  font-family: 'Fira Code', 'Consolas', monospace;
+  font-size: 0.95rem;
+  color: #E2E4EB;
+  line-height: 1.5;
 }
 
 .codeSnippet code {
@@ -248,6 +253,7 @@
   cursor: pointer;
   transition: all 0.2s;
   border: none;
+  max-width: calc(100vw - 3rem);
 }
 
 .navBtn {
@@ -282,6 +288,7 @@
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
+  max-width: calc(100vw - 8rem);
 }
 
 .panelHeader {
@@ -428,4 +435,47 @@
 
 .fillTextInput::placeholder {
   color: #5C6584;
+}
+/* =========================================
+   RESPONSIVE MOBILE (< 800px) CHO EXAMINE QUIZ
+========================================= */
+@media (max-width: 800px) {
+  /* Ép khung nội dung chính xếp dọc, đưa phần bên phải xuống dưới */
+  .mainContent {
+    flex-direction: column;
+    padding: 1rem; /* Giảm khoảng cách lề trên di động */
+  }
+
+  /* Kéo giãn Bảng điều khiển chiếm 100% chiều ngang */
+  .sidePanel {
+    width: 100%;
+  }
+
+  /* Cấu trúc lại Header cho gọn gàng */
+  .header {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+    text-align: center;
+  }
+
+  .headerRight {
+    justify-content: center;
+  }
+
+  /* Thu nhỏ padding của thẻ hiển thị câu hỏi */
+  .questionCard {
+    padding: 1.5rem;
+  }
+
+  /* Xếp chồng nút "Câu trước" và "Câu tiếp theo" */
+  .navigationButtons {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .navBtn, .navBtnPrimary {
+    width: 100%;
+    justify-content: center;
+  }
 }

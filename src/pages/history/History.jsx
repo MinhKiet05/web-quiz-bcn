@@ -190,7 +190,11 @@ export default function History() {
       {/* 2. Danh sách lịch sử làm bài */}
       {loading ? (
         <div className={styles.loadingState}>Đang tải lịch sử...</div>
+      ) : historyList.length === 0 ? (
+        // TRƯỜNG HỢP 1: Thực sự chưa làm bài Quiz nào
+        <div className={styles.emptyState}>Bạn chưa hoàn thành bài Quiz nào.</div>
       ) : paginatedList.length > 0 ? (
+        // TRƯỜNG HỢP 2: Có kết quả tìm kiếm/lọc
         <div className={styles.historyList}>
           {paginatedList.map(attempt => {
             const quiz = attempt.quizzes;
@@ -272,7 +276,8 @@ export default function History() {
           })}
         </div>
       ) : (
-        <div className={styles.emptyState}>Bạn chưa hoàn thành bài Quiz nào.</div>
+        // TRƯỜNG HỢP 3: Có lịch sử làm bài nhưng lọc/tìm kiếm không ra kết quả
+        <div className={styles.emptyState}>Không tìm thấy kết quả phù hợp.</div>
       )}
 
       {/* 3. Phân trang */}

@@ -5,11 +5,13 @@ import CardQuiz from '../../components/cardQuiz/CardQuiz';
 import { supabase } from '../../lib/supabaseClient'; 
 import { useNavigate } from 'react-router-dom';
 import ConfirmationLoginModal from '../../components/confirmationModal/ConfirmationLoginModal';
+
 const ITEMS_PER_PAGE = 6;
 
 export default function QuizList() {
   const navigate = useNavigate();
-  const [quizzes, setQuizzes] = useState([]);
+  // State chứa TOÀN BỘ dữ liệu đã được sắp xếp để hỗ trợ phân trang nội bộ
+  const [allQuizzes, setAllQuizzes] = useState([]); 
   const [loading, setLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
   
@@ -19,72 +21,78 @@ export default function QuizList() {
   const [category, setCategory] = useState('all');
   const [difficulty, setDifficulty] = useState('all');
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
   // Lấy dữ liệu từ Supabase
   const fetchQuizzes = async () => {
     setLoading(true);
     try {
-      // Bắt đầu build query: Lấy quiz kèm tên category
+      // 1. Lấy thông tin user đăng nhập từ localStorage
+      const storedUser = JSON.parse(localStorage.getItem('web-quiz-bcn-auth-user'));
+
+      // 2. Lấy TOÀN BỘ quiz active khớp với bộ lọc (Bỏ .range để tự phân trang)
       let query = supabase
         .from('quizzes')
-        .select(`
-          *,
-          categories (name)
-        `, { count: 'exact' })
-        .eq('status', 'active'); // Chỉ hiển thị quiz đang active
+        .select(`*, categories (name)`)
+        .eq('status', 'active');
 
-      // Áp dụng bộ lọc tìm kiếm
-      if (searchTerm) {
-        query = query.ilike('title', `%${searchTerm}%`);
-      }
-      
-      // Áp dụng bộ lọc độ khó (nếu không phải 'all')
-      if (difficulty !== 'all') {
-        query = query.eq('difficulty', difficulty);
-      }
-
-      // Áp dụng bộ lọc category (nếu không phải 'all')
-      // Vì Supabase filter qua bảng join hơi phức tạp nên ở đây ta filter bằng category_id nếu có
+      if (searchTerm) query = query.ilike('title', `%${searchTerm}%`);
+      if (difficulty !== 'all') query = query.eq('difficulty', difficulty);
       if (category === 'cpp') query = query.eq('category_id', 1);
       if (category === 'mobile') query = query.eq('category_id', 2);
       if (category === 'web') query = query.eq('category_id', 3);
 
-      // Phân trang & Sắp xếp ưu tiên
-      const from = (page - 1) * ITEMS_PER_PAGE;
-      const to = from + ITEMS_PER_PAGE - 1;
-      
-      query = query
-        .range(from, to)
-        .order('quiz_type', { ascending: false }) // Ưu tiên 1: Đẩy 'weekly' lên đầu, 'normal' xuống dưới
-        .order('created_at', { ascending: false }); // Ưu tiên 2: Cùng loại thì bài nào mới tạo xếp trước
-
-      const { data, count, error } = await query;
-
+      const { data: quizData, error } = await query;
       if (error) throw error;
 
-      // Map dự phòng để đảm bảo 100% ra tên môn học dù Supabase chặn JOIN
-      const categoryMap = {
-        1: 'C/C++',
-        2: 'Mobile (Java)',
-        3: 'Web (HTML/CSS/JavaScript)'
-      };
-
-      // Chuẩn hóa dữ liệu để truyền vào CardQuiz
-      const formattedQuizzes = data.map((q) => {
-        // Lấy tên category từ data JOIN, nếu null thì dùng map dự phòng
-        const catName = q.categories?.name || categoryMap[q.category_id] || 'Không xác định';
+      // 3. Lấy danh sách ID các bài Quiz mà User đã NỘP (nếu có đăng nhập)
+      let completedQuizIds = [];
+      if (storedUser && storedUser.mssv) {
+        const { data: attemptsData, error: attemptError } = await supabase
+          .from('attempts')
+          .select('quiz_id')
+          .eq('user_id', storedUser.mssv)
+          .eq('status', 'submitted');
         
+        if (!attemptError && attemptsData) {
+          completedQuizIds = attemptsData.map(a => a.quiz_id);
+        }
+      }
+
+      const categoryMap = { 1: 'C/C++', 2: 'Mobile (Java)', 3: 'Web (HTML/CSS/JavaScript)' };
+
+      // 4. Chuẩn hóa dữ liệu & Gắn cờ is_completed
+      let formattedQuizzes = quizData.map((q) => {
+        const catName = q.categories?.name || categoryMap[q.category_id] || 'Không xác định';
         return {
           id: q.id,
           title: q.title,
           category_name: catName,
-          difficulty: q.difficulty, // easy, medium, hard
+          difficulty: q.difficulty,
           duration: q.duration,
-          quiz_type: q.quiz_type,   // normal, weekly
+          quiz_type: q.quiz_type,
+          created_at: q.created_at,
+          is_completed: completedQuizIds.includes(q.id) // <--- Cờ xác định Đã làm
         };
       });
 
-      setQuizzes(formattedQuizzes);
-      if (count !== null) setTotalCount(count);
+      // 5. THUẬT TOÁN SẮP XẾP YÊU CẦU
+      formattedQuizzes.sort((a, b) => {
+        // Ưu tiên 1: Quiz tuần luôn nằm trên cùng (bất kể làm hay chưa)
+        if (a.quiz_type === 'weekly' && b.quiz_type !== 'weekly') return -1;
+        if (a.quiz_type !== 'weekly' && b.quiz_type === 'weekly') return 1;
+
+        // Ưu tiên 2: Cùng là Quiz thường -> Quiz nào Đã làm thì bị đẩy xuống dưới cùng
+        if (a.quiz_type !== 'weekly' && b.quiz_type !== 'weekly') {
+          if (a.is_completed && !b.is_completed) return 1;
+          if (!a.is_completed && b.is_completed) return -1;
+        }
+
+        // Ưu tiên 3: Cùng hạng thì sắp xếp theo thời gian mới nhất tạo trước
+        return new Date(b.created_at) - new Date(a.created_at);
+      });
+
+      setAllQuizzes(formattedQuizzes);
+      setTotalCount(formattedQuizzes.length);
 
     } catch (error) {
       console.error('Lỗi khi tải danh sách Quiz:', error.message);
@@ -93,22 +101,20 @@ export default function QuizList() {
     }
   };
 
-  // Trigger fetch khi thay đổi filter hoặc page
+  // Chỉ gọi fetchQuizzes khi các bộ lọc thay đổi, không gọi khi chuyển trang (để tối ưu server)
   useEffect(() => {
     fetchQuizzes();
-  }, [page, searchTerm, category, difficulty]);
+    setPage(1); // Luôn về trang 1 khi đổi bộ lọc
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchTerm, category, difficulty]);
 
-  // Reset về trang 1 khi đổi bộ lọc
-  const handleFilterChange = () => {
-    setPage(1);
-  };
-
+  // CẮT DỮ LIỆU CHO TRANG HIỆN TẠI (Local Pagination)
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
+  const startIndex = (page - 1) * ITEMS_PER_PAGE;
+  const currentQuizzes = allQuizzes.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   return (
     <div className={styles.container}>
-      
-
       {/* 2. Filter Bar */}
       <div className={styles.filterBar}>
         <div className={styles.searchContainer}>
@@ -118,10 +124,7 @@ export default function QuizList() {
             placeholder="Tên bài Quiz..."
             className={styles.searchInput}
             value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              handleFilterChange();
-            }}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
 
@@ -130,7 +133,7 @@ export default function QuizList() {
             <select 
               className={styles.selectBox}
               value={category}
-              onChange={(e) => { setCategory(e.target.value); handleFilterChange(); }}
+              onChange={(e) => setCategory(e.target.value)}
             >
               <option value="all">Danh mục: Tất cả</option>
               <option value="cpp">C/C++</option>
@@ -144,7 +147,7 @@ export default function QuizList() {
             <select 
               className={styles.selectBox}
               value={difficulty}
-              onChange={(e) => { setDifficulty(e.target.value); handleFilterChange(); }}
+              onChange={(e) => setDifficulty(e.target.value)}
             >
               <option value="all">Độ khó: Tất cả</option>
               <option value="easy">Dễ</option>
@@ -159,9 +162,9 @@ export default function QuizList() {
       {/* 3. Quiz Grid */}
       {loading ? (
         <div className={styles.loadingState}>Đang tải danh sách Quiz...</div>
-      ) : quizzes.length > 0 ? (
+      ) : currentQuizzes.length > 0 ? (
         <div className={styles.quizGrid}>
-          {quizzes.map((quiz) => (
+          {currentQuizzes.map((quiz) => (
             <CardQuiz key={quiz.id} quiz={quiz} onRequireLogin={() => setIsLoginModalOpen(true)}/>
           ))}
         </div>
@@ -193,6 +196,7 @@ export default function QuizList() {
           </button>
         </div>
       )}
+      
       <ConfirmationLoginModal 
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}

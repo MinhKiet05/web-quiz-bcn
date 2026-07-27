@@ -26,9 +26,14 @@
   .layoutContainer {
     width: 100%;
     padding-left: 0; /* Xóa khoảng trống của LeftNav */
+    overflow-x: scroll; 
+    width: 100vw; /* Đảm bảo chiều rộng của layout bằng với chiều rộng của viewport */
   }
 
   .mainContent {
     padding-bottom: 85px; /* Chừa khoảng trống bên dưới để BottomNav không đè lên content */
+  }
+  :global(body.hide-bottom-nav) .bottomNavClassCuaBan {
+    display: none !important;
   }
 }

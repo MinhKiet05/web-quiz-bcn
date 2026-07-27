@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search,ChevronDown, Plus, Edit2, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, ChevronDown, Plus, Edit2, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
 import UserManagerModal from '../../components/userManagerModal/UserManagerModal';
 import ConfirmationDelete from '../../components/confirmationModal/ConfirmationDelete';
@@ -13,7 +13,7 @@ export default function UserManager() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
-  
+
   // States cho Filters & Pagination
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
@@ -25,6 +25,22 @@ export default function UserManager() {
   // States cho Modal Xóa (Confirmation)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
+
+  useEffect(() => {
+    // Nếu màn hình < 800px (Mobile) và có modal đang mở
+    const isMobile = window.innerWidth <= 800;
+
+    if (isMobile && (isModalOpen || isDeleteModalOpen)) {
+      document.body.classList.add('hide-bottom-nav');
+    } else {
+      document.body.classList.remove('hide-bottom-nav');
+    }
+
+    // Cleanup function khi component unmount
+    return () => {
+      document.body.classList.remove('hide-bottom-nav');
+    };
+  }, [isModalOpen, isDeleteModalOpen]);
 
   // KIỂM TRA QUYỀN TRUY CẬP (Chỉ Admin mới được quản lý User)
   useEffect(() => {
@@ -57,7 +73,7 @@ export default function UserManager() {
       // Phân trang
       const from = (page - 1) * ITEMS_PER_PAGE;
       const to = from + ITEMS_PER_PAGE - 1;
-      
+
       query = query
         .range(from, to)
         .order('created_at', { ascending: false });
@@ -90,12 +106,12 @@ export default function UserManager() {
     setIsModalOpen(true);
   };
 
-const handleEditClick = (user) => {
+  const handleEditClick = (user) => {
     setSelectedUser(user); // Truyền dữ liệu người dùng được chọn vào state
     setIsModalOpen(true);  // Mở modal lên
   };
 
-const handleModalSave = async (savedUserData) => {
+  const handleModalSave = async (savedUserData) => {
     const isUpdate = selectedUser !== null;
 
     // KIỂM TRA ĐỘ DÀI MẬT KHẨU NGAY TẠI FRONTEND
@@ -168,9 +184,9 @@ const handleModalSave = async (savedUserData) => {
 
       // Thành công
       toast.success(data?.message || 'Xử lý thành công!', { id: toastId });
-      
+
       setIsModalOpen(false);
-      fetchUsers(); 
+      fetchUsers();
 
     } catch (err) {
       console.error('Lỗi khi lưu User:', err);
@@ -192,7 +208,7 @@ const handleModalSave = async (savedUserData) => {
 
   const executeDeleteAction = async () => {
     if (!itemToDelete) return;
-    
+
     const toastId = toast.loading('Đang xử lý khóa tài khoản...');
 
     try {
@@ -205,12 +221,12 @@ const handleModalSave = async (savedUserData) => {
         body: {
           action: 'UPDATE',
           userData: {
-            id: userToBan.id,           
-            email: userToBan.email,     
+            id: userToBan.id,
+            email: userToBan.email,
             mssv: userToBan.mssv,
             full_name: userToBan.full_name,
             role: userToBan.role,
-            is_active: false           
+            is_active: false
           }
         }
       });
@@ -221,11 +237,11 @@ const handleModalSave = async (savedUserData) => {
         throw new Error(errorDetails?.error || error.message);
       }
       if (data && data.error) throw new Error(data.error);
-      
+
       toast.success('Đã khóa tài khoản thành công trên toàn hệ thống!', { id: toastId });
-      setIsDeleteModalOpen(false); 
+      setIsDeleteModalOpen(false);
       setItemToDelete(null);
-      fetchUsers(); 
+      fetchUsers();
 
     } catch (err) {
       console.error('Lỗi khóa tài khoản:', err);
@@ -249,7 +265,7 @@ const handleModalSave = async (savedUserData) => {
 
   return (
     <div className={styles.container}>
-      
+
       {/* 1. FILTER BAR & ADD BUTTON */}
       {/* 1. FILTER BAR & ADD BUTTON */}
       <div className={styles.topActions}>
@@ -266,7 +282,7 @@ const handleModalSave = async (savedUserData) => {
           </div>
 
           <div className={styles.selectWrapper}>
-            <select 
+            <select
               className={styles.selectBox}
               value={statusFilter}
               onChange={(e) => { setStatusFilter(e.target.value); handleFilterChange(); }}
@@ -341,14 +357,14 @@ const handleModalSave = async (savedUserData) => {
 
         {totalPages > 1 && (
           <div className={styles.pagination}>
-            <button 
-              className={styles.pageBtn} 
+            <button
+              className={styles.pageBtn}
               disabled={page === 1}
               onClick={() => setPage(p => Math.max(1, p - 1))}
             >
               <ChevronLeft size={18} />
             </button>
-            
+
             {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
               <button
                 key={pageNum}
@@ -359,8 +375,8 @@ const handleModalSave = async (savedUserData) => {
               </button>
             ))}
 
-            <button 
-              className={styles.pageBtn} 
+            <button
+              className={styles.pageBtn}
               disabled={page === totalPages}
               onClick={() => setPage(p => Math.min(totalPages, p + 1))}
             >
@@ -371,19 +387,19 @@ const handleModalSave = async (savedUserData) => {
       </div>
 
       {/* MODAL THÊM / SỬA */}
-      <UserManagerModal 
+      <UserManagerModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         initialData={selectedUser}
         onSave={handleModalSave}
       />
-      
+
       {/* MODAL XÁC NHẬN KHÓA TÀI KHOẢN */}
-      <ConfirmationDelete 
+      <ConfirmationDelete
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={executeDeleteAction}
-        title="Khóa tài khoản này?" 
+        title="Khóa tài khoản này?"
         message="Bạn có chắc chắn muốn khóa tài khoản này? Người dùng sẽ không thể đăng nhập vào hệ thống cho đến khi được mở khóa lại."
       />
     </div>

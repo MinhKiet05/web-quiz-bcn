@@ -67,7 +67,11 @@
   background-color: #4255FF; /* Nổi bật cho tag Quiz Tuần */
   color: #ffffff;
 }
-
+.tagCompleted {
+  background-color: rgba(16, 185, 129, 0.15); /* Nền xanh lục nhẹ */
+  color: #10B981; /* Chữ xanh Emerald */
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
 .diffEasy {
   background-color: rgba(46, 125, 50, 0.2);
   color: #4CAF50; /* Xanh lá */

@@ -1,0 +1,126 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(7, 5, 26, 0.85); /* Tối hơn để không nhìn lén đề */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999; /* Đẩy lên cao nhất */
+}
+
+.modal {
+  background-color: #2E3856;
+  width: 90%;
+  max-width: 460px;
+  border-radius: 16px;
+  padding: 1.5rem 1.75rem;
+  box-shadow: 0 25px 50px -12px rgba(220, 38, 38, 0.5); /* Bóng đỏ */
+  animation: modalPulse 0.3s ease-out;
+}
+
+@keyframes modalPulse {
+  0% { transform: scale(0.9); opacity: 0; }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.iconWrapper {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background-color: rgba(239, 68, 68, 0.15); /* Nền đỏ nhạt */
+  color: #EF4444; /* Icon đỏ */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+}
+
+.title {
+  color: #ffffff;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.warningBox {
+  background-color: #171B31;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+  border: 1px solid rgba(239, 68, 68, 0.3); /* Viền đỏ */
+}
+
+.warningIcon {
+  color: #EF4444; 
+  font-size: 1.5rem;
+  margin-top: 0.25rem;
+}
+
+.warningContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.warningTitle {
+  color: #EF4444;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.warningText {
+  color: #939BB4;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btnConfirm {
+  background-color: #EF4444; /* Nút đỏ */
+  color: #ffffff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+  transition: background-color 0.2s, transform 0.1s;
+  width: 100%; /* Cho nút tràn viền để ấn tượng hơn */
+  text-align: center;
+}
+
+.btnConfirm:hover {
+  background-color: #DC2626;
+}
+
+.btnConfirm:active {
+  transform: scale(0.97);
+}

@@ -2,26 +2,80 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Clock, LayoutGrid, ArrowLeft, ArrowRight, Send } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { toast } from 'sonner';
 import styles from './ExamineQuiz.module.css';
 import ConfirmationSubmitModal from '../../components/confirmationModal/ConfirmationSubmitModal';
-
+import ConfirmationSubmitModalBeforeCheating from '../../components/confirmationModal/ConfirmationSubmitModalBeforeCheating';
 export default function ExamineQuiz() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [startTime] = useState(Date.now()); 
+  const [startTime] = useState(Date.now());
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
+  const [isCheatingDetected, setIsCheatingDetected] = useState(false);
   const [quiz, setQuiz] = useState(null);
   const [questions, setQuestions] = useState([]);
-  
+
   // Lưu đáp án. Nếu là mcq -> UUID, nếu là fill_text -> String
-  const [answers, setAnswers] = useState({}); 
+  const [answers, setAnswers] = useState({});
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const [timeSeconds, setTimeSeconds] = useState(0);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+
+  // THEO DÕI HÀNH VI GIAN LẬN
+  useEffect(() => {
+    if (loading || !quiz || submitting || isCheatingDetected) return;
+
+    // 1. Chặn bấm nút Back trên trình duyệt
+    window.history.pushState(null, document.title, window.location.href);
+    const handlePopState = () => {
+      window.history.pushState(null, document.title, window.location.href);
+      setIsCheatingDetected(true);
+    };
+
+    // 2. Chuyển Tab hoặc Thu nhỏ trình duyệt
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        setIsCheatingDetected(true);
+      }
+    };
+
+    // 3. Chặn F12, Ctrl+Shift+I (Mở DevTools)
+    const handleKeyDown = (e) => {
+      if (
+        e.key === 'F12' || 
+        (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || 
+        (e.ctrlKey && e.key === 'U') // Xem source code
+      ) {
+        e.preventDefault();
+        setIsCheatingDetected(true);
+      }
+    };
+
+    // 4. Cảnh báo khi định đóng tab trình duyệt (Chỉ hiện hộp thoại mặc định của Chrome)
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = ''; // Bắt buộc phải có đối với Chrome
+    };
+
+    // Đăng ký sự kiện
+    window.addEventListener('popstate', handlePopState);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      // Dọn dẹp sự kiện khi unmount
+      window.removeEventListener('popstate', handlePopState);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [loading, quiz, submitting, isCheatingDetected]);
 
   useEffect(() => {
     const fetchQuizData = async () => {
@@ -38,7 +92,7 @@ export default function ExamineQuiz() {
         if (quizData.quiz_type === 'weekly') {
           setTimeSeconds(0);
         } else {
-          setTimeSeconds(quizData.duration * 60); 
+          setTimeSeconds(quizData.duration * 60);
         }
 
         const { data: questionsData, error: qError } = await supabase
@@ -71,16 +125,16 @@ export default function ExamineQuiz() {
   }, [id, navigate]);
 
   useEffect(() => {
-    if (loading || !quiz || submitting) return;
+    if (loading || !quiz || submitting || isCheatingDetected  ) return;
 
     const timer = setInterval(() => {
       setTimeSeconds(prev => {
         if (quiz.quiz_type === 'weekly') {
-          return prev + 1; 
+          return prev + 1;
         } else {
           if (prev <= 1) {
             clearInterval(timer);
-            handleSubmit(); 
+            handleSubmit();
             return 0;
           }
           return prev - 1;
@@ -137,12 +191,12 @@ export default function ExamineQuiz() {
 
       let completionTime;
       if (quiz.quiz_type === 'weekly') {
-        completionTime = actualDurationSeconds; 
+        completionTime = actualDurationSeconds;
       } else {
         const maxDurationSeconds = quiz.duration * 60;
         completionTime = Math.min(actualDurationSeconds, maxDurationSeconds);
       }
-      
+
       const { data, error } = await supabase.rpc('submit_quiz_attempt', {
         p_user_id: storedUser.mssv,
         p_quiz_id: id,
@@ -173,7 +227,7 @@ export default function ExamineQuiz() {
   );
 
   const currentQ = questions[currentIndex];
-  
+
   // Logic kiểm tra câu nào đã làm (Xử lý cả chuỗi rỗng của fill_text)
   const answeredCount = questions.filter(q => answers[q.id] && String(answers[q.id]).trim() !== '').length;
   const progressPercent = (answeredCount / questions.length) * 100;
@@ -217,7 +271,19 @@ export default function ExamineQuiz() {
             {/* Hiển thị code snippet nếu có */}
             {currentQ.code_snippet && (
               <div className={styles.codeSnippet}>
-                <pre><code>{currentQ.code_snippet}</code></pre>
+                <SyntaxHighlighter
+                  language="javascript" /* Có thể linh hoạt đổi theo ngôn ngữ bài test */
+                  style={vscDarkPlus}
+                  customStyle={{
+                    margin: 0,
+                    backgroundColor: 'transparent', /* Để ăn theo màu nền của .codeSnippet */
+                    fontSize: '0.95rem',
+                    fontFamily: "'Fira Code', 'Consolas', monospace"
+                  }}
+                  showLineNumbers={false} /* Đổi thành true nếu bạn muốn hiển thị số dòng giống IDE */
+                >
+                  {currentQ.code_snippet}
+                </SyntaxHighlighter>
               </div>
             )}
 
@@ -333,6 +399,13 @@ export default function ExamineQuiz() {
         onClose={() => setIsSubmitModalOpen(false)}
         onConfirm={() => {
           setIsSubmitModalOpen(false);
+          handleSubmit();
+        }}
+      />
+      <ConfirmationSubmitModalBeforeCheating
+        isOpen={isCheatingDetected}
+        onConfirm={() => {
+          setIsCheatingDetected(false);
           handleSubmit();
         }}
       />
