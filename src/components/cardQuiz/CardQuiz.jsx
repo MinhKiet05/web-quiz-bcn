@@ -74,7 +74,7 @@ export default function CardQuiz({ quiz, onRequireLogin}) {
       <div className={styles.divider}></div>
 
       <button className={styles.actionButton} onClick={handleViewDetail}>
-        {is_completed ? 'Xem lại bài' : 'Xem chi tiết'}
+        Xem chi tiết
       </button>
     </div>
   );
