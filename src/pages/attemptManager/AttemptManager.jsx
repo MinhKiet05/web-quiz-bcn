@@ -64,7 +64,32 @@ export default function AttemptManager() {
       // LƯU Ý: Lấy thêm questions(weight) ở trên để tính toán tổng điểm tối đa động
 
       if (searchTerm) {
-        query = query.or(`mssv.ilike.%${searchTerm}%,full_name.ilike.%${searchTerm}%`, { foreignTable: 'users' });
+        // 1. Tìm các Sinh viên khớp từ khóa
+        const { data: matchedUsers } = await supabase
+          .from('users')
+          .select('mssv')
+          .or(`mssv.ilike.%${searchTerm}%,full_name.ilike.%${searchTerm}%`);
+        
+        // 2. Tìm các Bài Quiz khớp từ khóa
+        const { data: matchedQuizzes } = await supabase
+          .from('quizzes')
+          .select('id')
+          .ilike('title', `%${searchTerm}%`);
+
+        const userIds = matchedUsers?.map(u => u.mssv) || [];
+        const quizIds = matchedQuizzes?.map(q => q.id) || [];
+
+        // 3. Ghép điều kiện để lọc bảng attempts
+        let orConditions = [];
+        if (userIds.length > 0) orConditions.push(`user_id.in.(${userIds.join(',')})`);
+        if (quizIds.length > 0) orConditions.push(`quiz_id.in.(${quizIds.join(',')})`);
+
+        if (orConditions.length > 0) {
+          query = query.or(orConditions.join(','));
+        } else {
+          // Ép trả về rỗng nếu không có bất kỳ kết nối nào khớp
+          query = query.eq('id', '00000000-0000-0000-0000-000000000000'); 
+        }
       }
 
       // === THÊM LOGIC LỌC THEO DANH MỤC Ở ĐÂY ===
@@ -258,7 +283,7 @@ export default function AttemptManager() {
             <Search className={styles.searchIcon} size={20} />
             <input
               type="text"
-              placeholder="Tìm theo MSSV, Họ tên sinh viên..."
+              placeholder="MSSV, Tên, hoặc Tên Quiz..."
               className={styles.searchInput}
               value={searchTerm}
               onChange={(e) => { setSearchTerm(e.target.value); handleFilterChange(); }}

@@ -52,7 +52,8 @@ export default function QuizList() {
           .from('attempts')
           .select('quiz_id')
           .eq('user_id', storedUser.mssv)
-          .eq('status', 'submitted');
+          .eq('status', 'submitted')
+          .or('is_delete.is.null,is_delete.eq.false');
 
         if (!attemptError && attemptsData) {
           completedQuizIds = attemptsData.map(a => a.quiz_id);
