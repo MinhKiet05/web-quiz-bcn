@@ -62,11 +62,90 @@
 .footer {
   padding: 1.25rem 1.5rem;
   display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
+  justify-content: space-between; /* Đẩy nút Import sang trái, Save sang phải */
+  align-items: center;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
   background-color: #171B31;
   border-radius: 0 0 12px 12px;
+}
+.footer {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  justify-content: space-between; /* Đẩy cụm Excel sang trái, cụm Save sang phải */
+  align-items: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  background-color: #171B31;
+  border-radius: 0 0 12px 12px;
+}
+
+.footerLeft {
+  display: flex;
+  align-items: center;
+  gap: 1rem; /* Tạo khoảng cách giữa 2 nút Excel */
+}
+
+.footerRight {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+/* NÚT IMPORT */
+.btnImport {
+  background-color: rgba(16, 185, 129, 0.15); /* Nền xanh lục */
+  color: #10B981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 0.6rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btnImport:hover {
+  background-color: rgba(16, 185, 129, 0.25);
+}
+
+/* NÚT DOWNLOAD TEMPLATE */
+.btnExport {
+  background-color: transparent;
+  color: #8C9EFF;
+  border: 1px solid rgba(140, 158, 255, 0.3);
+  padding: 0.6rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btnExport:hover {
+  background-color: rgba(140, 158, 255, 0.1);
+  border-color: #8C9EFF;
+  color: #ffffff;
+}
+
+/* RESPONSIVE FOOTER KHI MÀN HÌNH NHỎ */
+@media (max-width: 600px) {
+  .footer {
+    flex-direction: column-reverse; /* Đảo ngược để nút Lưu nằm trên cùng */
+    gap: 1.5rem;
+  }
+  .footerLeft, .footerRight {
+    width: 100%;
+    justify-content: stretch;
+  }
+  .footerLeft button, .footerRight button {
+    flex: 1;
+    justify-content: center;
+  }
 }
 
 /* BUTTONS */
