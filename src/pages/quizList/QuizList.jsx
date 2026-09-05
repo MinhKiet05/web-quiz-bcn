@@ -58,7 +58,7 @@ export default function QuizList() {
         }
       }
 
-      const categoryMap = { 1: 'C/C++', 2: 'Mobile (Java)', 3: 'Web (HTML/CSS/JavaScript)' };
+      const categoryMap = { 1: 'C/C++', 2: 'Mobile (Java)', 3: 'Web' };
 
       // 4. Chuẩn hóa dữ liệu & Gắn cờ is_completed
       let formattedQuizzes = quizData.map((q) => {
