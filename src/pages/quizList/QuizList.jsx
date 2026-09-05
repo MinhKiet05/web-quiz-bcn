@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Search, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import styles from './QuizList.module.css';
-import CardQuiz from '../../components/cardQuiz/CardQuiz'; 
-import { supabase } from '../../lib/supabaseClient'; 
+import CardQuiz from '../../components/cardQuiz/CardQuiz';
+import { supabase } from '../../lib/supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import ConfirmationLoginModal from '../../components/confirmationModal/ConfirmationLoginModal';
 
@@ -11,10 +11,10 @@ const ITEMS_PER_PAGE = 6;
 export default function QuizList() {
   const navigate = useNavigate();
   // State chứa TOÀN BỘ dữ liệu đã được sắp xếp để hỗ trợ phân trang nội bộ
-  const [allQuizzes, setAllQuizzes] = useState([]); 
+  const [allQuizzes, setAllQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
-  
+
   // States cho Filters & Pagination
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
@@ -28,12 +28,13 @@ export default function QuizList() {
     try {
       // 1. Lấy thông tin user đăng nhập từ localStorage
       const storedUser = JSON.parse(localStorage.getItem('web-quiz-bcn-auth-user'));
-
+      const nowIso = new Date().toISOString();
       // 2. Lấy TOÀN BỘ quiz active khớp với bộ lọc (Bỏ .range để tự phân trang)
       let query = supabase
         .from('quizzes')
         .select(`*, categories (name)`)
-        .eq('status', 'active');
+        .eq('status', 'active')
+        .or(`quiz_type.neq.weekly,weekly_end.gt.${nowIso}`);
 
       if (searchTerm) query = query.ilike('title', `%${searchTerm}%`);
       if (difficulty !== 'all') query = query.eq('difficulty', difficulty);
@@ -52,7 +53,7 @@ export default function QuizList() {
           .select('quiz_id')
           .eq('user_id', storedUser.mssv)
           .eq('status', 'submitted');
-        
+
         if (!attemptError && attemptsData) {
           completedQuizIds = attemptsData.map(a => a.quiz_id);
         }
@@ -105,7 +106,7 @@ export default function QuizList() {
   useEffect(() => {
     fetchQuizzes();
     setPage(1); // Luôn về trang 1 khi đổi bộ lọc
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTerm, category, difficulty]);
 
   // CẮT DỮ LIỆU CHO TRANG HIỆN TẠI (Local Pagination)
@@ -130,7 +131,7 @@ export default function QuizList() {
 
         <div className={styles.dropdownsContainer}>
           <div className={styles.selectWrapper}>
-            <select 
+            <select
               className={styles.selectBox}
               value={category}
               onChange={(e) => setCategory(e.target.value)}
@@ -144,7 +145,7 @@ export default function QuizList() {
           </div>
 
           <div className={styles.selectWrapper}>
-            <select 
+            <select
               className={styles.selectBox}
               value={difficulty}
               onChange={(e) => setDifficulty(e.target.value)}
@@ -165,7 +166,7 @@ export default function QuizList() {
       ) : currentQuizzes.length > 0 ? (
         <div className={styles.quizGrid}>
           {currentQuizzes.map((quiz) => (
-            <CardQuiz key={quiz.id} quiz={quiz} onRequireLogin={() => setIsLoginModalOpen(true)}/>
+            <CardQuiz key={quiz.id} quiz={quiz} onRequireLogin={() => setIsLoginModalOpen(true)} />
           ))}
         </div>
       ) : (
@@ -175,20 +176,20 @@ export default function QuizList() {
       {/* 4. Pagination */}
       {totalPages > 1 && (
         <div className={styles.pagination}>
-          <button 
-            className={styles.pageBtn} 
+          <button
+            className={styles.pageBtn}
             disabled={page === 1}
             onClick={() => setPage(p => Math.max(1, p - 1))}
           >
             <ChevronLeft size={20} />
           </button>
-          
+
           <span className={styles.pageInfo}>
             Trang {page} / {totalPages}
           </span>
 
-          <button 
-            className={styles.pageBtn} 
+          <button
+            className={styles.pageBtn}
             disabled={page === totalPages}
             onClick={() => setPage(p => Math.min(totalPages, p + 1))}
           >
@@ -196,13 +197,13 @@ export default function QuizList() {
           </button>
         </div>
       )}
-      
-      <ConfirmationLoginModal 
+
+      <ConfirmationLoginModal
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
         onConfirm={() => {
-          setIsLoginModalOpen(false); 
-          navigate('/login');         
+          setIsLoginModalOpen(false);
+          navigate('/login');
         }}
       />
     </div>

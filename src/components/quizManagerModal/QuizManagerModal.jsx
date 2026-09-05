@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Trash2, Plus, CheckCircle2, Circle, Code2 } from 'lucide-react';
+import { X, Trash2, Plus, CheckCircle2, Circle, Code2, FileUp, Download } from 'lucide-react'; // <-- Đã sửa lỗi import ở đây
 import { toast } from 'sonner';
 import styles from './QuizManagerModal.module.css';
+import * as XLSX from 'xlsx';
 
 const formatDateTimeForInput = (dateStr) => {
   if (!dateStr) return '';
@@ -10,50 +11,29 @@ const formatDateTimeForInput = (dateStr) => {
 
 export default function QuizManagerModal({ isOpen, onClose, onSave, initialData = null }) {
   const [quizData, setQuizData] = useState({
-    title: '',
-    description: '',
-    category_id: '1',
-    quiz_type: 'normal',
-    difficulty: 'medium',
-    duration: 60,
-    status: 'active',
-    weekly_start: '',
-    weekly_end: '',
-    questions: []
+    title: '', description: '', category_id: '1', quiz_type: 'normal',
+    difficulty: 'medium', duration: 60, status: 'active',
+    weekly_start: '', weekly_end: '', questions: []
   });
 
-  // State lưu trữ lỗi (Thêm weights để báo lỗi điểm số)
   const [errors, setErrors] = useState({ questions: {}, answers: {}, weights: {} });
 
-  // Refs để focus vào ô nhập lỗi
   const titleRef = useRef(null);
   const durationRef = useRef(null);
   const weeklyStartRef = useRef(null);
   const weeklyEndRef = useRef(null);
   const qRefs = useRef({});
   const aRefs = useRef({});
-  const wRefs = useRef({}); // Thêm ref cho ô nhập điểm
+  const wRefs = useRef({}); 
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     if (isOpen) {
-      setErrors({ questions: {}, answers: {}, weights: {} }); // Xóa lỗi cũ khi mở modal
-      
+      setErrors({ questions: {}, answers: {}, weights: {} });
       if (initialData) {
         const loadedQuestions = initialData.questions && initialData.questions.length > 0 
           ? initialData.questions 
-          : [
-              {
-                id: Date.now(),
-                question_text: '',
-                question_type: 'mcq',
-                code_snippet: '',
-                weight: 10,
-                answers: [
-                  { id: Date.now() + 1, answer_text: '', is_correct: true },
-                  { id: Date.now() + 2, answer_text: '', is_correct: false }
-                ]
-              }
-            ];
+          : [{ id: Date.now(), question_text: '', question_type: 'mcq', code_snippet: '', weight: 10, answers: [{ id: Date.now() + 1, answer_text: '', is_correct: true }, { id: Date.now() + 2, answer_text: '', is_correct: false }] }];
 
         setQuizData({
           ...initialData,
@@ -64,28 +44,10 @@ export default function QuizManagerModal({ isOpen, onClose, onSave, initialData 
         });
       } else {
         setQuizData({
-          title: '',
-          description: '',
-          category_id: '1',
-          quiz_type: 'normal',
-          difficulty: 'medium',
-          duration: 60,
-          status: 'active',
-          weekly_start: '',
-          weekly_end: '',
-          questions: [
-            {
-              id: Date.now(),
-              question_text: '',
-              question_type: 'mcq',
-              code_snippet: '',
-              weight: 10,
-              answers: [
-                { id: Date.now() + 1, answer_text: '', is_correct: true },
-                { id: Date.now() + 2, answer_text: '', is_correct: false }
-              ]
-            }
-          ]
+          title: '', description: '', category_id: '1', quiz_type: 'normal',
+          difficulty: 'medium', duration: 60, status: 'active',
+          weekly_start: '', weekly_end: '',
+          questions: [{ id: Date.now(), question_text: '', question_type: 'mcq', code_snippet: '', weight: 10, answers: [{ id: Date.now() + 1, answer_text: '', is_correct: true }, { id: Date.now() + 2, answer_text: '', is_correct: false }] }]
         });
       }
     }
@@ -95,7 +57,6 @@ export default function QuizManagerModal({ isOpen, onClose, onSave, initialData 
 
   const handleInfoChange = (field, value) => {
     setQuizData(prev => ({ ...prev, [field]: value }));
-    // Tự động xóa lỗi khi người dùng sửa
     setErrors(prev => ({ ...prev, [field]: false })); 
   };
 
@@ -106,43 +67,24 @@ export default function QuizManagerModal({ isOpen, onClose, onSave, initialData 
   const handleAddQuestion = () => {
     setQuizData(prev => ({
       ...prev,
-      questions: [
-        ...prev.questions,
-        {
-          id: Date.now(),
-          question_text: '',
-          question_type: 'mcq',
-          code_snippet: '',
-          weight: 10,
-          answers: [
-            { id: Date.now() + 1, answer_text: '', is_correct: true },
-            { id: Date.now() + 2, answer_text: '', is_correct: false }
-          ]
-        }
-      ]
+      questions: [...prev.questions, { id: Date.now(), question_text: '', question_type: 'mcq', code_snippet: '', weight: 10, answers: [{ id: Date.now() + 1, answer_text: '', is_correct: true }, { id: Date.now() + 2, answer_text: '', is_correct: false }] }]
     }));
-    // Báo toast vị trí phía dưới
-    toast.success('Đã thêm 1 câu hỏi mới', { position: 'bottom-center' });
+    toast.success('Đã thêm 1 câu hỏi mới');
   };
 
   const handleDeleteQuestion = (qIndex) => {
-    setQuizData(prev => ({
-      ...prev,
-      questions: prev.questions.filter((_, idx) => idx !== qIndex)
-    }));
+    setQuizData(prev => ({ ...prev, questions: prev.questions.filter((_, idx) => idx !== qIndex) }));
   };
 
   const handleQuestionChange = (qIndex, field, value) => {
     setQuizData(prev => {
       const newQuestions = [...prev.questions];
       newQuestions[qIndex][field] = value;
-      
       if (field === 'question_type' && value === 'fill_text') {
         newQuestions[qIndex].answers = newQuestions[qIndex].answers.map(ans => ({ ...ans, is_correct: true }));
       }
       return { ...prev, questions: newQuestions };
     });
-    // Xóa lỗi câu hỏi & điểm số khi user nhập lại
     setErrors(prev => ({ 
       ...prev, 
       questions: { ...prev.questions, [qIndex]: false },
@@ -154,12 +96,7 @@ export default function QuizManagerModal({ isOpen, onClose, onSave, initialData 
     setQuizData(prev => {
       const newQuestions = [...prev.questions];
       const isFillText = newQuestions[qIndex].question_type === 'fill_text';
-      
-      newQuestions[qIndex].answers.push({
-        id: Date.now(),
-        answer_text: '', 
-        is_correct: isFillText 
-      });
+      newQuestions[qIndex].answers.push({ id: Date.now(), answer_text: '', is_correct: isFillText });
       return { ...prev, questions: newQuestions };
     });
   };
@@ -178,7 +115,6 @@ export default function QuizManagerModal({ isOpen, onClose, onSave, initialData 
       newQuestions[qIndex].answers[aIndex].answer_text = value; 
       return { ...prev, questions: newQuestions };
     });
-    // Xóa lỗi đáp án khi user nhập lại
     setErrors(prev => ({ ...prev, answers: { ...prev.answers, [`${qIndex}-${aIndex}`]: false } }));
   };
 
@@ -186,101 +122,159 @@ export default function QuizManagerModal({ isOpen, onClose, onSave, initialData 
     setQuizData(prev => {
       const newQuestions = [...prev.questions];
       if (newQuestions[qIndex].question_type === 'mcq') {
-        newQuestions[qIndex].answers = newQuestions[qIndex].answers.map((ans, idx) => ({
-          ...ans,
-          is_correct: idx === aIndex
-        }));
+        newQuestions[qIndex].answers = newQuestions[qIndex].answers.map((ans, idx) => ({ ...ans, is_correct: idx === aIndex }));
       }
       return { ...prev, questions: newQuestions };
     });
+  };
+
+  // TÍNH NĂNG 1: TẢI FILE EXCEL MẪU
+  const handleDownloadTemplate = () => {
+    const templateData = [
+      { "Loại": "MCQ", "Câu hỏi": "Ngôn ngữ nào chạy trên trình duyệt?", "Điểm": 10, "Code": "", "Đáp án A": "Java", "Đáp án B": "Python", "Đáp án C": "Javascript", "Đáp án D": "C++", "Đáp án đúng": "C" },
+      { "Loại": "MCQ", "Câu hỏi": "Output của đoạn code này là gì?", "Điểm": 15, "Code": "console.log(1 + '1');", "Đáp án A": "2", "Đáp án B": "11", "Đáp án C": "Error", "Đáp án D": "Undefined", "Đáp án đúng": "B" },
+      { "Loại": "FILL", "Câu hỏi": "Từ khóa khai báo hằng số trong JS?", "Điểm": 10, "Code": "", "Đáp án A": "const", "Đáp án B": "CONST", "Đáp án C": "", "Đáp án D": "", "Đáp án đúng": "" }
+    ];
+    const ws = XLSX.utils.json_to_sheet(templateData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Template");
+    XLSX.writeFile(wb, "BCN_Quiz_Template.xlsx");
+    toast.success("Đã tải file mẫu thành công!");
+  };
+
+  // TÍNH NĂNG 2: IMPORT FILE EXCEL
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      try {
+        const bstr = evt.target.result;
+        const wb = XLSX.read(bstr, { type: 'binary' });
+        const wsname = wb.SheetNames[0];
+        const ws = wb.Sheets[wsname];
+        const data = XLSX.utils.sheet_to_json(ws);
+
+        if (data.length === 0) {
+          toast.error("Lỗi: File Excel của bạn không có dữ liệu!");
+          return;
+        }
+
+        const importedQuestions = [];
+        
+        data.forEach((row, index) => {
+          // Bỏ qua nếu dòng không có cột Câu hỏi
+          if (!row['Câu hỏi'] || row['Câu hỏi'].toString().trim() === '') return;
+
+          const type = (row['Loại'] || '').toString().toUpperCase() === 'FILL' ? 'fill_text' : 'mcq';
+          const answers = [];
+
+          if (type === 'mcq') {
+             const correctChar = (row['Đáp án đúng'] || '').toString().toUpperCase().trim();
+             const correctIndex = correctChar === 'B' ? 1 : correctChar === 'C' ? 2 : correctChar === 'D' ? 3 : 0;
+
+             if (row['Đáp án A']) answers.push({ id: Date.now() + Math.random(), answer_text: row['Đáp án A'].toString(), is_correct: correctIndex === 0 });
+             if (row['Đáp án B']) answers.push({ id: Date.now() + Math.random(), answer_text: row['Đáp án B'].toString(), is_correct: correctIndex === 1 });
+             if (row['Đáp án C']) answers.push({ id: Date.now() + Math.random(), answer_text: row['Đáp án C'].toString(), is_correct: correctIndex === 2 });
+             if (row['Đáp án D']) answers.push({ id: Date.now() + Math.random(), answer_text: row['Đáp án D'].toString(), is_correct: correctIndex === 3 });
+          } else {
+             if (row['Đáp án A']) answers.push({ id: Date.now() + Math.random(), answer_text: row['Đáp án A'].toString(), is_correct: true });
+             if (row['Đáp án B']) answers.push({ id: Date.now() + Math.random(), answer_text: row['Đáp án B'].toString(), is_correct: true });
+             if (row['Đáp án C']) answers.push({ id: Date.now() + Math.random(), answer_text: row['Đáp án C'].toString(), is_correct: true });
+             if (row['Đáp án D']) answers.push({ id: Date.now() + Math.random(), answer_text: row['Đáp án D'].toString(), is_correct: true });
+          }
+
+          importedQuestions.push({
+            id: Date.now() + index,
+            question_text: row['Câu hỏi'].toString(),
+            question_type: type,
+            code_snippet: row['Code']?.toString() || '',
+            weight: parseInt(row['Điểm']) || 10,
+            answers: answers
+          });
+        });
+
+        if (importedQuestions.length === 0) {
+          toast.error("Lỗi: Không tìm thấy câu hỏi hợp lệ trong file!");
+          return;
+        }
+
+        setQuizData(prev => {
+          const currentQs = prev.questions;
+          const isDefaultEmpty = currentQs.length === 1 && currentQs[0].question_text === '' && currentQs[0].answers[0].answer_text === '';
+          return {
+            ...prev,
+            questions: isDefaultEmpty ? importedQuestions : [...prev.questions, ...importedQuestions]
+          };
+        });
+
+        toast.success(`Đã Import thành công ${importedQuestions.length} câu hỏi!`);
+      } catch (err) {
+        console.error(err);
+        toast.error('Lỗi đọc file. Vui lòng đảm bảo bạn điền đúng định dạng file mẫu!');
+      }
+    };
+    reader.readAsBinaryString(file);
+    e.target.value = null; // Reset input 
   };
 
   const handleSubmit = () => {
     let newErrors = { questions: {}, answers: {}, weights: {} };
     let firstErrorRef = null;
 
-    // 1. Kiểm tra Tên Quiz
     if (!quizData.title.trim()) {
       newErrors.title = true;
       toast.error('Tên bài Quiz không được để trống!');
       if (!firstErrorRef) firstErrorRef = titleRef.current;
     }
 
-    // 2. Kiểm tra Logic Thời gian & Quiz Type
     if (quizData.quiz_type === 'normal') {
       if (!quizData.duration || quizData.duration < 1) {
         newErrors.duration = true;
-        if (!firstErrorRef) {
-          toast.error('Thời gian làm bài cho Quiz bình thường phải từ 1 phút trở lên!');
-          firstErrorRef = durationRef.current;
-        }
+        if (!firstErrorRef) { toast.error('Thời gian làm bài phải từ 1 phút trở lên!'); firstErrorRef = durationRef.current; }
       }
     } else if (quizData.quiz_type === 'weekly') {
       if (!quizData.weekly_start) {
         newErrors.weekly_start = true;
-        if (!firstErrorRef) {
-          toast.error('Vui lòng chọn thời gian bắt đầu cho Weekly Quiz!');
-          firstErrorRef = weeklyStartRef.current;
-        }
+        if (!firstErrorRef) { toast.error('Chọn thời gian bắt đầu cho Weekly Quiz!'); firstErrorRef = weeklyStartRef.current; }
       } else if (!quizData.weekly_end) {
         newErrors.weekly_end = true;
-        if (!firstErrorRef) {
-          toast.error('Vui lòng chọn thời gian kết thúc cho Weekly Quiz!');
-          firstErrorRef = weeklyEndRef.current;
-        }
+        if (!firstErrorRef) { toast.error('Chọn thời gian kết thúc cho Weekly Quiz!'); firstErrorRef = weeklyEndRef.current; }
       } else {
         const start = new Date(quizData.weekly_start).getTime();
         const end = new Date(quizData.weekly_end).getTime();
         if (end <= start) {
           newErrors.weekly_end = true;
-          if (!firstErrorRef) {
-            toast.error('Thời gian kết thúc không được bằng hoặc trước thời gian bắt đầu!');
-            firstErrorRef = weeklyEndRef.current;
-          }
+          if (!firstErrorRef) { toast.error('Thời gian kết thúc phải sau thời gian bắt đầu!'); firstErrorRef = weeklyEndRef.current; }
         }
       }
     }
 
-    // 3. Kiểm tra Câu hỏi & Đáp án
     quizData.questions.forEach((q, qIndex) => {
-      
-      // Kiểm tra điểm số (từ 1 đến 100)
       if (q.weight === '' || q.weight < 1 || q.weight > 100 || isNaN(q.weight)) {
         newErrors.weights[qIndex] = true;
-        if (!firstErrorRef) {
-          toast.error(`Điểm của câu hỏi số ${qIndex + 1} không hợp lệ (Phải từ 1 - 100)!`);
-          firstErrorRef = wRefs.current[qIndex];
-        }
+        if (!firstErrorRef) { toast.error(`Điểm câu ${qIndex + 1} không hợp lệ!`); firstErrorRef = wRefs.current[qIndex]; }
       }
 
-      // Nội dung câu hỏi trống
       if (!q.question_text.trim()) {
         newErrors.questions[qIndex] = true;
-        if (!firstErrorRef) {
-          toast.error(`Câu hỏi số ${qIndex + 1} không được bỏ trống nội dung!`);
-          firstErrorRef = qRefs.current[qIndex];
-        }
+        if (!firstErrorRef) { toast.error(`Câu ${qIndex + 1} trống nội dung!`); firstErrorRef = qRefs.current[qIndex]; }
       }
 
-      // Đáp án trùng lặp (Chỉ xét các đáp án có nhập chữ, khoảng trắng/rỗng sẽ bị bỏ qua và lọc sau)
       const seen = new Set();
       q.answers.forEach((ans, aIndex) => {
         const text = ans.answer_text.trim().toLowerCase();
-        
         if (text !== '') {
           if (seen.has(text)) {
             newErrors.answers[`${qIndex}-${aIndex}`] = true;
-            if (!firstErrorRef) {
-              toast.error(`Đáp án trong câu hỏi số ${qIndex + 1} bị trùng lặp!`);
-              firstErrorRef = aRefs.current[`${qIndex}-${aIndex}`];
-            }
+            if (!firstErrorRef) { toast.error(`Đáp án câu ${qIndex + 1} bị trùng!`); firstErrorRef = aRefs.current[`${qIndex}-${aIndex}`]; }
           }
           seen.add(text);
         }
       });
     });
 
-    // Nếu có lỗi, Focus vào phần tử bị lỗi đầu tiên và dừng lưu
     if (firstErrorRef) {
       setErrors(newErrors);
       firstErrorRef.focus();
@@ -288,19 +282,17 @@ export default function QuizManagerModal({ isOpen, onClose, onSave, initialData 
       return;
     }
 
-    // Tự động XÓA CÁC ĐÁP ÁN BỎ TRỐNG trước khi đưa vào payload
     const finalQuestions = quizData.questions.map(q => ({
       ...q,
       answers: q.answers.filter(ans => ans.answer_text.trim() !== '')
     }));
 
-    // Tiến hành lưu nếu hợp lệ
     const payload = {
       ...quizData,
       description: quizData.description.trim() === '' ? null : quizData.description,
       weekly_start: quizData.weekly_start === '' ? null : quizData.weekly_start,
       weekly_end: quizData.weekly_end === '' ? null : quizData.weekly_end,
-      questions: finalQuestions // Sử dụng danh sách câu hỏi đã được làm sạch
+      questions: finalQuestions 
     };
     
     if (payload.quiz_type !== 'weekly') {
@@ -328,24 +320,12 @@ export default function QuizManagerModal({ isOpen, onClose, onSave, initialData 
             
             <div className={styles.formGroup}>
               <label>Tên Quiz</label>
-              <input 
-                ref={titleRef}
-                type="text" 
-                className={`${styles.inputField} ${errors.title ? styles.inputError : ''}`} 
-                placeholder="Nhập tên bài quiz..." 
-                value={quizData.title} 
-                onChange={(e) => handleInfoChange('title', e.target.value)} 
-              />
+              <input ref={titleRef} type="text" className={`${styles.inputField} ${errors.title ? styles.inputError : ''}`} placeholder="Nhập tên bài quiz..." value={quizData.title} onChange={(e) => handleInfoChange('title', e.target.value)} />
             </div>
 
             <div className={styles.formGroup}>
               <label>Mô tả (Description)</label>
-              <textarea 
-                className={`${styles.textareaField} ${styles.descField}`} 
-                placeholder="Nhập mô tả bài quiz..." 
-                value={quizData.description} 
-                onChange={(e) => handleInfoChange('description', e.target.value)} 
-              />
+              <textarea className={`${styles.textareaField} ${styles.descField}`} placeholder="Nhập mô tả bài quiz..." value={quizData.description} onChange={(e) => handleInfoChange('description', e.target.value)} />
             </div>
 
             <div className={styles.rowGrid}>
@@ -370,23 +350,11 @@ export default function QuizManagerModal({ isOpen, onClose, onSave, initialData 
               <>
                 <div className={styles.formGroup}>
                   <label>Weekly Start (Từ lúc)</label>
-                  <input 
-                    ref={weeklyStartRef}
-                    type="datetime-local" 
-                    className={`${styles.inputField} ${errors.weekly_start ? styles.inputError : ''}`} 
-                    value={quizData.weekly_start} 
-                    onChange={(e) => handleInfoChange('weekly_start', e.target.value)} 
-                  />
+                  <input ref={weeklyStartRef} type="datetime-local" className={`${styles.inputField} ${errors.weekly_start ? styles.inputError : ''}`} value={quizData.weekly_start} onChange={(e) => handleInfoChange('weekly_start', e.target.value)} />
                 </div>
                 <div className={styles.formGroup}>
                   <label>Weekly End (Đến lúc)</label>
-                  <input 
-                    ref={weeklyEndRef}
-                    type="datetime-local" 
-                    className={`${styles.inputField} ${errors.weekly_end ? styles.inputError : ''}`} 
-                    value={quizData.weekly_end} 
-                    onChange={(e) => handleInfoChange('weekly_end', e.target.value)} 
-                  />
+                  <input ref={weeklyEndRef} type="datetime-local" className={`${styles.inputField} ${errors.weekly_end ? styles.inputError : ''}`} value={quizData.weekly_end} onChange={(e) => handleInfoChange('weekly_end', e.target.value)} />
                 </div>
               </>
             )}
@@ -404,13 +372,7 @@ export default function QuizManagerModal({ isOpen, onClose, onSave, initialData 
               {quizData.quiz_type !== 'weekly' && (
                 <div className={styles.formGroup}>
                   <label>Thời gian (phút)</label>
-                  <input 
-                    ref={durationRef}
-                    type="number" 
-                    className={`${styles.inputField} ${errors.duration ? styles.inputError : ''}`} 
-                    value={quizData.duration || ''} 
-                    onChange={(e) => handleInfoChange('duration', parseInt(e.target.value) || 0)} 
-                  />
+                  <input ref={durationRef} type="number" className={`${styles.inputField} ${errors.duration ? styles.inputError : ''}`} value={quizData.duration || ''} onChange={(e) => handleInfoChange('duration', parseInt(e.target.value) || 0)} />
                 </div>
               )}
             </div>
@@ -439,88 +401,42 @@ export default function QuizManagerModal({ isOpen, onClose, onSave, initialData 
                   <div className={styles.questionConfigRow}>
                     <div className={styles.formGroupInline}>
                       <label>Loại:</label>
-                      <select 
-                        className={styles.selectFieldSmall} 
-                        value={q.question_type || 'mcq'}
-                        onChange={(e) => handleQuestionChange(qIndex, 'question_type', e.target.value)}
-                      >
+                      <select className={styles.selectFieldSmall} value={q.question_type || 'mcq'} onChange={(e) => handleQuestionChange(qIndex, 'question_type', e.target.value)}>
                         <option value="mcq">Trắc nghiệm</option>
                         <option value="fill_text">Điền khuyết</option>
                       </select>
                     </div>
                     <div className={styles.formGroupInline}>
                       <label>Điểm:</label>
-                      <input 
-                        ref={el => wRefs.current[qIndex] = el}
-                        type="number" 
-                        className={`${styles.inputFieldSmall} ${errors.weights?.[qIndex] ? styles.inputError : ''}`} 
-                        value={q.weight !== undefined ? q.weight : ''}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          handleQuestionChange(qIndex, 'weight', val === '' ? '' : parseInt(val));
-                        }}
-                      />
+                      <input ref={el => wRefs.current[qIndex] = el} type="number" className={`${styles.inputFieldSmall} ${errors.weights?.[qIndex] ? styles.inputError : ''}`} value={q.weight !== undefined ? q.weight : ''} onChange={(e) => { const val = e.target.value; handleQuestionChange(qIndex, 'weight', val === '' ? '' : parseInt(val)); }}/>
                     </div>
-                    <button className={styles.btnDeleteQuestion} onClick={() => handleDeleteQuestion(qIndex)} title="Xóa câu hỏi">
-                      <Trash2 size={16} />
-                    </button>
+                    <button className={styles.btnDeleteQuestion} onClick={() => handleDeleteQuestion(qIndex)} title="Xóa câu hỏi"><Trash2 size={16} /></button>
                   </div>
 
-                  <textarea 
-                    ref={el => qRefs.current[qIndex] = el}
-                    className={`${styles.textareaField} ${errors.questions[qIndex] ? styles.inputError : ''}`} 
-                    placeholder="Nhập nội dung câu hỏi..."
-                    value={q.question_text}
-                    onChange={(e) => handleQuestionChange(qIndex, 'question_text', e.target.value)}
-                  />
+                  <textarea ref={el => qRefs.current[qIndex] = el} className={`${styles.textareaField} ${errors.questions[qIndex] ? styles.inputError : ''}`} placeholder="Nhập nội dung câu hỏi..." value={q.question_text} onChange={(e) => handleQuestionChange(qIndex, 'question_text', e.target.value)} />
 
                   <div className={styles.codeSnippetWrapper}>
-                    <div className={styles.codeSnippetHeader}>
-                      <Code2 size={14} /> <span>Code Snippet đính kèm (Tùy chọn)</span>
-                    </div>
-                    <textarea 
-                      className={styles.codeField} 
-                      placeholder="Dán đoạn code vào đây (nếu có)..."
-                      value={q.code_snippet || ''}
-                      onChange={(e) => handleQuestionChange(qIndex, 'code_snippet', e.target.value)}
-                    />
+                    <div className={styles.codeSnippetHeader}><Code2 size={14} /> <span>Code Snippet đính kèm (Tùy chọn)</span></div>
+                    <textarea className={styles.codeField} placeholder="Dán đoạn code vào đây (nếu có)..." value={q.code_snippet || ''} onChange={(e) => handleQuestionChange(qIndex, 'code_snippet', e.target.value)} />
                   </div>
 
                   <div className={styles.answersContainer}>
-                    <p className={styles.answerHint}>
-                      {q.question_type === 'fill_text' 
-                        ? "Nhập các biến thể đáp án đúng được chấp nhận (Vd: malloc, malloc()):" 
-                        : "Chọn 1 đáp án đúng (Bỏ trống sẽ tự động xóa):"}
-                    </p>
+                    <p className={styles.answerHint}>{q.question_type === 'fill_text' ? "Nhập các biến thể đáp án đúng được chấp nhận (Vd: malloc, malloc()):" : "Chọn 1 đáp án đúng (Bỏ trống sẽ tự động xóa):"}</p>
                     
                     {q.answers?.map((ans, aIndex) => (
                       <div key={ans.id} className={styles.answerRow}>
-                        
                         {q.question_type === 'mcq' ? (
-                          <button 
-                            className={`${styles.radioBtn} ${ans.is_correct ? styles.radioChecked : ''}`}
-                            onClick={() => handleSetCorrectAnswer(qIndex, aIndex)}
-                            title="Đánh dấu là đáp án đúng"
-                          >
+                          <button className={`${styles.radioBtn} ${ans.is_correct ? styles.radioChecked : ''}`} onClick={() => handleSetCorrectAnswer(qIndex, aIndex)} title="Đánh dấu là đáp án đúng">
                             {ans.is_correct ? <CheckCircle2 size={20} /> : <Circle size={20} />}
                           </button>
                         ) : (
                           <div className={styles.radioChecked} style={{opacity: 0.5}}><CheckCircle2 size={18} /></div>
                         )}
-
-                        <input 
-                          ref={el => aRefs.current[`${qIndex}-${aIndex}`] = el}
-                          type="text" 
-                          className={`${styles.inputField} ${errors.answers[`${qIndex}-${aIndex}`] ? styles.inputError : ''}`} 
-                          placeholder={q.question_type === 'fill_text' ? "Đáp án được chấp nhận..." : "Nhập đáp án..."}
-                          value={ans.answer_text} 
-                          onChange={(e) => handleAnswerChange(qIndex, aIndex, e.target.value)}
-                        />
+                        <input ref={el => aRefs.current[`${qIndex}-${aIndex}`] = el} type="text" className={`${styles.inputField} ${errors.answers[`${qIndex}-${aIndex}`] ? styles.inputError : ''}`} placeholder={q.question_type === 'fill_text' ? "Đáp án được chấp nhận..." : "Nhập đáp án..."} value={ans.answer_text} onChange={(e) => handleAnswerChange(qIndex, aIndex, e.target.value)} />
                         <button className={styles.btnDeleteAnswer} onClick={() => handleDeleteAnswer(qIndex, aIndex)}><X size={18} /></button>
                       </div>
                     ))}
                   </div>
-
                   <button className={styles.btnAddText} onClick={() => handleAddAnswer(qIndex)}><Plus size={14} /> Thêm đáp án</button>
                 </div>
               ))}
@@ -528,9 +444,24 @@ export default function QuizManagerModal({ isOpen, onClose, onSave, initialData 
           </div>
         </div>
 
+        {/* FOOTER MỚI VỚI NÚT DOWNLOAD VÀ IMPORT */}
         <div className={styles.footer}>
-          <button className={styles.btnCancel} onClick={onClose}>Hủy bỏ</button>
-          <button className={styles.btnSave} onClick={handleSubmit}>Lưu quiz</button>
+          <div className={styles.footerLeft}>
+            <input 
+              type="file" 
+              accept=".xlsx, .xls" 
+              ref={fileInputRef} 
+              style={{ display: 'none' }} 
+              onChange={handleFileUpload} 
+            />
+            <button className={styles.btnImport} onClick={() => fileInputRef.current.click()}>
+              <FileUp size={18} /> Import câu hỏi
+            </button>
+          </div>
+          <div className={styles.footerRight}>
+            <button className={styles.btnCancel} onClick={onClose}>Hủy bỏ</button>
+            <button className={styles.btnSave} onClick={handleSubmit}>Lưu quiz</button>
+          </div>
         </div>
 
       </div>
